@@ -56,6 +56,7 @@ Ecoruta/
 │   ├── capacitor.config.json (webDir: "www")
 │   └── package.json          dependencias de Capacitor
 ├── docs/
+│   ├── PLAN.md               tareas por bloques (qué construir y en qué orden)
 │   └── BITACORA.md           registro de avance (ver reglas abajo)
 ├── docker-compose.yml
 ├── .env.example              variables sin claves reales
@@ -131,6 +132,8 @@ Ecoruta/
   términos técnicos estándar en inglés (controller, service, entity).
 - Un integrante por rama; cambios a `main` mediante pull request.
 - Commits pequeños con mensajes descriptivos en español.
-- **Al terminar cada tarea, agrega una entrada en `docs/BITACORA.md`** con: qué
+- Las tareas están en `docs/PLAN.md`, divididas en bloques. Haz un bloque a la
+  vez; al terminarlo márcalo con ✅ y espera aprobación para el siguiente.
+- **Al terminar cada bloque, agrega una entrada en `docs/BITACORA.md`** con: qué
   se hizo, decisiones técnicas tomadas y pendientes. La planificación se hace
-  en otra conversación que lee esa bitácora.
+  en otra conversación que lee esa bitácora y ajusta el plan.
