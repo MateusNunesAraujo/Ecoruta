@@ -8,6 +8,7 @@ node_modules/
 
 # Compilados de NestJS
 backend/dist/
+*.tsbuildinfo
 
 # Capacitor / Android (archivos generados y locales)
 frontend/android/.gradle/
