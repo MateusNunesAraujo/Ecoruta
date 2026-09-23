@@ -1,0 +1,26 @@
+# Servicios de desarrollo. Uso (desde la raíz del repositorio):
+#   docker compose up -d     -> levanta PostgreSQL en segundo plano
+#   docker compose down      -> lo apaga (los datos se conservan en el volumen)
+# Las credenciales se leen del archivo .env de la raíz.
+
+services:
+  postgres:
+    image: postgres:16-alpine
+    container_name: ecoruta-postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: ${DB_USER}
+      POSTGRES_PASSWORD: ${DB_PASSWORD}
+      POSTGRES_DB: ${DB_NAME}
+    ports:
+      - "${DB_PORT:-5432}:5432"
+    volumes:
+      - ecoruta-pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${DB_USER} -d ${DB_NAME}"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+volumes:
+  ecoruta-pgdata:

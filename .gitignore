@@ -1,0 +1,35 @@
+# Dependencias
+node_modules/
+
+# Variables de entorno (claves y secretos)
+.env
+.env.*
+!.env.example
+
+# Compilados de NestJS
+backend/dist/
+*.tsbuildinfo
+
+# Capacitor / Android (archivos generados y locales)
+frontend/android/.gradle/
+frontend/android/app/build/
+frontend/android/build/
+frontend/android/local.properties
+frontend/android/app/src/main/assets/public/
+*.apk
+*.aab
+*.keystore
+
+# Preferencias personales de Claude Code
+CLAUDE.local.md
+.claude/settings.local.json
+
+# Registros y temporales
+*.log
+npm-debug.log*
+coverage/
+
+# Sistema operativo y editor
+.DS_Store
+Thumbs.db
+.idea/
