@@ -12,6 +12,64 @@ Registro de avance. Cada entrada nueva va arriba (la más reciente primero).
 
 ---
 
+### 2026-09-29 — Bloque 5: Frontend web
+**Hecho:**
+- Frontend en `frontend/www/` con HTML, CSS y JavaScript puros (módulos ES
+  nativos, sin framework ni bundler), mobile-first. NestJS lo sirve en `/`
+  con `@nestjs/serve-static`; la API sigue en `/api`.
+- Pantallas (rutas con `#`): inicio con selector de idioma (`#/`), chat
+  (`#/chat`), catálogo con filtro por interés (`#/experiencias`), detalle con
+  disponibilidad, formulario de reserva y saludos en la lengua de la
+  comunidad (`#/experiencia/EXP-01`), lenguas y fichas con audio
+  (`#/lenguas`, `#/lenguas/L-TIK`), estado de la reserva con cuenta
+  regresiva y cancelar (`#/reserva/<id>`), mis reservas (`#/reservas`).
+- Interfaz completa en es/en/pt (121 textos, revisado que estén en los tres).
+- Chat: dibuja las 5 tarjetas del agente; la tarjeta `formulario_reserva`
+  envía los datos directo a `POST /api/reservas`.
+- Backend: `GET /api/cultural/lenguas` (lenguas con su número de fichas
+  VERIFICADA, incluida Yagua con 0).
+- `js/config.js`: URL de la API (web vs app) y tasa COP/BRL.
+- Probado con Chrome headless emulando un celular (390×844) por el protocolo
+  de DevTools: todas las pantallas sin desborde horizontal y sin errores de
+  JavaScript; flujo completo en inglés (chat → ficha tikuna → formulario en
+  el chat → reserva con cuenta regresiva → cancelar), detalle en portugués
+  llegando con fecha desde el chat, y vista de escritorio (1280 px).
+  Se borró la reserva de prueba.
+
+**Decisiones:**
+- Todo el contenido se inserta como texto (`el()` en `js/dom.js`), nunca con
+  `innerHTML`: la respuesta del LLM y los datos del Excel no pueden inyectar
+  código.
+- Rutas con `#`: funcionan igual en la web y en la app Android sin configurar
+  el servidor.
+- Precios en COP con referencia en reales (`≈ R$ 82`) por la triple frontera.
+- En las fichas, el texto indígena lleva `lang` con su código ISO 639-3
+  (tikuna `tca`, murui `huu`, yagua `yad`, miraña y bora `boa`) para los
+  lectores de pantalla. El chat usa `aria-live`.
+- Audios con ruta relativa (`audio/…`): en la app irán dentro del APK y
+  sonarán sin señal.
+- La conversación del chat se guarda en `sessionStorage` y solo se envía el
+  texto de los últimos 10 mensajes. En `localStorage` solo se guardan el
+  idioma y los ids de las reservas (no nombre ni email).
+- La cuenta regresiva no recarga en bucle si el reloj del teléfono está
+  adelantado respecto al servidor.
+- Chrome headless no baja de 500 px de ancho: para probar a tamaño de
+  celular hay que emular el dispositivo con DevTools (no basta
+  `--window-size`).
+
+**Pendiente:**
+- ⚠️ Verificar la tasa `COP_POR_BRL = 730` de `js/config.js` antes de la demo
+  (es aproximada, no oficial).
+- Campos que el Excel solo tiene en español (`incluye`, `no_incluye`,
+  `que_llevar`, `cancelacion`, `contexto`, `permiso_uso`) se muestran en
+  español aunque la interfaz esté en inglés o portugués.
+- Bloque 6: el botón de pagar en la pantalla de la reserva (hoy dice "el
+  pago estará disponible muy pronto").
+- Bloque 7: Service Worker y manifest (no se incluyeron todavía).
+- Un archivo estático inexistente devuelve `index.html` (comportamiento por
+  defecto de `ServeStaticModule`); revisar al hacer el Service Worker.
+- Fotos: el Excel no trae fotos, las tarjetas no tienen imagen.
+
 ### 2026-09-29 — Ajustes al Bloque 4 y nuevo orden del plan
 **Hecho:**
 - Push de `feat/agente`.

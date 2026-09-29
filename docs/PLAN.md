@@ -49,7 +49,7 @@ NestJS + TypeORM conectado a PostgreSQL con Docker Compose, `.env.example`.
 El hackathon es el 30 de septiembre: se hacen en este orden. Los números
 de bloque se mantienen porque la bitácora y el código los usan.
 
-## Bloque 5 — Frontend web · prioridad 1
+## ✅ Bloque 5 — Frontend web · prioridad 1
 - Mobile-first, en `frontend/www/`, servido por NestJS.
 - Pantallas: inicio con selector de idioma, chat, catálogo, detalle de
   emprendimiento, ficha cultural (con audio), estado de la reserva.
