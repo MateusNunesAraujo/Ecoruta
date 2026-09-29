@@ -12,6 +12,63 @@ Registro de avance. Cada entrada nueva va arriba (la más reciente primero).
 
 ---
 
+### 2026-09-28 — Bloque 3: Reservas
+**Hecho:**
+- Módulo `reservas/` con entity `Reserva` (experiencia, fecha, personas,
+  precio unitario y total, estado, `expiraEn`, nombre/email/teléfono del
+  turista, idioma).
+- Endpoints: `GET /api/reservas/disponibilidad?experiencia=&fecha=`,
+  `POST /api/reservas` (crea en `PENDIENTE_PAGO`), `GET /api/reservas/:id`,
+  `POST /api/reservas/:id/cancelar`.
+- Tarea programada (`@nestjs/schedule`) que cada minuto pasa a `EXPIRADA` las
+  `PENDIENTE_PAGO` vencidas.
+- `ValidationPipe` global + DTO `CrearReservaDto` (`class-validator`).
+- Seed: conserva experiencias/emprendimientos con reservas aunque ya no estén
+  en el Excel (aviso), en vez de fallar.
+- `.gitignore`: `docs/datos/` y `frontend/www/audio/` (se comparten fuera de
+  Git porque el repositorio es público).
+- Probado con la API: 20 reservas simultáneas para 10 cupos → exactamente 10
+  creadas y 10 rechazadas (409), sin sobreventa. Disponibilidad (fecha pasada,
+  día que no opera, EXP-05 sin precio), validación (400), cupos insuficientes
+  (409), cancelar, vencimiento (el cupo se libera al instante; la tarea la
+  marcó EXPIRADA en < 1 min), restricciones CHECK con inserts directos en SQL.
+  21 pruebas unitarias pasan. Los datos de prueba se borraron.
+
+**Decisiones:**
+- Se reserva una **experiencia** (no un emprendimiento): es la que tiene
+  capacidad y precio desde el Bloque 2.
+- Sin sobreventa: dentro de una transacción se bloquea la fila de la
+  experiencia (`SELECT … FOR UPDATE`, `pessimistic_write`); una reserva
+  simultánea espera y luego cuenta los cupos con la anterior ya guardada.
+- Restricciones CHECK en PostgreSQL: `personas >= 1`, `estado` válido y
+  `totalCop = personas * precioUnitarioCop`. Índice por (experiencia, fecha).
+- Cupos ocupados = CONFIRMADA + PENDIENTE_PAGO no vencidas: una pendiente
+  vencida libera el cupo en el acto, sin depender de la tarea programada.
+- Una fecha no es reservable si: falta capacidad o precio (`NO_RESERVABLE`),
+  ya pasó (`FECHA_PASADA`), es hoy y ya pasó la hora de salida (`YA_SALIO`),
+  no está en `dias_operacion` (`DIA_NO_OPERA`), está bloqueada
+  (`FECHA_BLOQUEADA`) o no hay cupos (`SIN_CUPOS`). Los códigos son para que
+  el frontend y el agente los traduzcan a es/en/pt.
+- "Hoy" se calcula en hora de Colombia (`America/Bogota`), no la del servidor.
+- 15 minutos para pagar (`MINUTOS_PARA_PAGAR` en `reserva.entity.ts`).
+- Precio guardado al momento de reservar (si el Excel cambia, no afecta).
+- Id de la reserva = UUID (no se pueden adivinar reservas ajenas). Email y
+  teléfono no salen en las respuestas (`select: false`).
+- Solo se cancela una `PENDIENTE_PAGO`. Una `CONFIRMADA` responde 409 con la
+  política de cancelación: el reembolso se verá con los pagos (Bloque 6).
+- Errores: formato inválido → 400; no se puede reservar → 409 con `motivo`.
+
+**Pendiente:**
+- Bloque 6: el webhook solo debe confirmar reservas que sigan en
+  `PENDIENTE_PAGO`; si el pago llega después de vencer, decidir qué hacer
+  (¿confirmar si aún hay cupo o reembolsar?).
+- El agente (Bloque 4) enviará datos del turista a `crear_reserva`: por la
+  regla 3, que esos datos no pasen por el LLM (pedirlos en un formulario).
+- Cada integrante debe copiar el Excel en `docs/datos/` y los audios en
+  `frontend/www/audio/` antes de `npm run seed`.
+- La rama `feat/reservas` sale de `feat/emprendimientos`: fusionar primero el
+  PR del Bloque 1-2.
+
 ### 2026-09-28 — Bloque 2: Contenido cultural + datos reales del Excel
 **Hecho:**
 - Seed nuevo (`backend/src/seed/`, `npm run seed`) que lee

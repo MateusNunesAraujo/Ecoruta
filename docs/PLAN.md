@@ -27,7 +27,7 @@ NestJS + TypeORM conectado a PostgreSQL con Docker Compose, `.env.example`.
   con estado `PENDIENTE`. El contenido real lo cargan personas del equipo
   desde fuentes verificadas (Memoria Viva, SINCHI, Laboratorio de Lenguas UNAL).
 
-## Bloque 3 — Reservas (24–25 sep)
+## ✅ Bloque 3 — Reservas (24–25 sep)
 - Entidad `Reserva`: emprendimiento, fecha, número de personas, datos mínimos
   del turista, idioma, estado, fecha de expiración.
 - Consultar disponibilidad por fecha (capacidad − cupos ocupados).
