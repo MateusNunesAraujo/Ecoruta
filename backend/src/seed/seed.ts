@@ -92,6 +92,41 @@ async function seed() {
       await manager.insert(FechaBloqueada, datos.fechasBloqueadas);
     }
 
+    // Experiencias con reservas no se borran aunque ya no estén en el Excel
+    // (tampoco su emprendimiento): se perdería el historial de reservas.
+    const conReservas = await manager.query<
+      { experienciaId: string; emprendimientoId: string }[]
+    >(`SELECT DISTINCT r."experienciaId", e."emprendimientoId"
+       FROM reservas r JOIN experiencias e ON e.id = r."experienciaId"`);
+    const conservar = (
+      vigentes: string[],
+      protegidos: string[],
+      hoja: string,
+    ): string[] => {
+      const extra = [...new Set(protegidos)].filter(
+        (id) => !vigentes.includes(id),
+      );
+      for (const id of extra) {
+        problemas.aviso(
+          hoja,
+          null,
+          id,
+          'Ya no está en el Excel, pero tiene reservas: no se borró.',
+        );
+      }
+      return [...vigentes, ...extra];
+    };
+    const experienciasVigentes = conservar(
+      ids(datos.experiencias),
+      conReservas.map((r) => r.experienciaId),
+      'Experiencias',
+    );
+    const emprendimientosVigentes = conservar(
+      ids(datos.emprendimientos),
+      conReservas.map((r) => r.emprendimientoId),
+      'Emprendimientos',
+    );
+
     // Borrar lo que ya no está en el Excel (primero las tablas "hijas").
     return {
       fichas: await borrarAusentes(manager, FichaCultural, ids(datos.fichas)),
@@ -103,12 +138,12 @@ async function seed() {
       experiencias: await borrarAusentes(
         manager,
         Experiencia,
-        ids(datos.experiencias),
+        experienciasVigentes,
       ),
       emprendimientos: await borrarAusentes(
         manager,
         Emprendimiento,
-        ids(datos.emprendimientos),
+        emprendimientosVigentes,
       ),
       comunidades: await borrarAusentes(
         manager,
@@ -144,6 +179,7 @@ async function seed() {
     ['fichas_culturales', 'Fichas culturales', borrados.fichas],
     ['fichas_experiencias', 'Enlaces ficha-experiencia', undefined],
     ['preguntas_frecuentes', 'Preguntas frecuentes', borrados.preguntas],
+    ['reservas', 'Reservas (intactas)', undefined],
   ];
   for (const [tabla, etiqueta, borradas] of tablas) {
     const extra = borradas

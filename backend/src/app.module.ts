@@ -1,11 +1,13 @@
 import { Module } from '@nestjs/common';
 import { ConfigModule, ConfigService } from '@nestjs/config';
+import { ScheduleModule } from '@nestjs/schedule';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { AppController } from './app.controller.js';
 import { AppService } from './app.service.js';
 import { CulturalModule } from './cultural/cultural.module.js';
 import { EmprendimientosModule } from './emprendimientos/emprendimientos.module.js';
 import { FaqModule } from './faq/faq.module.js';
+import { ReservasModule } from './reservas/reservas.module.js';
 
 @Module({
   imports: [
@@ -35,9 +37,13 @@ import { FaqModule } from './faq/faq.module.js';
       }),
     }),
 
+    // Activa las tareas programadas (@Cron), ej. expirar reservas vencidas.
+    ScheduleModule.forRoot(),
+
     EmprendimientosModule,
     CulturalModule,
     FaqModule,
+    ReservasModule,
   ],
   controllers: [AppController],
   providers: [AppService],
