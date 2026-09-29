@@ -1,11 +1,16 @@
 import { Logger, Module } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
+import { ThrottlerModule } from '@nestjs/throttler';
 import { CulturalModule } from '../cultural/cultural.module.js';
 import { EmprendimientosModule } from '../emprendimientos/emprendimientos.module.js';
 import { ReservasModule } from '../reservas/reservas.module.js';
 import { AgenteController } from './agente.controller.js';
 import { AgenteService } from './agente.service.js';
 import { HerramientasAgente } from './herramientas.js';
+import {
+  LIMITES_AGENTE,
+  LimitePeticionesGuard,
+} from './limite-peticiones.guard.js';
 import { GeminiProvider } from './providers/gemini.provider.js';
 import { GroqProvider } from './providers/groq.provider.js';
 import {
@@ -66,11 +71,18 @@ function crearProveedores(config: ConfigService): LlmProvider[] {
 }
 
 @Module({
-  imports: [EmprendimientosModule, CulturalModule, ReservasModule],
+  imports: [
+    EmprendimientosModule,
+    CulturalModule,
+    ReservasModule,
+    // Guarda en memoria cuántos mensajes envió cada IP.
+    ThrottlerModule.forRoot(LIMITES_AGENTE),
+  ],
   controllers: [AgenteController],
   providers: [
     AgenteService,
     HerramientasAgente,
+    LimitePeticionesGuard,
     {
       provide: LLM_PROVIDER,
       inject: [ConfigService],
