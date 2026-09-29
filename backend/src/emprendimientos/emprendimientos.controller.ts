@@ -1,42 +1,25 @@
-import {
-  BadRequestException,
-  Controller,
-  Get,
-  Param,
-  ParseIntPipe,
-  Query,
-} from '@nestjs/common';
+import { Controller, Get, Param } from '@nestjs/common';
 import { Emprendimiento } from './emprendimiento.entity.js';
 import { EmprendimientosService } from './emprendimientos.service.js';
-import { INTERESES, type Interes } from './intereses.js';
 
 // Con el prefijo global, estas rutas quedan en /api/emprendimientos.
+// El filtro por interés está en /api/experiencias (los intereses son de cada
+// experiencia, no del emprendimiento).
 @Controller('emprendimientos')
 export class EmprendimientosController {
   constructor(
     private readonly emprendimientosService: EmprendimientosService,
   ) {}
 
-  // GET /api/emprendimientos            -> todos
-  // GET /api/emprendimientos?interes=aves -> filtrados por interés
+  // GET /api/emprendimientos
   @Get()
-  listar(@Query('interes') interes?: string): Promise<Emprendimiento[]> {
-    if (interes === undefined) {
-      return this.emprendimientosService.listar();
-    }
-    const normalizado = interes.trim().toLowerCase();
-    if (!INTERESES.includes(normalizado as Interes)) {
-      throw new BadRequestException(
-        `Interés no válido. Valores posibles: ${INTERESES.join(', ')}`,
-      );
-    }
-    return this.emprendimientosService.listar(normalizado as Interes);
+  listar(): Promise<Emprendimiento[]> {
+    return this.emprendimientosService.listar();
   }
 
-  // GET /api/emprendimientos/3
-  // ParseIntPipe convierte "3" en número y responde 400 si no lo es.
+  // GET /api/emprendimientos/EMP-01 -> incluye comunidad y experiencias
   @Get(':id')
-  obtenerPorId(@Param('id', ParseIntPipe) id: number): Promise<Emprendimiento> {
-    return this.emprendimientosService.obtenerPorId(id);
+  obtenerPorId(@Param('id') id: string): Promise<Emprendimiento> {
+    return this.emprendimientosService.obtenerPorId(id.trim().toUpperCase());
   }
 }

@@ -1,69 +1,65 @@
 import {
   Column,
-  CreateDateColumn,
   Entity,
-  PrimaryGeneratedColumn,
-  UpdateDateColumn,
+  JoinColumn,
+  ManyToOne,
+  OneToMany,
+  PrimaryColumn,
+  type Relation,
 } from 'typeorm';
-import type { Interes } from './intereses.js';
+import { Comunidad } from './comunidad.entity.js';
+import { Experiencia } from './experiencia.entity.js';
 
-// Cada propiedad con @Column es una columna de la tabla "emprendimientos".
+// Hoja "Emprendimientos". Solo se cargan los que autorizaron aparecer
+// (consentimiento = Si, Ley 1581 de 2012).
 @Entity('emprendimientos')
 export class Emprendimiento {
-  @PrimaryGeneratedColumn()
-  id!: number;
+  @PrimaryColumn({ length: 20 })
+  id!: string;
 
-  @Column({ length: 120 })
+  @Column({ length: 160 })
   nombre!: string;
 
-  @Column({ length: 120 })
-  comunidad!: string;
+  // Puede estar vacía: reservas privadas (EMP-03, EMP-04, EMP-08).
+  @Column('varchar', { length: 20, nullable: true })
+  comunidadId!: string | null;
 
-  // Descripción en los tres idiomas de los turistas.
-  @Column('text')
-  descripcionEs!: string;
+  @ManyToOne(() => Comunidad, (comunidad) => comunidad.emprendimientos, {
+    nullable: true,
+    onDelete: 'SET NULL',
+  })
+  @JoinColumn({ name: 'comunidadId' })
+  comunidad!: Relation<Comunidad> | null;
 
-  @Column('text')
-  descripcionEn!: string;
+  @Column('varchar', { length: 120, nullable: true })
+  responsable!: string | null;
 
-  @Column('text')
-  descripcionPt!: string;
+  @Column('varchar', { length: 40, nullable: true })
+  whatsapp!: string | null;
 
-  // Lista de PostgreSQL (text[]), ej. {aves,caminata}.
+  @Column('text', { nullable: true })
+  descripcionEs!: string | null;
+
+  @Column('text', { nullable: true })
+  descripcionEn!: string | null;
+
+  @Column('text', { nullable: true })
+  descripcionPt!: string | null;
+
+  // Ej. {Español,Tikuna}
   @Column('text', { array: true, default: () => "'{}'" })
-  intereses!: Interes[];
+  idiomasGuias!: string[];
 
-  // El peso colombiano no usa centavos: entero.
-  @Column('integer')
-  precioBaseCop!: number;
+  @Column('text', { array: true, default: () => "'{}'" })
+  fotos!: string[];
 
-  @Column('integer')
-  duracionMinutos!: number;
+  @Column('date', { nullable: true })
+  fechaConsentimiento!: string | null;
 
-  // Cupos máximos por día. Lo usa el control de reservas (Bloque 3).
-  @Column('integer')
-  capacidadPorFecha!: number;
-
-  @Column('double precision')
-  latitud!: number;
-
-  @Column('double precision')
-  longitud!: number;
-
-  // Teléfono o WhatsApp del emprendimiento.
-  @Column({ length: 120 })
-  contacto!: string;
-
-  @Column('varchar', { length: 500, nullable: true })
-  fotoUrl!: string | null;
-
-  // true = dato inventado para pruebas y demo, no un emprendimiento real.
+  // true = dato de ejemplo para la demo, no un emprendimiento real.
   @Column({ default: false })
-  esEjemplo!: boolean;
+  esFicticio!: boolean;
 
-  @CreateDateColumn()
-  creadoEn!: Date;
-
-  @UpdateDateColumn()
-  actualizadoEn!: Date;
+  @OneToMany(() => Experiencia, (experiencia) => experiencia.emprendimiento)
+  experiencias!: Relation<Experiencia[]>;
 }

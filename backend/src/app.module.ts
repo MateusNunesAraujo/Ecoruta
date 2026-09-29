@@ -3,7 +3,9 @@ import { ConfigModule, ConfigService } from '@nestjs/config';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { AppController } from './app.controller.js';
 import { AppService } from './app.service.js';
+import { CulturalModule } from './cultural/cultural.module.js';
 import { EmprendimientosModule } from './emprendimientos/emprendimientos.module.js';
+import { FaqModule } from './faq/faq.module.js';
 
 @Module({
   imports: [
@@ -34,6 +36,8 @@ import { EmprendimientosModule } from './emprendimientos/emprendimientos.module.
     }),
 
     EmprendimientosModule,
+    CulturalModule,
+    FaqModule,
   ],
   controllers: [AppController],
   providers: [AppService],
