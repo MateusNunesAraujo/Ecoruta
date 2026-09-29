@@ -186,7 +186,7 @@ export class MockProvider implements LlmProvider {
       return llamada('armar_itinerario', { intereses, dias });
     }
     if (intereses.length > 0) {
-      return llamada('buscar_emprendimientos', { intereses });
+      return llamada('buscar_experiencias', { intereses });
     }
     return null;
   }
@@ -202,7 +202,7 @@ export class MockProvider implements LlmProvider {
       );
 
     switch (resultado.nombre) {
-      case 'buscar_emprendimientos': {
+      case 'buscar_experiencias': {
         const n = Array.isArray(r.experiencias) ? r.experiencias.length : 0;
         return {
           texto: n ? t('encontradas', { n }) : t('sinResultados'),

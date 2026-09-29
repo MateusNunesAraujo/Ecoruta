@@ -26,7 +26,7 @@ const peticion: PeticionLlm = {
   idioma: 'es',
   herramientas: [
     {
-      nombre: 'buscar_emprendimientos',
+      nombre: 'buscar_experiencias',
       descripcion: 'Busca',
       parametros: { type: 'object', properties: {}, required: [] },
     },
@@ -39,7 +39,7 @@ const peticion: PeticionLlm = {
       llamadas: [
         {
           id: 'c1',
-          nombre: 'buscar_emprendimientos',
+          nombre: 'buscar_experiencias',
           argumentos: { intereses: ['aves'] },
         },
       ],
@@ -48,7 +48,7 @@ const peticion: PeticionLlm = {
         parts: [
           {
             functionCall: {
-              name: 'buscar_emprendimientos',
+              name: 'buscar_experiencias',
               args: { intereses: ['aves'] },
             },
             thoughtSignature: 'firma-123',
@@ -59,7 +59,7 @@ const peticion: PeticionLlm = {
     {
       tipo: 'resultado',
       llamadaId: 'c1',
-      nombre: 'buscar_emprendimientos',
+      nombre: 'buscar_experiencias',
       resultado: { experiencias: [] },
     },
   ],
@@ -82,7 +82,7 @@ describe('GeminiProvider', () => {
     const cuerpo = f.json();
     expect(cuerpo.systemInstruction.parts[0].text).toBe('Eres un asistente');
     expect(cuerpo.tools[0].functionDeclarations[0].name).toBe(
-      'buscar_emprendimientos',
+      'buscar_experiencias',
     );
     expect(cuerpo.contents[1].parts[0].thoughtSignature).toBe('firma-123');
     expect(cuerpo.contents[2]).toEqual({
@@ -90,7 +90,7 @@ describe('GeminiProvider', () => {
       parts: [
         {
           functionResponse: {
-            name: 'buscar_emprendimientos',
+            name: 'buscar_experiencias',
             response: { resultado: { experiencias: [] } },
           },
         },
@@ -191,12 +191,12 @@ describe('MockProvider', () => {
     mock.generar({ ...peticion, turnos: [{ tipo: 'usuario', texto }] });
 
   it.each([
-    ['Quiero ver delfines', 'buscar_emprendimientos'],
+    ['Quiero ver delfines', 'buscar_experiencias'],
     ['How do you say thank you in Tikuna?', 'obtener_contenido_cultural'],
     ['Arma un itinerario de 3 días con aves', 'armar_itinerario'],
     ['Quiero reservar EXP-01 el 2026-10-05 para 2 personas', 'crear_reserva'],
     ['¿Hay cupo en EXP-02 el 2026-10-07?', 'consultar_disponibilidad'],
-    ['Me interesan las plantas medicinales', 'buscar_emprendimientos'],
+    ['Me interesan las plantas medicinales', 'buscar_experiencias'],
   ])('"%s" -> %s', async (texto, herramienta) => {
     expect((await preguntar(texto)).llamadas[0]?.nombre).toBe(herramienta);
   });

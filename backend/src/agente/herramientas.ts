@@ -66,7 +66,7 @@ export class HerramientasAgente {
     };
     return [
       {
-        nombre: 'buscar_emprendimientos',
+        nombre: 'buscar_experiencias',
         descripcion:
           'Busca experiencias turísticas de emprendimientos locales según los ' +
           'intereses del turista. Si se da una fecha, solo devuelve las ' +
@@ -154,7 +154,7 @@ export class HerramientasAgente {
   ): Promise<ResultadoHerramienta> {
     try {
       switch (nombre) {
-        case 'buscar_emprendimientos':
+        case 'buscar_experiencias':
           return await this.buscar(argumentos, idioma);
         case 'consultar_disponibilidad':
           return await this.disponibilidad(argumentos);
