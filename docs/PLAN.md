@@ -35,7 +35,7 @@ NestJS + TypeORM conectado a PostgreSQL con Docker Compose, `.env.example`.
 - Expirar reservas pendientes después de ~15 minutos.
 - Endpoints: disponibilidad, crear, consultar por id, cancelar.
 
-## Bloque 4 — Agente conversacional (25–26 sep)
+## ✅ Bloque 4 — Agente conversacional (25–26 sep)
 - Interfaz `LlmProvider` + `MockProvider` primero, luego `GeminiProvider` y
   `GroqProvider`. Selección con `LLM_PROVIDER`.
 - Herramientas del agente (ver CLAUDE.md) conectadas a los servicios de los

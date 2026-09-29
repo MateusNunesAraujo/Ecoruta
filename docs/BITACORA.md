@@ -12,6 +12,64 @@ Registro de avance. Cada entrada nueva va arriba (la más reciente primero).
 
 ---
 
+### 2026-09-28 — Bloque 4: Agente conversacional
+**Hecho:**
+- Módulo `agente/` con `POST /api/agente/mensaje`
+  (`{ mensaje, idioma?, historial? }` → `{ idioma, texto, tarjetas, proveedor }`).
+- Interfaz `LlmProvider` (formato neutro de conversación) y tres
+  implementaciones en `agente/providers/`: `GeminiProvider` (REST
+  `generateContent`), `GroqProvider` (API compatible con OpenAI) y
+  `MockProvider` (por palabras clave, sin red ni cuota). Se elige con
+  `LLM_PROVIDER`; modelos configurables con `GEMINI_MODEL` / `GROQ_MODEL`.
+- Herramientas: `buscar_emprendimientos`, `consultar_disponibilidad`,
+  `armar_itinerario`, `crear_reserva`, `obtener_contenido_cultural`,
+  conectadas a los services de los Bloques 1-3.
+- Tarjetas para el frontend: `experiencia`, `ficha_cultural`,
+  `disponibilidad`, `itinerario`, `formulario_reserva`.
+- Detección de idioma (es/en/pt) por palabras típicas, sin LLM.
+- Probado: 50 pruebas unitarias (idioma, datos personales, formato de Gemini
+  y Groq con fetch simulado, MockProvider, y que el LLM no reciba el texto de
+  las fichas). Con la API y el Mock: conversaciones en es/en/pt con cada
+  herramienta, validación del cuerpo (400). Con claves inventadas contra las
+  APIs reales: Gemini falla → Groq falla → 503 con mensaje amable. Sin clave,
+  la app no arranca y dice qué falta.
+
+**Decisiones:**
+- Regla 2 en el código: cada herramienta devuelve `paraModelo` (lo mínimo) y
+  `tarjetas` (datos completos al frontend). De una ficha, el LLM solo recibe
+  su id y la lengua; nunca el texto indígena, la pronunciación ni el audio.
+- Regla 3: `crear_reserva` NO crea la reserva ni pide datos: muestra una
+  tarjeta `formulario_reserva` y el frontend llama a `POST /api/reservas`.
+  Emails y teléfonos escritos en el chat se reemplazan por `[email]` /
+  `[teléfono]` antes de enviarlos al LLM. (Cambia lo que decía CLAUDE.md:
+  "crear_reserva → devuelve reserva en PENDIENTE_PAGO".)
+- Regla 1: el prompt lo prohíbe y, además, el LLM nunca ve textos indígenas.
+- Sin estado en el servidor: el frontend reenvía los últimos mensajes
+  (máx. 10 al LLM, 20 aceptados).
+- Respaldo: `gemini` → `groq` (y al revés) si hay clave del otro. Tras la
+  primera respuesta se sigue con el mismo proveedor dentro del mensaje.
+- Gemini 3 exige devolver la `thoughtSignature`: se guarda la respuesta
+  original (`crudo`) y se reenvía igual.
+- Modelos por defecto (docs consultadas el 2026-09-28):
+  `gemini-3.5-flash-lite` y `llama-3.3-70b-versatile`.
+- Proveedores con `fetch` directo (sin SDK): cero dependencias nuevas y se
+  prueban con un fetch simulado.
+- Máximo 4 vueltas herramienta ↔ LLM por mensaje.
+- Términos de Gemini (nivel gratuito): Google usa los datos para mejorar sus
+  productos y personas pueden leerlos → confirma las reglas 2 y 3.
+
+**Pendiente:**
+- Probar Gemini y Groq con claves reales (el formato está probado con
+  respuestas simuladas; con clave inválida la API real respondió 400/401).
+- `generar_enlace_pago` se agrega en el Bloque 6 (Wompi).
+- Limitar peticiones por IP (ej. `@nestjs/throttler`) antes de publicar: el
+  endpoint consume la cuota gratuita del LLM.
+- Actualizar en CLAUDE.md la descripción de `crear_reserva` y agregar
+  `consultar_disponibilidad(experienciaId, fecha)` (antes decía
+  emprendimientoId).
+- Los mensajes de disponibilidad (`mensaje`) están en español; el frontend
+  debe traducir usando el código `motivo`.
+
 ### 2026-09-28 — Bloque 3: Reservas
 **Hecho:**
 - Módulo `reservas/` con entity `Reserva` (experiencia, fecha, personas,
