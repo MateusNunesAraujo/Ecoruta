@@ -3,6 +3,7 @@ import { ConfigModule, ConfigService } from '@nestjs/config';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { AppController } from './app.controller.js';
 import { AppService } from './app.service.js';
+import { EmprendimientosModule } from './emprendimientos/emprendimientos.module.js';
 
 @Module({
   imports: [
@@ -31,6 +32,8 @@ import { AppService } from './app.service.js';
         synchronize: config.get<string>('DB_SYNCHRONIZE') === 'true',
       }),
     }),
+
+    EmprendimientosModule,
   ],
   controllers: [AppController],
   providers: [AppService],

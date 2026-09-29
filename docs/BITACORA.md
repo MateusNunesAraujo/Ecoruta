@@ -12,6 +12,48 @@ Registro de avance. Cada entrada nueva va arriba (la más reciente primero).
 
 ---
 
+### 2026-09-23 — Bloque 1: Emprendimientos
+**Hecho:**
+- Prefijo global `/api` en `main.ts`.
+- Módulo `emprendimientos/` (generado con `nest g`) con entity `Emprendimiento`,
+  service y controller.
+- Endpoints: `GET /api/emprendimientos` (filtro opcional `?interes=`) y
+  `GET /api/emprendimientos/:id`.
+- Seed con 6 emprendimientos ficticios (`esEjemplo = true`): `npm run seed`
+  dentro de `backend/`.
+- Probado con la API corriendo: listar, filtrar, interés inválido (400),
+  id inexistente (404), id no numérico (400). El seed se ejecutó dos veces
+  sin duplicar filas. Lint y pruebas pasan.
+- Verificada la conexión real del Bloque 0 (quedaba pendiente).
+
+**Decisiones:**
+- Descripción en 3 columnas (`descripcionEs/En/Pt`) en vez de JSON: más simple
+  de leer y consultar.
+- `intereses` como `text[]` de PostgreSQL, filtrado con `ArrayContains` (`@>`).
+  Lista fija en `intereses.ts` (aves, delfines, gastronomia, artesanias,
+  caminata), sin tildes; el filtro acepta mayúsculas. El agente usará la misma
+  lista.
+- Precio en COP entero (`precioBaseCop`) y duración en minutos enteros.
+- Seed idempotente: en una transacción borra solo `esEjemplo = true` y vuelve a
+  insertar; nunca toca emprendimientos reales. Usa `createApplicationContext`
+  para reutilizar la conexión y el `.env` de la API.
+- Datos de ejemplo con comunidades inventadas ("Comunidad Ejemplo …"),
+  teléfonos falsos y sin palabras en lenguas indígenas, para no atribuir a
+  comunidades reales ofertas que no han confirmado.
+- `EmprendimientosService` se exporta para que lo use el agente (Bloque 4).
+
+**Pendiente:**
+- El seed cambia los `id` en cada ejecución. Cuando existan reservas
+  (Bloque 3) que apunten a emprendimientos, habrá que decidir si el seed
+  también limpia reservas de ejemplo o si actualiza en vez de borrar.
+- Falta la referencia de precio en BRL (CLAUDE.md); probablemente en el
+  frontend (Bloque 5).
+- Las fotos (`fotoUrl`) están vacías en los datos de ejemplo.
+- Choque de puertos: si hay PostgreSQL instalado en Windows ocupando el 5432,
+  la API se conecta a ese en vez del de Docker y falla la contraseña. Solución
+  local: `DB_PORT=5433` en `.env` y volver a hacer `docker compose up -d`.
+  Evaluar dejar 5433 como valor por defecto en `.env.example`.
+
 ### 2026-09-22 — Base del backend: PostgreSQL en Docker + NestJS con TypeORM
 **Hecho:**
 - `docker-compose.yml` en la raíz con PostgreSQL 16 (alpine), volumen con nombre

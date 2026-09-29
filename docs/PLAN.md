@@ -9,7 +9,7 @@ Claude Code: al terminar un bloque, márcalo con ✅ y registra la entrada en
 ## ✅ Bloque 0 — Base del proyecto
 NestJS + TypeORM conectado a PostgreSQL con Docker Compose, `.env.example`.
 
-## Bloque 1 — Emprendimientos (23 sep)
+## ✅ Bloque 1 — Emprendimientos (23 sep)
 - Entidad `Emprendimiento`: nombre, comunidad, descripción (es/en/pt),
   intereses (ej. aves, delfines, gastronomía, artesanías, caminata),
   precio base en COP, duración, capacidad por fecha, ubicación (lat/lng),
