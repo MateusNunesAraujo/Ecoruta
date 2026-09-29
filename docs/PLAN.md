@@ -45,32 +45,36 @@ NestJS + TypeORM conectado a PostgreSQL con Docker Compose, `.env.example`.
   (emprendimientos, fichas culturales, reservas).
 - Detección del idioma del turista (es/en/pt).
 
-## Bloque 5 — Frontend web (26–27 sep)
+## Pendientes, en orden de prioridad (actualizado el 29 sep)
+El hackathon es el 30 de septiembre: se hacen en este orden. Los números
+de bloque se mantienen porque la bitácora y el código los usan.
+
+## Bloque 5 — Frontend web · prioridad 1
 - Mobile-first, en `frontend/www/`, servido por NestJS.
 - Pantallas: inicio con selector de idioma, chat, catálogo, detalle de
   emprendimiento, ficha cultural (con audio), estado de la reserva.
 - Textos de la interfaz en es/en/pt.
 - `js/config.js` con la URL base de la API.
 
-## Bloque 6 — Pagos (27 sep)
+## Bloque 6 — Pagos · prioridad 2
 - Wompi en modo sandbox: generar enlace de pago para una reserva.
 - Webhook que cambia la reserva a `CONFIRMADA` al aprobarse el pago.
 - Verificar la documentación actual de Wompi antes de implementar.
 
-## Bloque 7 — Modo offline (28 sep)
+## Bloque 9 — Despliegue y demo · prioridad 3
+- Desplegar backend + base de datos en un servicio con HTTPS.
+- Código QR hacia la versión web.
+- Ensayo completo del guion de la demo.
+
+## Bloque 7 — Modo offline (mínimo) · prioridad 4
 - Service Worker (web), IndexedDB para catálogo y fichas culturales.
 - Cola de pre-reservas que se envía al recuperar la conexión.
 - Aviso y preguntas frecuentes cuando el chat no tiene señal.
 
-## Bloque 8 — App Android con Capacitor (28–29 sep)
+## Bloque 8 — App Android con Capacitor (opcional) · prioridad 5
 - Capacitor en `frontend/`, `webDir: "www"`, plataforma Android.
 - Plugins `@capacitor/network` y `@capacitor/browser`. CORS en NestJS.
 - Generar APK de prueba.
-
-## Bloque 9 — Despliegue y demo (29 sep)
-- Desplegar backend + base de datos en un servicio con HTTPS.
-- Código QR hacia la versión web.
-- Ensayo completo del guion de la demo.
 
 ---
 

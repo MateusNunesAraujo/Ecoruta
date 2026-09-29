@@ -12,6 +12,39 @@ Registro de avance. Cada entrada nueva va arriba (la más reciente primero).
 
 ---
 
+### 2026-09-29 — Ajustes al Bloque 4 y nuevo orden del plan
+**Hecho:**
+- Push de `feat/agente`.
+- Herramienta `buscar_emprendimientos` renombrada a `buscar_experiencias`
+  (código, pruebas y lo que recibe el LLM): devuelve experiencias.
+- CLAUDE.md: `buscar_experiencias`, `consultar_disponibilidad(experienciaId,
+  fecha)`, `crear_reserva` muestra un formulario y la reserva se crea al
+  enviarlo; se agregaron `faq/` y `seed/` a la estructura.
+- Límite de peticiones por IP en `POST /api/agente/mensaje` con
+  `@nestjs/throttler`: 10 por minuto y 100 por hora. Al superarlo responde
+  429 con un mensaje en el idioma del turista (es/en/pt). Solo aplica al
+  agente, no al catálogo ni a las reservas.
+- PLAN.md reordenado por prioridad (hackathon el 30 de septiembre):
+  Bloque 5 → 6 → 9 → 7 (offline mínimo) → 8 (Capacitor, opcional).
+- Probado: 12 mensajes seguidos → 10 respuestas 200 y luego 429 en
+  portugués; en inglés el 429 sale en inglés; 15 consultas seguidas al
+  catálogo → todas 200. 50 pruebas unitarias pasan.
+
+**Decisiones:**
+- Dos límites: por minuto (ráfagas) y por hora (abuso sostenido que agotaría
+  la cuota gratuita del LLM). Guardados en memoria: sirve con una sola
+  instancia del backend.
+- El guard extiende `ThrottlerGuard` y detecta el idioma con la misma
+  función del agente (`detectarIdioma`).
+- En el plan se conservan los números de bloque (la bitácora y el código los
+  citan); cambia el orden y se agrega la prioridad.
+
+**Pendiente:**
+- Bloque 9: detrás del proxy del hosting todas las peticiones llegan con la
+  IP del proxy; configurar `trust proxy` en Express para que el límite se
+  aplique por turista y no a todos juntos.
+- Probar Gemini y Groq con claves reales (el equipo avisará).
+
 ### 2026-09-28 — Bloque 4: Agente conversacional
 **Hecho:**
 - Módulo `agente/` con `POST /api/agente/mensaje`
