@@ -3,6 +3,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { In, Repository, type FindOptionsWhere } from 'typeorm';
 import { TEMAS_CORTESIA } from './catalogos.js';
 import { FichaCultural } from './ficha-cultural.entity.js';
+import { Lengua } from './lengua.entity.js';
 
 // Todo lo que sale de este service es solo VERIFICADA: al turista nunca se le
 // entrega una ficha PENDIENTE.
@@ -13,7 +14,30 @@ export class CulturalService {
   constructor(
     @InjectRepository(FichaCultural)
     private readonly fichas: Repository<FichaCultural>,
+    @InjectRepository(Lengua)
+    private readonly lenguasRepo: Repository<Lengua>,
   ) {}
+
+  // Lenguas con cuántas fichas VERIFICADA tiene cada una.
+  async lenguas() {
+    const [lenguas, conteos] = await Promise.all([
+      this.lenguasRepo.find({ order: { id: 'ASC' } }),
+      this.fichas
+        .createQueryBuilder('f')
+        .select('f.lenguaId', 'lenguaId')
+        .addSelect('COUNT(*)', 'total')
+        .where('f.estado = :estado', { estado: VERIFICADA })
+        .groupBy('f.lenguaId')
+        .getRawMany<{ lenguaId: string; total: string }>(),
+    ]);
+    const porLengua = new Map(
+      conteos.map((c) => [c.lenguaId, Number(c.total)]),
+    );
+    return lenguas.map((lengua) => ({
+      ...lengua,
+      fichasVerificadas: porLengua.get(lengua.id) ?? 0,
+    }));
+  }
 
   listar(filtros: { lenguaId?: string; tema?: string; tipo?: string }) {
     // TypeORM 1.x no acepta "undefined" en el where: solo se agregan los

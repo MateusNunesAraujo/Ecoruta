@@ -16,6 +16,14 @@ export class CulturalController {
     });
   }
 
+  // GET /api/cultural/lenguas -> las 5 lenguas con su número de fichas
+  // VERIFICADA (incluye las que tienen 0, como yagua).
+  // Va antes de ":id" para que "lenguas" no se tome como un id de ficha.
+  @Get('lenguas')
+  lenguas() {
+    return this.culturalService.lenguas();
+  }
+
   // GET /api/cultural/FIC-01
   @Get(':id')
   obtener(@Param('id') id: string) {

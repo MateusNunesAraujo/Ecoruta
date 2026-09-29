@@ -1,6 +1,8 @@
 import { Module } from '@nestjs/common';
+import { resolve } from 'node:path';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { ScheduleModule } from '@nestjs/schedule';
+import { ServeStaticModule } from '@nestjs/serve-static';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { AppController } from './app.controller.js';
 import { AgenteModule } from './agente/agente.module.js';
@@ -40,6 +42,13 @@ import { ReservasModule } from './reservas/reservas.module.js';
 
     // Activa las tareas programadas (@Cron), ej. expirar reservas vencidas.
     ScheduleModule.forRoot(),
+
+    // Sirve el frontend (frontend/www) en "/". La API queda en "/api".
+    // npm ejecuta el backend desde backend/, por eso la ruta sube un nivel.
+    ServeStaticModule.forRoot({
+      rootPath: resolve(process.cwd(), '..', 'frontend', 'www'),
+      exclude: ['/api/{*ruta}'],
+    }),
 
     EmprendimientosModule,
     CulturalModule,
