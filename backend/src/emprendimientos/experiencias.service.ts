@@ -1,6 +1,6 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { ArrayContains, Repository } from 'typeorm';
+import { ArrayContains, ArrayOverlap, Repository } from 'typeorm';
 import { CulturalService } from '../cultural/cultural.service.js';
 import { Experiencia } from './experiencia.entity.js';
 import type { Interes } from './intereses.js';
@@ -18,6 +18,16 @@ export class ExperienciasService {
     return this.repositorio.find({
       // ArrayContains -> en SQL: intereses @> ARRAY['aves']
       where: interes ? { intereses: ArrayContains([interes]) } : {},
+      relations: { emprendimiento: { comunidad: true } },
+      order: { id: 'ASC' },
+    });
+  }
+
+  // Las que tienen AL MENOS UNO de los intereses (lo usa el agente).
+  buscarPorIntereses(intereses: Interes[]): Promise<Experiencia[]> {
+    return this.repositorio.find({
+      // ArrayOverlap -> en SQL: intereses && ARRAY['aves','fauna']
+      where: intereses.length ? { intereses: ArrayOverlap(intereses) } : {},
       relations: { emprendimiento: { comunidad: true } },
       order: { id: 'ASC' },
     });

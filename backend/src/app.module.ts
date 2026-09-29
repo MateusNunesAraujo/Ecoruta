@@ -3,6 +3,7 @@ import { ConfigModule, ConfigService } from '@nestjs/config';
 import { ScheduleModule } from '@nestjs/schedule';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { AppController } from './app.controller.js';
+import { AgenteModule } from './agente/agente.module.js';
 import { AppService } from './app.service.js';
 import { CulturalModule } from './cultural/cultural.module.js';
 import { EmprendimientosModule } from './emprendimientos/emprendimientos.module.js';
@@ -44,6 +45,7 @@ import { ReservasModule } from './reservas/reservas.module.js';
     CulturalModule,
     FaqModule,
     ReservasModule,
+    AgenteModule,
   ],
   controllers: [AppController],
   providers: [AppService],

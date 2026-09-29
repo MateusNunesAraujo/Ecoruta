@@ -15,17 +15,30 @@ export class CulturalService {
     private readonly fichas: Repository<FichaCultural>,
   ) {}
 
-  listar(filtros: { lenguaId?: string; tema?: string }) {
+  listar(filtros: { lenguaId?: string; tema?: string; tipo?: string }) {
     // TypeORM 1.x no acepta "undefined" en el where: solo se agregan los
     // filtros que llegaron.
     const where: FindOptionsWhere<FichaCultural> = { estado: VERIFICADA };
     if (filtros.lenguaId) where.lenguaId = filtros.lenguaId;
     if (filtros.tema) where.tema = filtros.tema;
+    if (filtros.tipo) where.tipo = filtros.tipo;
     return this.fichas.find({
       where,
       relations: { lengua: true },
       order: { lenguaId: 'ASC', tema: 'ASC', id: 'ASC' },
     });
+  }
+
+  // Temas con al menos una ficha VERIFICADA (ej. hola, gracias, delfin).
+  // El agente se los ofrece al LLM para que pida uno que exista.
+  async temasDisponibles(): Promise<string[]> {
+    const filas = await this.fichas
+      .createQueryBuilder('f')
+      .select('DISTINCT f.tema', 'tema')
+      .where('f.estado = :estado', { estado: VERIFICADA })
+      .orderBy('tema')
+      .getRawMany<{ tema: string }>();
+    return filas.map((f) => f.tema);
   }
 
   async obtener(id: string) {
