@@ -18,7 +18,7 @@ NestJS + TypeORM conectado a PostgreSQL con Docker Compose, `.env.example`.
   `GET /api/emprendimientos/:id`.
 - Seed con 5–6 emprendimientos DE EJEMPLO, marcados como ficticios.
 
-## Bloque 2 — Contenido cultural (23–24 sep)
+## ✅ Bloque 2 — Contenido cultural (23–24 sep)
 - Entidad `FichaCultural`: lengua (tikuna, murui, yagua, miraña, bora), tema,
   palabra o frase, traducción, guía de pronunciación, audio (URL opcional),
   narrativa, fuente, comunidad de origen, estado (`PENDIENTE` | `VERIFICADA`).
