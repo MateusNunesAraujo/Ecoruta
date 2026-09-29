@@ -42,6 +42,8 @@ Ecoruta/
 │       ├── reservas/         disponibilidad, cupos, estados de reserva
 │       ├── pagos/            Wompi sandbox + webhook de confirmación
 │       ├── cultural/         fichas: palabra, pronunciación, audio, narrativa, fuente
+│       ├── faq/              preguntas frecuentes (es/en/pt)
+│       ├── seed/             carga el Excel de docs/datos/ (npm run seed)
 │       └── agente/           orquestación del chat y herramientas (tools)
 │           └── providers/    llm-provider.interface.ts, gemini, groq, mock
 ├── frontend/
@@ -95,11 +97,14 @@ Ecoruta/
    de móvil se detecta en tiempo de ejecución (`Capacitor.isNativePlatform()`).
 
 ## Herramientas del agente
-- `buscar_emprendimientos(intereses, fecha?)`
-- `consultar_disponibilidad(emprendimientoId, fecha)`
+- `buscar_experiencias(intereses, fecha?)`
+- `consultar_disponibilidad(experienciaId, fecha)`
 - `armar_itinerario(intereses, dias)`
-- `crear_reserva(...)` → devuelve reserva en `PENDIENTE_PAGO`
-- `generar_enlace_pago(reservaId)`
+- `crear_reserva(experienciaId, fecha, personas)` → no crea la reserva: revisa
+  cupos y muestra al turista una tarjeta con un formulario. La reserva se crea
+  en `PENDIENTE_PAGO` cuando el turista lo envía (el frontend llama a
+  `POST /api/reservas`), así sus datos personales no pasan por el LLM (regla 3).
+- `generar_enlace_pago(reservaId)` (Bloque 6)
 - `obtener_contenido_cultural(lengua?, tema)`
 
 ## Modo offline
