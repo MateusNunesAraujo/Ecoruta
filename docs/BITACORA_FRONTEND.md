@@ -15,6 +15,27 @@ Los cambios que necesitan tocar JavaScript o archivos de Eliel se piden en
 
 ---
 
+### 2026-09-30 — Dictado por voz en el chat (CSS y textos listos, JS pedido)
+**Hecho:**
+- `css/estilos.css`: `.boton-dictar` (círculo de 52 px entre la caja y
+  "Enviar"; rojo y con halo que pulsa mientras escucha; quieto con "reducir
+  movimiento") y `.dictado-estado` ("Escuchando…" o el aviso de error).
+- `js/i18n.js`: `chat.dictar`, `chat.escuchando`, `chat.dictadoAviso`,
+  `chat.dictadoPermiso`, `chat.dictadoError` en es/en/pt.
+- Pedido 7: `js/dictado.js` (nuevo) y 6 líneas en `vistas/chat.js`.
+- Probado en una copia con reconocimiento simulado (7 casos: aparece,
+  escucha, termina, se apaga al enviar y al salir, sin permiso, sin
+  soporte) y capturas a 360 px en claro y oscuro.
+
+**Decisiones:**
+- El texto dictado no se envía solo: el turista lo revisa (el dictado se
+  equivoca con palabras indígenas).
+- Nota de privacidad bajo el chat: en Chrome la voz va a Google.
+- Sin botón en Firefox ni en la app de Capacitor.
+
+**Pendiente:**
+- Pedido 7 (Eliel) y prueba con voz real en Android + Chrome por HTTPS.
+
 ### 2026-09-30 — Itinerario como línea de tiempo (CSS listo, JS pedido)
 **Hecho:**
 - `css/estilos.css`: la tarjeta de itinerario es una línea de tiempo (un

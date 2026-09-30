@@ -311,3 +311,136 @@ Hoy `ResumenExperiencia` no trae foto; las fotos están en
   frontend (por ejemplo `fotos/<archivo>`). Si no hay foto, se muestra un
   relleno de colores con una canoa.
 - La foto no pasa por el LLM (`paraLlm` no la incluye), solo va a la tarjeta.
+
+## ⏳ 7. Dictado por voz en el chat (Web Speech API)
+- **Qué:** botón 🎤 entre la caja de texto y "Enviar". El turista toca,
+  habla, y el texto aparece en la caja (se suma a lo que ya había escrito).
+  Lo revisa y toca "Enviar". Idioma de la voz según la interfaz: es-CO,
+  en-US o pt-BR. Solo frontend: no toca el backend ni gasta cuota del LLM.
+- **Ya está hecho en `feat/frontend-diseno`:** el CSS (`.boton-dictar`, rojo
+  y pulsando mientras escucha; `.dictado-estado`) y los textos
+  `chat.dictar`, `chat.escuchando`, `chat.dictadoAviso`, `chat.dictadoPermiso`
+  y `chat.dictadoError` en es/en/pt.
+- **Probado** en una copia del frontend con un reconocimiento de voz
+  simulado: el texto llega a la caja; tocar de nuevo termina; al enviar o
+  salir del chat se apaga el micrófono (`abort`); sin permiso muestra
+  "Permite el uso del micrófono…"; sin soporte (Firefox) no aparece el botón
+  ni el aviso y el chat sigue igual. Falta probarlo con voz real en un
+  Android con Chrome (necesita HTTPS: el túnel de Cloudflare sirve).
+- **Decisiones:**
+  - No se envía solo: el dictado se equivoca (sobre todo con palabras
+    indígenas, p. ej. "magüta" → "mahuta"), así que el turista revisa antes.
+    Si se quiere envío automático, llamar a `enviar(entrada.value)` en
+    `onend` cuando no hubo error.
+  - Datos mínimos: en Chrome la voz se procesa en servidores de Google; hay
+    una nota debajo del chat que lo avisa.
+  - En la app Android (Capacitor) no se muestra: allí haría falta un plugin
+    de reconocimiento de voz (Bloque 8).
+
+### 7.1 Archivo nuevo `frontend/www/js/dictado.js`
+```js
+// Dictado por voz para el chat (Web Speech API).
+// El navegador convierte la voz en texto y lo pone en la caja del mensaje;
+// el turista lo revisa y lo envía con "Enviar" (el dictado puede equivocarse,
+// sobre todo con palabras en lenguas indígenas).
+// Datos mínimos: en Chrome el audio se procesa en servidores de Google, por
+// eso se avisa debajo del chat. No existe en Firefox ni dentro de la app
+// Android (Capacitor, Bloque 8): ahí no se muestra el botón.
+
+import { el } from './dom.js';
+import { idioma, t } from './i18n.js';
+
+const Reconocimiento = window.SpeechRecognition ?? window.webkitSpeechRecognition;
+const IDIOMA_VOZ = { es: 'es-CO', en: 'en-US', pt: 'pt-BR' };
+
+// Devuelve { boton, estado, aviso, detener } o null si no hay dictado.
+export function crearDictado(entrada) {
+  if (!Reconocimiento || window.Capacitor?.isNativePlatform?.()) return null;
+
+  let reconocimiento = null;
+  const estado = el('p', { class: 'dictado-estado', 'aria-live': 'polite' });
+  const aviso = el('p', { class: 'nota' }, t('chat.dictadoAviso'));
+  const boton = el(
+    'button',
+    { type: 'button', class: 'boton-dictar', 'aria-pressed': 'false', 'aria-label': t('chat.dictar'), title: t('chat.dictar') },
+    el('span', { 'aria-hidden': 'true' }, '🎤'),
+  );
+
+  boton.addEventListener('click', () => {
+    // Si ya escucha, "stop" termina y entrega lo último que se dijo.
+    if (reconocimiento) {
+      reconocimiento.stop();
+      return;
+    }
+    let error = null;
+    // Lo dictado se agrega a lo que ya estaba escrito.
+    const previo = entrada.value.trim() ? `${entrada.value.trim()} ` : '';
+    reconocimiento = new Reconocimiento();
+    reconocimiento.lang = IDIOMA_VOZ[idioma()] ?? 'es-CO';
+    reconocimiento.interimResults = true;
+    reconocimiento.onresult = (evento) => {
+      const texto = Array.from(evento.results, (r) => r[0].transcript).join('');
+      entrada.value = (previo + texto).slice(0, entrada.maxLength > 0 ? entrada.maxLength : undefined);
+    };
+    reconocimiento.onerror = (evento) => {
+      if (evento.error === 'no-speech' || evento.error === 'aborted') return;
+      error = ['not-allowed', 'service-not-allowed'].includes(evento.error)
+        ? t('chat.dictadoPermiso')
+        : t('chat.dictadoError');
+    };
+    reconocimiento.onend = () => {
+      reconocimiento = null;
+      boton.setAttribute('aria-pressed', 'false');
+      estado.textContent = error ?? '';
+      entrada.focus();
+    };
+    try {
+      reconocimiento.start();
+      boton.setAttribute('aria-pressed', 'true');
+      estado.textContent = t('chat.escuchando');
+    } catch {
+      reconocimiento = null;
+      estado.textContent = t('chat.dictadoError');
+    }
+  });
+
+  // "abort" apaga el micrófono y descarta lo que falte por llegar (al enviar
+  // el mensaje o al salir del chat).
+  const detener = () => reconocimiento?.abort();
+  return { boton, estado, aviso, detener };
+}
+```
+
+### 7.2 Cambios en `frontend/www/js/vistas/chat.js` (6 líneas nuevas, ninguna borrada)
+```diff
+ import { el, vaciar } from '../dom.js';
++import { crearDictado } from '../dictado.js';
+ import { idioma, t } from '../i18n.js';
+```
+```diff
+   const boton = el('button', { type: 'submit', class: 'boton' }, t('chat.enviar'));
+-  const formulario = el('form', { class: 'chat-formulario' }, entrada, boton);
++  const dictado = crearDictado(entrada);
++  const formulario = el('form', { class: 'chat-formulario' }, entrada, dictado?.boton, boton);
+```
+```diff
+   formulario.addEventListener('submit', (evento) => {
+     evento.preventDefault();
++    dictado?.detener();
+     enviar(entrada.value);
+   });
+```
+```diff
+       formulario,
++      dictado?.estado,
+       el('p', { class: 'nota' }, t('chat.privacidad')),
++      dictado?.aviso,
+     ),
+   );
+   dibujar();
++  // Al salir del chat, apagar el micrófono si quedó escuchando.
++  return () => dictado?.detener();
+ }
+```
+(La línea de `formulario` se reemplaza; `el()` ignora los `null`, así que sin
+dictado el formulario queda igual que hoy.)

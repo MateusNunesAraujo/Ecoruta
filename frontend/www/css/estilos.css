@@ -628,6 +628,37 @@ a { color: var(--verde); }
   to { background-position: 200% 0; }
 }
 
+/* Botón de dictado por voz (🎤), entre la caja de texto y "Enviar".
+   Mientras escucha (aria-pressed="true") se pone rojo y pulsa. */
+.boton-dictar {
+  flex-shrink: 0;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 52px;
+  height: 52px;
+  padding: 0;
+  border: 1px solid var(--borde-control);
+  border-radius: 50%;
+  background: var(--superficie);
+  color: var(--texto);
+  font-size: 1.35rem;
+  cursor: pointer;
+}
+.boton-dictar:hover { background: var(--verde-claro); }
+.boton-dictar[aria-pressed='true'] {
+  background: var(--rojo);
+  border-color: var(--rojo);
+  animation: dictado-pulso 1.2s ease-out infinite;
+}
+@keyframes dictado-pulso {
+  from { box-shadow: 0 0 0 0 rgb(164 38 44 / 0.55); }
+  to { box-shadow: 0 0 0 14px rgb(164 38 44 / 0); }
+}
+/* "Escuchando…" o el aviso de error, justo debajo del formulario. */
+.dictado-estado { margin: 0.25rem 0 0; font-weight: 600; font-size: 0.9rem; color: var(--texto); }
+.dictado-estado:empty { display: none; }
+
 /* --- Reservas --- */
 .estado-reserva { display: inline-block; font-weight: 700; padding: 0.25rem 0.75rem; border-radius: 999px; background: var(--verde-claro); color: var(--verde-oscuro); }
 .estado-pendiente_pago { background: var(--ambar); color: var(--texto-ambar); }
@@ -705,4 +736,5 @@ a { color: var(--verde); }
   * { scroll-behavior: auto !important; }
   .chat-formulario .boton, .chat-formulario .boton::before,
   .accesos a[href='#/chat'], .accesos a[href='#/chat']::before { animation: none; }
+  .boton-dictar[aria-pressed='true'] { animation: none; box-shadow: 0 0 0 4px rgb(164 38 44 / 0.4); }
 }
