@@ -12,6 +12,105 @@ Registro de avance. Cada entrada nueva va arriba (la más reciente primero).
 
 ---
 
+### 2026-09-30 — TRASPASO: estado para continuar en otro computador
+**Estado exacto:**
+- Trabajo en la rama **`feat/frontend`** (subida a GitHub con este commit).
+  Sin cambios pendientes: todo está en commits y subido.
+- Bloques terminados: **0, 1, 2, 3, 4 y 5** (✅ en PLAN.md). No hay ningún
+  bloque a medias. Siguiente según PLAN.md: **Bloque 6 (pagos)**, esperando
+  aprobación del equipo.
+- ⚠️ **`main` solo tiene el Bloque 0.** Los PR de los bloques 1-5 nunca se
+  fusionaron. Las ramas están encadenadas y cada una contiene a la anterior:
+  `main` ← `feat/emprendimientos` (B1-2) ← `feat/reservas` (B3) ←
+  `feat/agente` (B4) ← `feat/frontend` (B5). Basta **un PR de
+  `feat/frontend` a `main`** para llevar todo:
+  https://github.com/MateusNunesAraujo/Ecoruta/compare/main...feat/frontend?expand=1
+- Verificado al cerrar: build, lint y 50 pruebas unitarias pasan
+  (`npm test` en `backend/`).
+
+**Cómo arrancar en el computador nuevo:**
+1. `git clone` y `git switch feat/frontend` (o `main` si ya se fusionó).
+2. Copiar `.env.example` a `.env` en la raíz y poner `DB_PASSWORD`. Si ese
+   computador tiene PostgreSQL instalado en Windows, usar `DB_PORT=5433`
+   (choque de puertos, ver Bloque 1).
+3. `docker compose up -d` (en la raíz).
+4. `cd backend` y `npm install`.
+5. **Copiar los datos, que NO están en Git** (el repositorio es público y
+   tienen nombres/voces de hablantes; se comparten por fuera):
+   `docs/datos/Ecoruta_datos.xlsx` y los audios en `frontend/www/audio/`.
+   Los audios pueden venir con los nombres originales ("Hola_Tikuna
+   (mp3cut.net).m4a"): el seed los renombra solo.
+6. `npm run seed` → debe terminar con 0 errores y 18 avisos (17 fichas Bora
+   sin hablante, EXP-05 sin precio).
+7. `npm run start:dev` y abrir http://localhost:3000 (frontend) y
+   http://localhost:3000/api/experiencias (API). `LLM_PROVIDER=mock` funciona
+   sin claves.
+
+**Decisiones y problemas de esta conversación que no están en CLAUDE.md ni
+PLAN.md** (el detalle está en las entradas de cada bloque, más abajo):
+- Se reserva una **experiencia** (no un emprendimiento): precio, capacidad e
+  intereses están en la hoja Experiencias. Los ids del catálogo y las fichas
+  son los códigos del Excel (`EXP-01`, `FIC-12`); las reservas usan UUID.
+- El Excel es la fuente de verdad del catálogo y las fichas: se corrigen en
+  el Excel y se vuelve a ejecutar `npm run seed` (actualiza por código, no
+  duplica, borra lo que ya no está salvo experiencias con reservas).
+- NestJS 12 usa módulos ES: los imports internos llevan `.js`. Las
+  relaciones de TypeORM usan `Relation<>` para evitar imports circulares.
+- TypeORM 1.x rechaza `undefined` en un `where`: los filtros opcionales se
+  agregan solo si llegan (no activar la opción global de ignorarlos).
+- Agente: modelos por defecto `gemini-3.5-flash-lite` y
+  `llama-3.3-70b-versatile` (consultados el 28-09); respaldo automático entre
+  Gemini y Groq; máximo 4 vueltas de herramientas por mensaje. Límite de 10
+  mensajes/minuto y 100/hora por IP en el chat.
+- Frontend: nunca usar `innerHTML` (todo con `el()` de `js/dom.js`); rutas
+  con `#`; textos en `js/i18n.js` (agregar cada clave en es, en y pt).
+- Entorno Windows (útil para quien siga):
+  - En PowerShell, los comandos con comillas anidadas fallan: escribir
+    `docker exec ecoruta-postgres psql -U ecoruta -d ecoruta -c "…"` sin
+    `sh -c '…'`.
+  - Git Bash convierte argumentos que empiezan por `/` en rutas de Windows
+    (ej. `#/chat`): usar `MSYS_NO_PATHCONV=1`.
+  - Chrome headless no baja de 500 px de ancho: para capturas de celular hay
+    que emular el dispositivo con el protocolo de DevTools. Los scripts de
+    prueba y capturas de esta conversación estaban en una carpeta temporal y
+    no están en el repositorio.
+- Borrar tablas o datos de la base: lo hace una persona del equipo (Claude
+  Code tiene bloqueado ese tipo de comandos). Si un cambio de entity no
+  arranca por datos viejos, en desarrollo se puede reiniciar la base con
+  `docker compose down -v` y `docker compose up -d` y volver a hacer el seed.
+- `pg` muestra un `DeprecationWarning` al guardar enlaces de fichas en el
+  seed (TypeORM hace consultas en paralelo en la transacción); no falla hoy.
+
+**Siguientes pasos concretos (en orden):**
+1. Abrir y fusionar el PR `feat/frontend` → `main` (enlace arriba). Luego se
+   pueden borrar las ramas intermedias.
+2. Probar el agente con claves reales: en `.env`, `LLM_PROVIDER=gemini`,
+   `GEMINI_API_KEY` y `GROQ_API_KEY`. Confirmar que `gemini-3.5-flash-lite`
+   existe y usa bien las herramientas (si no, cambiar `GEMINI_MODEL`).
+   Revisar que no escriba palabras en lenguas indígenas.
+3. Verificar la tasa `COP_POR_BRL = 730` en `frontend/www/js/config.js`.
+4. **Bloque 6 (pagos, Wompi sandbox):** revisar primero la documentación
+   actual de Wompi. Incluye: herramienta `generar_enlace_pago(reservaId)`;
+   webhook que valide la firma con `WOMPI_EVENTS_SECRET` y solo confirme
+   reservas que sigan en `PENDIENTE_PAGO`; decidir qué hacer si el pago
+   llega después de vencer; botón de pagar en `#/reserva/<id>` (hoy muestra
+   "el pago estará disponible muy pronto", texto `resv.pago`). El email del
+   turista tiene `select: false`: pedirlo explícitamente en el service.
+5. **Bloque 9 (despliegue y demo):** servicio con HTTPS; `trust proxy` en
+   Express para que el límite de mensajes sea por turista; subir a mano el
+   Excel y los audios (no están en Git) y ejecutar el seed; poner la URL en
+   `API_BASE` de `config.js` si se hace la app; código QR.
+6. Bloque 7 (offline mínimo) y Bloque 8 (Capacitor, opcional).
+
+**Pendientes de datos para el equipo (en el Excel):**
+- Revisar con los hablantes lo señalado en la hoja Revision (FIC-24 "mttne",
+  pronunciaciones de FIC-51/52, FIC-16/17 iguales, FIC-18, FIC-01, nombre
+  "Albaro Echeverri").
+- Fichas Bora FIC-14 a FIC-30 sin hablante (se decidió cargarlas así).
+- EXP-05 sin capacidad ni precio (no se puede reservar).
+- Traducir al inglés y portugués `incluye`, `no_incluye`, `que_llevar`,
+  `cancelacion` y `contexto`; agregar fotos.
+
 ### 2026-09-29 — Bloque 5: Frontend web
 **Hecho:**
 - Frontend en `frontend/www/` con HTML, CSS y JavaScript puros (módulos ES
