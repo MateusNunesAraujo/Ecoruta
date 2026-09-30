@@ -25,6 +25,7 @@
   --texto: #1c2421;
   --texto-suave: #4d5a54;
   --borde: #d7dcd8;
+  --borde-control: #808d86; /* campos y chips: 3.5:1 con blanco (mínimo WCAG 3:1) */
   --radio: 12px;
   --sombra: 0 1px 3px rgb(0 0 0 / 0.08);
   --alto-nav: 64px;
@@ -71,9 +72,19 @@ a { color: var(--verde); }
   background: var(--verde);
   color: #fff;
 }
-.marca { color: #fff; font-weight: 700; text-decoration: none; font-size: 1.05rem; }
+.marca {
+  display: inline-flex;
+  align-items: center;
+  min-height: 44px;
+  color: #fff;
+  font-weight: 700;
+  text-decoration: none;
+  font-size: 1.05rem;
+}
+/* Sobre el verde, el contorno café no se ve: en la cabecera va blanco. */
+.cabecera :focus-visible { outline-color: #fff; }
 .cabecera select {
-  min-height: 40px;
+  min-height: 44px;
   border-radius: 8px;
   border: 1px solid rgb(255 255 255 / 0.5);
   background: var(--verde-oscuro);
@@ -143,7 +154,7 @@ a { color: var(--verde); }
 .boton-peligro { background: var(--superficie); color: var(--rojo); border-color: var(--rojo); }
 .boton-peligro:hover { background: #fbeaea; border-color: var(--rojo); }
 .boton-grande { width: 100%; min-height: 52px; font-size: 1.05rem; }
-.boton-audio { min-height: 40px; padding: 0.25rem 0.9rem; margin-bottom: 0.75rem; }
+.boton-audio { min-height: 44px; padding: 0.25rem 0.9rem; margin-bottom: 0.75rem; }
 .boton-audio[aria-pressed='true'] { background: var(--tierra); border-color: var(--tierra); color: #fff; }
 
 .enlace {
@@ -161,9 +172,9 @@ a { color: var(--verde); }
 .chip {
   display: inline-flex;
   align-items: center;
-  min-height: 40px;
+  min-height: 44px;
   padding: 0.3rem 0.9rem;
-  border: 1px solid var(--borde);
+  border: 1px solid var(--borde-control);
   border-radius: 999px;
   background: var(--superficie);
   color: var(--texto);
@@ -241,7 +252,7 @@ a { color: var(--verde); }
 .campo input, .chat-entrada {
   min-height: 44px;
   padding: 0.5rem 0.75rem;
-  border: 1px solid #9aa6a0;
+  border: 1px solid var(--borde-control);
   border-radius: 8px;
   font: inherit;
   background: #fff;
@@ -298,7 +309,7 @@ a { color: var(--verde); }
   .cabecera { grid-row: 1; }
   .navegacion {
     position: sticky;
-    top: 56px;
+    top: 60px; /* alto de la cabecera: 44px de controles + 16px de relleno */
     grid-row: 2;
     display: flex;
     justify-content: center;

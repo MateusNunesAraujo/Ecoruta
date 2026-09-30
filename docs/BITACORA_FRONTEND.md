@@ -15,6 +15,28 @@ Los cambios que necesitan tocar JavaScript o archivos de Eliel se piden en
 
 ---
 
+### 2026-09-30 — Botones de 44 px, bordes visibles y foco en la cabecera
+**Hecho (solo `css/estilos.css`):**
+- A 44 px de alto: selector de idioma, enlace "Ecoruta Conectada" de la
+  cabecera, chips (filtros y sugerencias del chat) y botón de audio.
+- Nueva variable `--borde-control` (#808d86) para el borde de campos y chips:
+  pasa de 2.5:1 y 1.4:1 a 3.5:1 con blanco (mínimo WCAG 3:1).
+- El contorno de foco en la cabecera ahora es blanco (el café sobre verde
+  daba 1.0:1 y no se veía).
+- En pantallas de 768 px o más, la navegación queda en `top: 60px`, el nuevo
+  alto de la cabecera.
+- Contraste de todos los textos revisado: entre 6.6:1 y 10:1, no hubo que
+  cambiar ninguno.
+- Probado a 360 px y 1024 px con capturas: sin desbordes.
+
+**Decisiones:**
+- Edge en modo headless no permite ventanas tan angostas: para probar 360 px
+  se carga la app dentro de un iframe de 360 px.
+
+**Pendiente:**
+- Chips, botón de audio y formulario de reserva no se vieron con datos
+  reales (hace falta el backend). Revisarlos cuando haya datos.
+
 ### 2026-09-30 — Fuente Noto Sans para el texto en lenguas indígenas
 **Hecho:**
 - Nueva fuente `frontend/www/fuentes/NotoSans-ecoruta.woff2` (111 KB) con su
