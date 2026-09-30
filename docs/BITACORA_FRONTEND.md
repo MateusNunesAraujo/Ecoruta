@@ -15,6 +15,15 @@ Los cambios que necesitan tocar JavaScript o archivos de Eliel se piden en
 
 ---
 
+### 2026-09-30 — Sin lema en la cabecera
+**Hecho (a pedido de Félix, solo `css/estilos.css`):**
+- Se quitó el lema de debajo de "Ecoruta Conectada" en la cabecera de todas
+  las pantallas (reglas `.marca::after` y `body:has(.portada)`). El lema
+  sigue en la portada, en negrita, sobre el texto de bienvenida.
+- En PC, la marca conserva su tamaño de 1.35rem; la cabecera sigue en 60 px.
+- Pedido 4 cancelado (ya no hay lema en la cabecera).
+- Probado en #/chat y #/lenguas a 1280 px.
+
 ### 2026-09-30 — Portada quieta otra vez + "Hablar con el asistente" con borde de colores
 **Hecho (a pedido de Félix):**
 - Se quitaron todas las animaciones de la portada: colores del título,

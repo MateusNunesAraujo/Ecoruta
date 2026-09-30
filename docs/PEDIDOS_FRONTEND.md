@@ -4,7 +4,7 @@ Cambios que el diseño necesita en archivos que no se tocan desde la rama
 `feat/frontend-diseno` (JavaScript, `sw.js`, `manifest`, `config.js`,
 backend). Cada pedido dice qué hacer, dónde y por qué.
 
-Estado: ⏳ pendiente · ✅ hecho
+Estado: ⏳ pendiente · ✅ hecho · ❌ cancelado
 
 ---
 
@@ -163,7 +163,9 @@ Evita que al abrir la app se vea un instante el otro modo antes de que cargue
     <link rel="stylesheet" href="css/estilos.css" />
 ```
 
-## ⏳ 4. (Opcional, baja prioridad) Lema de la cabecera desde i18n.js
+## ❌ 4. (Cancelado) Lema de la cabecera desde i18n.js
+- **Cancelado el 2026-09-30:** el lema se quitó de la cabecera. No hay que
+  hacer nada.
 - **Qué:** hoy el lema de PC ("La IA conversa, la comunidad es dueña de su
   palabra") sale de `.marca::after` en el CSS, con una regla `:lang()` por
   idioma. Si se quiere tener todos los textos en `i18n.js`: en `app.js`,
