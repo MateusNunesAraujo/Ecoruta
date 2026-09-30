@@ -31,6 +31,9 @@ export type Tarjeta =
       tipo: 'itinerario';
       dias: { dia: number; experiencias: ResumenExperiencia[] }[];
     }
+  // El frontend muestra las reservas pendientes de este teléfono con su
+  // botón "Pagar" (Wompi).
+  | { tipo: 'pago' }
   | {
       // El turista escribe nombre y email aquí (no en el chat) y el frontend
       // llama a POST /api/reservas. Regla 3: esos datos no pasan por el LLM.

@@ -104,7 +104,10 @@ Ecoruta/
   cupos y muestra al turista una tarjeta con un formulario. La reserva se crea
   en `PENDIENTE_PAGO` cuando el turista lo envía (el frontend llama a
   `POST /api/reservas`), así sus datos personales no pasan por el LLM (regla 3).
-- `generar_enlace_pago(reservaId)` (Bloque 6)
+- `generar_enlace_pago()` → no recibe el id de la reserva (funciona como su
+  clave): muestra una tarjeta con las reservas pendientes de ese dispositivo y
+  su botón "Pagar con Wompi". El enlace firmado lo crea el backend
+  (`POST /api/pagos/reservas/:id/enlace`).
 - `obtener_contenido_cultural(lengua?, tema)`
 
 ## Modo offline

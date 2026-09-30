@@ -4,6 +4,7 @@ import { ExperienciasService } from '../emprendimientos/experiencias.service.js'
 import { INTERESES, type Interes } from '../emprendimientos/intereses.js';
 import type { Idioma } from '../faq/catalogos.js';
 import { esFechaValida } from '../reservas/fechas.js';
+import { PagosService } from '../pagos/pagos.service.js';
 import { ReservasService } from '../reservas/reservas.service.js';
 import type { DefinicionHerramienta } from './providers/llm-provider.interface.js';
 import {
@@ -49,6 +50,7 @@ export class HerramientasAgente {
     private readonly experiencias: ExperienciasService,
     private readonly cultural: CulturalService,
     private readonly reservas: ReservasService,
+    private readonly pagos: PagosService,
   ) {}
 
   // Definiciones que se envían al LLM (JSON Schema). Los temas culturales se
@@ -121,6 +123,13 @@ export class HerramientasAgente {
         },
       },
       {
+        nombre: 'generar_enlace_pago',
+        descripcion:
+          'Muestra al turista el botón para pagar en Wompi (tarjeta, Nequi, ' +
+          'PSE) sus reservas pendientes de pago. No necesita parámetros.',
+        parametros: { type: 'object', properties: {} },
+      },
+      {
         nombre: 'obtener_contenido_cultural',
         descripcion:
           'Muestra al turista fichas culturales verificadas (palabras, ' +
@@ -164,6 +173,8 @@ export class HerramientasAgente {
           return await this.iniciarReserva(argumentos, idioma);
         case 'obtener_contenido_cultural':
           return await this.contenidoCultural(argumentos);
+        case 'generar_enlace_pago':
+          return this.accesoPago();
         default:
           return this.error(`La herramienta "${nombre}" no existe.`);
       }
@@ -377,6 +388,32 @@ export class HerramientasAgente {
           totalCop,
         },
       ],
+    };
+  }
+
+  // No recibe el id de la reserva: el frontend muestra las reservas pendientes
+  // de ese teléfono con su botón de pago. Así el id (que sirve como clave de
+  // la reserva) tampoco pasa por el LLM.
+  private accesoPago(): ResultadoHerramienta {
+    if (!this.pagos.habilitado) {
+      return {
+        paraModelo: {
+          disponible: false,
+          mensaje:
+            'El pago en línea aún no está disponible. La reserva queda ' +
+            'apartada 15 minutos; el emprendimiento contactará al turista.',
+        },
+        tarjetas: [],
+      };
+    }
+    return {
+      paraModelo: {
+        mostrado: true,
+        nota:
+          'Se mostró al turista el botón para pagar en Wompi sus reservas ' +
+          'pendientes. No pidas datos de tarjeta ni de cuentas en el chat.',
+      },
+      tarjetas: [{ tipo: 'pago' }],
     };
   }
 

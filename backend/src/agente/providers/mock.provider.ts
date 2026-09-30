@@ -116,6 +116,16 @@ const TEXTOS: Record<string, Record<Idioma, string>> = {
     en: 'Not available on that date: {motivo}',
     pt: 'Sem disponibilidade nessa data: {motivo}',
   },
+  pago: {
+    es: 'Aquí puedes pagar tu reserva de forma segura con Wompi (tarjeta, Nequi o PSE).',
+    en: 'You can pay for your booking securely with Wompi here (card, Nequi or PSE).',
+    pt: 'Aqui você pode pagar sua reserva com segurança pela Wompi (cartão, Nequi ou PSE).',
+  },
+  pagoNoDisponible: {
+    es: 'El pago en línea todavía no está disponible. Tu cupo queda apartado 15 minutos.',
+    en: 'Online payment is not available yet. Your spot is held for 15 minutes.',
+    pt: 'O pagamento online ainda não está disponível. Sua vaga fica reservada por 15 minutos.',
+  },
   disponible: {
     es: 'Sí hay disponibilidad: quedan {n} cupos.',
     en: 'Yes, it is available: {n} spots left.',
@@ -150,6 +160,9 @@ export class MockProvider implements LlmProvider {
     const experiencia = /exp-\d+/.exec(texto)?.[0].toUpperCase();
     const fecha = /\d{4}-\d{2}-\d{2}/.exec(texto)?.[0];
 
+    if (/\bpag(ar|o)\b|\bpay\b|pagamento/.test(texto)) {
+      return llamada('generar_enlace_pago', {});
+    }
     if (experiencia && fecha && /reserv|book/.test(texto)) {
       const personas = Number(
         /(\d+)\s*(personas|people|pessoas)/.exec(texto)?.[1] ?? 1,
@@ -221,6 +234,11 @@ export class MockProvider implements LlmProvider {
           texto: r.formularioMostrado
             ? t('formulario')
             : t('noDisponible', { motivo: r.mensaje }),
+          llamadas: [],
+        };
+      case 'generar_enlace_pago':
+        return {
+          texto: r.mostrado ? t('pago') : t('pagoNoDisponible'),
           llamadas: [],
         };
       case 'consultar_disponibilidad':

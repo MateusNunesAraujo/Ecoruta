@@ -212,6 +212,8 @@ describe('MockProvider', () => {
     ['Quiero reservar EXP-01 el 2026-10-05 para 2 personas', 'crear_reserva'],
     ['¿Hay cupo en EXP-02 el 2026-10-07?', 'consultar_disponibilidad'],
     ['Me interesan las plantas medicinales', 'buscar_experiencias'],
+    ['Quiero pagar mi reserva', 'generar_enlace_pago'],
+    ['How can I pay?', 'generar_enlace_pago'],
   ])('"%s" -> %s', async (texto, herramienta) => {
     expect((await preguntar(texto)).llamadas[0]?.nombre).toBe(herramienta);
   });

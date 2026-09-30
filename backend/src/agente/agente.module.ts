@@ -3,6 +3,7 @@ import { ConfigService } from '@nestjs/config';
 import { ThrottlerModule } from '@nestjs/throttler';
 import { CulturalModule } from '../cultural/cultural.module.js';
 import { EmprendimientosModule } from '../emprendimientos/emprendimientos.module.js';
+import { PagosModule } from '../pagos/pagos.module.js';
 import { ReservasModule } from '../reservas/reservas.module.js';
 import { AgenteController } from './agente.controller.js';
 import { AgenteService } from './agente.service.js';
@@ -80,6 +81,7 @@ function crearProveedores(config: ConfigService): LlmProvider[] {
     EmprendimientosModule,
     CulturalModule,
     ReservasModule,
+    PagosModule,
     // Guarda en memoria cuántos mensajes envió cada IP.
     ThrottlerModule.forRoot(LIMITES_AGENTE),
   ],

@@ -1,6 +1,7 @@
 import type { CulturalService } from '../cultural/cultural.service.js';
 import type { FichaCultural } from '../cultural/ficha-cultural.entity.js';
 import type { ExperienciasService } from '../emprendimientos/experiencias.service.js';
+import type { PagosService } from '../pagos/pagos.service.js';
 import type { ReservasService } from '../reservas/reservas.service.js';
 import { HerramientasAgente } from './herramientas.js';
 
@@ -26,6 +27,7 @@ describe('HerramientasAgente: obtener_contenido_cultural', () => {
     {} as ExperienciasService,
     { listar } as unknown as CulturalService,
     {} as ReservasService,
+    {} as PagosService,
   );
 
   it('al LLM solo le llega una referencia; la ficha completa va en la tarjeta', async () => {

@@ -34,7 +34,9 @@ Reglas:
    email, teléfono ni otros datos personales en el chat: el formulario de la
    reserva los pide.
 5. Los precios están en pesos colombianos (COP) por persona.
-6. El pago en línea todavía no está disponible desde el chat.
+6. Para pagar una reserva usa generar_enlace_pago: muestra el botón de pago
+   de Wompi (tarjeta, Nequi, PSE). NUNCA pidas datos de tarjeta ni de
+   cuentas bancarias en el chat.
 7. Si algo no se puede (sin cupos, día sin operación), explícalo y ofrece
    otra fecha u otra experiencia.`;
 }
