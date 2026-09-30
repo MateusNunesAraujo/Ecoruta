@@ -40,23 +40,106 @@ const PALABRAS_INTERES: Record<string, string[]> = {
   fauna: ['fauna', 'animal', 'wildlife', 'mono', 'monkey', 'macaco'],
 };
 
+// Nombres de lengua que el Mock reconoce por sí solo. El backend resuelve
+// cualquier nombre (incluidas las autodenominaciones del Excel).
 const LENGUAS = [
   'tikuna',
   'ticuna',
+  'maguta',
   'murui',
   'huitoto',
   'uitoto',
+  'witoto',
   'yagua',
   'mirana',
   'bora',
 ];
 
-const TEMAS: Record<string, string[]> = {
-  gracias: ['gracias', 'thank', 'obrigad'],
-  hola: ['hola', 'hello', 'hi ', 'ola', 'oi '],
-  adios: ['adios', 'bye', 'tchau', 'hasta luego'],
-  bienvenido: ['bienvenid', 'welcome', 'bem-vind', 'bem vind'],
+// Traducciones comunes (en/pt, sin tildes) -> tema de las fichas (español).
+const SINONIMOS_TEMA: Record<string, string> = {
+  thank: 'gracias',
+  thanks: 'gracias',
+  obrigado: 'gracias',
+  obrigada: 'gracias',
+  hello: 'hola',
+  hi: 'hola',
+  ola: 'hola',
+  oi: 'hola',
+  bye: 'adios',
+  goodbye: 'adios',
+  tchau: 'adios',
+  welcome: 'bienvenido',
+  dolphin: 'delfin',
+  boto: 'delfin',
+  golfinho: 'delfin',
+  river: 'rio',
+  canoe: 'canoa',
+  jungle: 'selva',
+  rainforest: 'selva',
+  floresta: 'selva',
+  forest: 'bosque',
+  cassava: 'yuca',
+  mandioca: 'yuca',
+  dog: 'perro',
+  cachorro: 'perro',
+  parrot: 'loro',
+  papagaio: 'loro',
+  heart: 'corazon',
+  coracao: 'corazon',
+  god: 'dios',
+  deus: 'dios',
 };
+
+// Temas que existen en las fichas: el agente los envía en la definición de
+// la herramienta (enum), así el Mock reconoce los nuevos sin cambiar código.
+function temasDeLaHerramienta(peticion: PeticionLlm): string[] {
+  const definicion = peticion.herramientas.find(
+    (h) => h.nombre === 'obtener_contenido_cultural',
+  );
+  const tema = definicion?.parametros.properties.tema as
+    { enum?: string[] } | undefined;
+  return (tema?.enum ?? []).filter((t) => t !== 'saludo');
+}
+
+// Tema mencionado en el texto (sin tildes): "delfines" -> "delfin",
+// "como te llamas" -> "como_te_llamas", "dolphin" -> "delfin".
+function detectarTema(texto: string, temas: string[]): string | null {
+  const frase = ` ${texto
+    .split(/[^a-z]+/)
+    .filter(Boolean)
+    .join(' ')} `;
+  const porNombre = temas
+    .filter((t) => new RegExp(` ${t.replace(/_/g, ' ')}(e?s)? `).test(frase))
+    .sort((a, b) => b.length - a.length)[0];
+  if (porNombre) return porNombre;
+  for (const palabra of frase.trim().split(' ')) {
+    const tema = SINONIMOS_TEMA[palabra];
+    if (tema && temas.includes(tema)) return tema;
+  }
+  return null;
+}
+
+// "en lengua magüta", "idioma bora", "in Tikuna" -> nombre de la lengua.
+// alFinal: en una pregunta cultural, también "…en quechua" / "…in Tikuna"
+// (la palabra tras "en/in/em" al final de la frase). No se usa fuera de
+// preguntas culturales para no confundir "quiero ir en canoa" con una lengua.
+function mencionaLengua(texto: string, alFinal = false): string | null {
+  const genericas = ['indigena', 'indigenas', 'nativa', 'indigenous', 'native'];
+  const trasPalabra =
+    /\b(?:lengua|idioma|language|lingua)\s+(?:de\s+|del\s+|the\s+)?([a-z]+)/.exec(
+      texto,
+    )?.[1];
+  if (trasPalabra && !genericas.includes(trasPalabra)) return trasPalabra;
+  const conocida = LENGUAS.find((l) => new RegExp(`\\b${l}\\b`).test(texto));
+  if (conocida) return conocida;
+  if (!alFinal) return null;
+  const limpio = texto
+    .replace(/[^a-z ]/g, ' ')
+    .replace(/\s+/g, ' ')
+    .trim();
+  const final = /\b(?:en|in|em)\s+([a-z]+)$/.exec(limpio)?.[1];
+  return final && !genericas.includes(final) ? final : null;
+}
 
 const PALABRAS_CULTURALES = [
   'palabra',
@@ -101,6 +184,21 @@ const TEXTOS: Record<string, Record<Idioma, string>> = {
     en: 'There is no verified content for that yet. We are validating it with the communities.',
     pt: 'Ainda não há conteúdo verificado para isso. Estamos validando com as comunidades.',
   },
+  culturalSinTema: {
+    es: 'Todavía no tenemos esa palabra verificada en {lengua}. Puedes preguntarme por: {temas}.',
+    en: "We don't have that word verified in {lengua} yet. You can ask me about: {temas}.",
+    pt: 'Ainda não temos essa palavra verificada em {lengua}. Você pode me perguntar sobre: {temas}.',
+  },
+  culturalEnOtras: {
+    es: 'Esa palabra sí está en: {lenguas}.',
+    en: 'That word is available in: {lenguas}.',
+    pt: 'Essa palavra está disponível em: {lenguas}.',
+  },
+  lenguaDesconocida: {
+    es: 'No reconozco esa lengua. Tenemos contenido en tikuna, murui (huitoto), miraña y bora; el yagua está en validación.',
+    en: "I don't recognize that language. We have content in Tikuna, Murui (Huitoto), Miraña and Bora; Yagua is being validated.",
+    pt: 'Não reconheço essa língua. Temos conteúdo em tikuna, murui (huitoto), miraña e bora; o yagua está em validação.',
+  },
   itinerario: {
     es: 'Te propongo este itinerario. Puedes reservar cada experiencia desde su tarjeta.',
     en: 'Here is a suggested itinerary. You can book each experience from its card.',
@@ -141,8 +239,7 @@ export class MockProvider implements LlmProvider {
     if (ultimo?.tipo === 'resultado') {
       return Promise.resolve(this.responderResultado(peticion));
     }
-    const texto = ultimo?.tipo === 'usuario' ? ultimo.texto : '';
-    const llamada = this.elegirHerramienta(texto);
+    const llamada = this.elegirHerramienta(peticion);
     return Promise.resolve(
       llamada
         ? { texto: null, llamadas: [llamada] }
@@ -150,8 +247,12 @@ export class MockProvider implements LlmProvider {
     );
   }
 
-  private elegirHerramienta(original: string): LlamadaHerramienta | null {
-    const texto = ` ${sinTildes(original)} `;
+  private elegirHerramienta(peticion: PeticionLlm): LlamadaHerramienta | null {
+    const mensajes = peticion.turnos
+      .filter((t) => t.tipo === 'usuario')
+      .map((t) => ` ${sinTildes(t.texto)} `);
+    const texto = mensajes.at(-1) ?? '';
+    const anteriores = mensajes.slice(0, -1);
     const llamada = (nombre: string, argumentos: Record<string, unknown>) => ({
       id: `mock-${nombre}`,
       nombre,
@@ -179,14 +280,41 @@ export class MockProvider implements LlmProvider {
         fecha,
       });
     }
-    if (PALABRAS_CULTURALES.some((p) => texto.includes(p))) {
-      const tema =
-        Object.entries(TEMAS).find(([, palabras]) =>
-          palabras.some((p) => texto.includes(p)),
-        )?.[0] ?? 'saludo';
-      const lengua = LENGUAS.find((l) => texto.includes(l));
+    // ¿Pregunta por palabras en una lengua? "Cómo se dice delfín en magüta",
+    // o una continuación como "Ahora maloca" después de una pregunta así.
+    const temas = temasDeLaHerramienta(peticion);
+    const quiereVisitar = (t: string) =>
+      /\b(ver|visitar|conocer|reservar|tour|see|visit|book)\b/.test(t);
+    const tieneClave = (t: string) =>
+      PALABRAS_CULTURALES.filter((p) => !LENGUAS.includes(p)).some((p) =>
+        t.includes(p),
+      );
+    // Mensaje cultural por sí solo: palabra clave ("cómo se dice") o una
+    // lengua nombrada (sin intención de visitar).
+    const esCultural = (t: string) =>
+      tieneClave(t) || (mencionaLengua(t) !== null && !quiereVisitar(t));
+    // Se recorre la conversación: "Ahora maloca", "¿Y perro?"… siguen siendo
+    // culturales mientras nombren un tema y la anterior también lo fuera.
+    let enCultural = false;
+    for (const t of anteriores) {
+      enCultural =
+        esCultural(t) ||
+        (enCultural && detectarTema(t, temas) !== null && !quiereVisitar(t));
+    }
+    const tema = detectarTema(texto, temas);
+    const continuaCultural =
+      tema !== null && enCultural && !quiereVisitar(texto);
+    if (esCultural(texto) || continuaCultural) {
+      // La lengua de este mensaje o, si no dice, la de los anteriores.
+      const lengua =
+        mencionaLengua(texto, tieneClave(texto)) ??
+        [...anteriores]
+          .reverse()
+          .map((t) => mencionaLengua(t, tieneClave(t)))
+          .find(Boolean) ??
+        null;
       return llamada('obtener_contenido_cultural', {
-        tema,
+        tema: tema ?? 'saludo',
         ...(lengua && { lengua }),
       });
     }
@@ -222,11 +350,31 @@ export class MockProvider implements LlmProvider {
           llamadas: [],
         };
       }
-      case 'obtener_contenido_cultural':
+      case 'obtener_contenido_cultural': {
+        if (r.mostradas) return { texto: t('cultural'), llamadas: [] };
+        const temas = Array.isArray(r.temasDisponibles)
+          ? (r.temasDisponibles as string[]).map((x) => x.replace(/_/g, ' '))
+          : [];
+        if (temas.length) {
+          const otras = Array.isArray(r.enOtrasLenguas)
+            ? (r.enOtrasLenguas as string[]).join(', ')
+            : '';
+          return {
+            texto:
+              t('culturalSinTema', {
+                lengua: r.lengua,
+                temas: temas.join(', '),
+              }) +
+              (otras ? ` ${t('culturalEnOtras', { lenguas: otras })}` : ''),
+            llamadas: [],
+          };
+        }
+        const desconocida = String(r.mensaje ?? '').startsWith('No reconozco');
         return {
-          texto: r.mostradas ? t('cultural') : t('culturalVacio'),
+          texto: t(desconocida ? 'lenguaDesconocida' : 'culturalVacio'),
           llamadas: [],
         };
+      }
       case 'armar_itinerario':
         return { texto: t('itinerario'), llamadas: [] };
       case 'crear_reserva':

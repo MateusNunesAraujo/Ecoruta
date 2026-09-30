@@ -21,19 +21,6 @@ export interface ResultadoHerramienta {
   tarjetas: Tarjeta[];
 }
 
-// Nombre de la lengua (como lo diría el turista o el LLM) -> código.
-const CODIGOS_LENGUA: Record<string, string> = {
-  tikuna: 'L-TIK',
-  ticuna: 'L-TIK',
-  murui: 'L-MUR',
-  huitoto: 'L-MUR',
-  uitoto: 'L-MUR',
-  witoto: 'L-MUR',
-  yagua: 'L-YAG',
-  mirana: 'L-MIR',
-  bora: 'L-BOR',
-};
-
 const MAX_RESULTADOS = 5;
 
 const normalizar = (texto: string) =>
@@ -145,9 +132,14 @@ export class HerramientasAgente {
               enum: ['saludo', ...temas],
               description: '"saludo" muestra todos los saludos',
             },
+            // Texto libre: el backend reconoce nombres comunes y
+            // autodenominaciones (el LLM no necesita conocerlas).
             lengua: {
               type: 'string',
-              enum: ['tikuna', 'murui', 'yagua', 'miraña', 'bora'],
+              description:
+                'Nombre de la lengua tal como lo escribió el turista. Si en ' +
+                'la conversación ya se habló de una lengua y ahora no menciona ' +
+                'otra, usa esa misma. Omítela solo si nunca se mencionó ninguna.',
             },
           },
           required: ['tema'],
@@ -156,10 +148,13 @@ export class HerramientasAgente {
     ];
   }
 
+  // mensajesTurista: lo que escribió el turista en esta conversación (el
+  // último al final). Solo se usa aquí, en el backend; no va al LLM.
   async ejecutar(
     nombre: string,
     argumentos: Record<string, unknown>,
     idioma: Idioma,
+    mensajesTurista: string[] = [],
   ): Promise<ResultadoHerramienta> {
     try {
       switch (nombre) {
@@ -172,7 +167,7 @@ export class HerramientasAgente {
         case 'crear_reserva':
           return await this.iniciarReserva(argumentos, idioma);
         case 'obtener_contenido_cultural':
-          return await this.contenidoCultural(argumentos);
+          return await this.contenidoCultural(argumentos, mensajesTurista);
         case 'generar_enlace_pago':
           return this.accesoPago();
         default:
@@ -420,12 +415,44 @@ export class HerramientasAgente {
   // Regla 2: las fichas van al frontend; el LLM solo recibe una referencia.
   private async contenidoCultural(
     args: Record<string, unknown>,
+    mensajesTurista: string[],
   ): Promise<ResultadoHerramienta> {
     const tema = normalizar(String(args.tema ?? 'saludo'));
-    const lenguaTexto = args.lengua ? normalizar(String(args.lengua)) : null;
-    const lenguaId = lenguaTexto
-      ? (CODIGOS_LENGUA[lenguaTexto] ?? lenguaTexto.toUpperCase())
-      : undefined;
+
+    // Si el LLM no indicó la lengua, se usa la última que nombró el turista
+    // en la conversación ("Ahora maloca" después de "…en magüta"). Los LLM no
+    // siempre la repiten; esto no depende de ellos. Salvo que pida todas.
+    const ultimo = mensajesTurista.at(-1) ?? '';
+    const pideTodas = /\b(todas|todos|all|every|todas as)\b/i.test(ultimo);
+    if (!args.lengua && !pideTodas) {
+      for (const mensaje of [...mensajesTurista].reverse()) {
+        const encontrada = await this.cultural.resolverLengua(mensaje);
+        if (encontrada) {
+          args = { ...args, lengua: encontrada.nombreComun };
+          break;
+        }
+      }
+    }
+
+    // La lengua llega como la escribió el turista ("magüta", "huitoto"…):
+    // el backend la reconoce. Si no existe, no se muestran fichas de otras
+    // lenguas: se le dice al LLM cuáles hay.
+    let lengua: { id: string; nombreComun: string } | null = null;
+    if (args.lengua) {
+      lengua = await this.cultural.resolverLengua(String(args.lengua));
+      if (!lengua) {
+        return {
+          paraModelo: {
+            mostradas: 0,
+            mensaje:
+              `No reconozco la lengua "${String(args.lengua)}". Lenguas con ` +
+              `contenido: ${(await this.cultural.nombresDeLenguas()).join(', ')}.`,
+          },
+          tarjetas: [],
+        };
+      }
+    }
+    const lenguaId = lengua?.id;
 
     let fichas = await this.cultural.listar({ lenguaId, tema });
     if (fichas.length === 0 && tema === 'saludo') {
@@ -433,12 +460,31 @@ export class HerramientasAgente {
     }
 
     if (fichas.length === 0) {
+      // Qué SÍ hay en esa lengua, y en qué otras lenguas está esa palabra,
+      // para ofrecer alternativas en vez de inventar.
+      const temas = lengua ? await this.cultural.temasDeLengua(lengua.id) : [];
+      const enOtrasLenguas = lengua
+        ? [
+            ...new Set(
+              (await this.cultural.listar({ tema })).map(
+                (f) => f.lengua.nombreComun,
+              ),
+            ),
+          ]
+        : [];
       return {
         paraModelo: {
           mostradas: 0,
+          tema,
+          ...(lengua && { lengua: lengua.nombreComun }),
+          ...(enOtrasLenguas.length > 0 && { enOtrasLenguas }),
           mensaje:
-            'No hay fichas verificadas para eso. Si es yagua, está en ' +
-            'proceso de validación con la comunidad. No inventes palabras.',
+            lengua && temas.length === 0
+              ? `${lengua.nombreComun}: contenido en proceso de validación con la comunidad.`
+              : `No hay una ficha verificada de "${tema}"` +
+                (lengua ? ` en ${lengua.nombreComun}.` : '.') +
+                ' No inventes palabras.',
+          ...(temas.length > 0 && { temasDisponibles: temas }),
         },
         tarjetas: [],
       };
@@ -446,6 +492,7 @@ export class HerramientasAgente {
     return {
       paraModelo: {
         mostradas: fichas.length,
+        tema,
         ids: fichas.map((f) => f.id),
         lenguas: [...new Set(fichas.map((f) => f.lengua.nombreComun))],
         nota:

@@ -4,6 +4,7 @@ import { In, Repository, type FindOptionsWhere } from 'typeorm';
 import { TEMAS_CORTESIA } from './catalogos.js';
 import { FichaCultural } from './ficha-cultural.entity.js';
 import { Lengua } from './lengua.entity.js';
+import { buscarLengua, crearIndiceLenguas } from './nombres-lengua.js';
 
 // Todo lo que sale de este service es solo VERIFICADA: al turista nunca se le
 // entrega una ficha PENDIENTE.
@@ -51,6 +52,31 @@ export class CulturalService {
       relations: { lengua: true },
       order: { lenguaId: 'ASC', tema: 'ASC', id: 'ASC' },
     });
+  }
+
+  // "magüta", "huitoto", "L-TIK"… -> { id, nombreComun } o null si no existe.
+  async resolverLengua(texto: string) {
+    const lenguas = await this.lenguasRepo.find();
+    const id = buscarLengua(crearIndiceLenguas(lenguas), texto);
+    const lengua = lenguas.find((l) => l.id === id);
+    return lengua ? { id: lengua.id, nombreComun: lengua.nombreComun } : null;
+  }
+
+  async nombresDeLenguas(): Promise<string[]> {
+    const lenguas = await this.lenguasRepo.find({ order: { id: 'ASC' } });
+    return lenguas.map((l) => l.nombreComun);
+  }
+
+  // Temas con ficha VERIFICADA en una lengua (ej. para decir qué sí hay).
+  async temasDeLengua(lenguaId: string): Promise<string[]> {
+    const filas = await this.fichas
+      .createQueryBuilder('f')
+      .select('DISTINCT f.tema', 'tema')
+      .where('f.estado = :estado', { estado: VERIFICADA })
+      .andWhere('f.lenguaId = :lenguaId', { lenguaId })
+      .orderBy('tema')
+      .getRawMany<{ tema: string }>();
+    return filas.map((f) => f.tema);
   }
 
   // Temas con al menos una ficha VERIFICADA (ej. hola, gracias, delfin).

@@ -23,12 +23,89 @@ describe('HerramientasAgente: obtener_contenido_cultural', () => {
   } as unknown as FichaCultural;
 
   const listar = vi.fn().mockResolvedValue([ficha]);
+  // Como el CulturalService real: reconoce Tikuna por sus nombres.
+  const resolverLengua = vi.fn((texto: string) =>
+    Promise.resolve(
+      /tikuna|magüta/i.test(texto)
+        ? { id: 'L-TIK', nombreComun: 'Tikuna' }
+        : null,
+    ),
+  );
+  const cultural = {
+    listar,
+    resolverLengua,
+    nombresDeLenguas: () => Promise.resolve(['Tikuna', 'Bora']),
+    temasDeLengua: () => Promise.resolve(['gracias', 'hola', 'maloca']),
+  } as unknown as CulturalService;
   const herramientas = new HerramientasAgente(
     {} as ExperienciasService,
-    { listar } as unknown as CulturalService,
+    cultural,
     {} as ReservasService,
     {} as PagosService,
   );
+
+  afterEach(() => listar.mockClear());
+
+  it('reconoce la lengua por su autodenominación ("Magüta" = Tikuna)', async () => {
+    await herramientas.ejecutar(
+      'obtener_contenido_cultural',
+      { tema: 'gracias', lengua: 'Magüta' },
+      'es',
+    );
+    expect(listar).toHaveBeenCalledWith({ lenguaId: 'L-TIK', tema: 'gracias' });
+  });
+
+  it('si el LLM no pasa la lengua, usa la última que nombró el turista', async () => {
+    await herramientas.ejecutar(
+      'obtener_contenido_cultural',
+      { tema: 'maloca' },
+      'es',
+      ['Cómo se dice delfín en lengua magüta', 'Ahora maloca'],
+    );
+    expect(listar).toHaveBeenCalledWith({ lenguaId: 'L-TIK', tema: 'maloca' });
+  });
+
+  it('"en todas las lenguas": no se limita a la lengua anterior', async () => {
+    await herramientas.ejecutar(
+      'obtener_contenido_cultural',
+      { tema: 'maloca' },
+      'es',
+      [
+        'Cómo se dice delfín en tikuna',
+        'Muéstrame maloca en todas las lenguas',
+      ],
+    );
+    expect(listar).toHaveBeenCalledWith({
+      lenguaId: undefined,
+      tema: 'maloca',
+    });
+  });
+
+  it('lengua desconocida: no muestra fichas de otras lenguas', async () => {
+    const r = await herramientas.ejecutar(
+      'obtener_contenido_cultural',
+      { tema: 'delfin', lengua: 'quechua' },
+      'es',
+    );
+    expect(listar).not.toHaveBeenCalled();
+    expect(r.tarjetas).toEqual([]);
+    expect(JSON.stringify(r.paraModelo)).toContain('Tikuna, Bora');
+  });
+
+  it('tema que no existe en esa lengua: dice cuáles sí hay', async () => {
+    listar.mockResolvedValueOnce([]);
+    const r = await herramientas.ejecutar(
+      'obtener_contenido_cultural',
+      { tema: 'delfin', lengua: 'tikuna' },
+      'es',
+    );
+    expect(r.tarjetas).toEqual([]);
+    expect(r.paraModelo).toMatchObject({
+      mostradas: 0,
+      lengua: 'Tikuna',
+      temasDisponibles: ['gracias', 'hola', 'maloca'],
+    });
+  });
 
   it('al LLM solo le llega una referencia; la ficha completa va en la tarjeta', async () => {
     const r = await herramientas.ejecutar(

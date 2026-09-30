@@ -58,6 +58,14 @@ export class AgenteService {
     const idioma = detectarIdioma(dto.mensaje, dto.idioma ?? 'es');
 
     // Regla 3: emails y teléfonos se ocultan antes de llegar al LLM.
+    // Lo que escribió el turista (para herramientas que necesitan contexto,
+    // ej. la lengua de la conversación). Se queda en el backend.
+    const mensajesTurista = [
+      ...(dto.historial ?? [])
+        .filter((t) => t.rol === 'usuario')
+        .map((t) => t.texto),
+      dto.mensaje,
+    ];
     const turnos: TurnoLlm[] = [
       ...(dto.historial ?? [])
         .slice(-MAX_HISTORIAL)
@@ -108,6 +116,7 @@ export class AgenteService {
           llamada.nombre,
           llamada.argumentos,
           idioma,
+          mensajesTurista,
         );
         tarjetas.push(...resultado.tarjetas);
         turnos.push({
