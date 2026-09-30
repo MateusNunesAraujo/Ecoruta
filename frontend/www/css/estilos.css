@@ -265,6 +265,11 @@ a { color: var(--verde); }
 .estado-reserva { display: inline-block; font-weight: 700; padding: 0.25rem 0.75rem; border-radius: 999px; background: var(--verde-claro); color: var(--verde-oscuro); }
 .estado-pendiente_pago { background: var(--ambar); color: #6b4a00; }
 .estado-cancelada, .estado-expirada { background: #eee; color: #444; }
+.aviso-pago { padding: 0.75rem 1rem; border-radius: var(--radio); font-weight: 600; }
+.aviso-pago.ok { background: var(--verde-claro); color: var(--verde-oscuro); }
+.aviso-pago.no { background: var(--ambar); color: #6b4a00; }
+.pago { margin: 1rem 0; }
+.pago-pendiente { border-top: 1px dashed var(--borde); padding-top: 0.75rem; margin-top: 0.75rem; }
 .cuenta-regresiva { font-size: 1.1rem; font-weight: 700; color: var(--tierra); }
 .lista-reservas { padding-left: 1.2rem; }
 .lista-reservas li { margin-bottom: 0.5rem; }

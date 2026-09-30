@@ -1,18 +1,33 @@
-import { misReservas, pedir } from '../api.js';
+import { configPagos, misReservas, pedir } from '../api.js';
 import { el, vaciar } from '../dom.js';
 import { fechaLarga, t } from '../i18n.js';
-import { aviso, bloquePrecio, normalizarExperiencia } from '../tarjetas.js';
+import {
+  aviso,
+  bloquePrecio,
+  botonPagar,
+  normalizarExperiencia,
+} from '../tarjetas.js';
+
+const RESULTADOS_OK = ['APPROVED'];
 
 // #/reserva/<uuid>: estado de la reserva con cuenta regresiva.
-export function vistaReserva(contenedor, [id]) {
+// Al volver de Wompi llega como #/reserva/<uuid>?pago=APPROVED (o DECLINED…).
+export function vistaReserva(contenedor, [id], consulta) {
   let temporizador = null;
+  const resultadoPago = consulta.get('pago');
+  // Se quita ?pago= de la URL para que el aviso no reaparezca al recargar
+  // (replaceState no dispara el enrutador).
+  if (resultadoPago) history.replaceState(null, '', `#/reserva/${id}`);
 
   const cargar = async () => {
     clearInterval(temporizador);
     vaciar(contenedor, aviso(t('cargando')));
     try {
-      const reserva = await pedir(`/reservas/${id}`);
-      temporizador = dibujar(contenedor, reserva, cargar);
+      const [reserva, config] = await Promise.all([
+        pedir(`/reservas/${id}`),
+        configPagos(),
+      ]);
+      temporizador = dibujar(contenedor, reserva, cargar, config, resultadoPago);
     } catch (error) {
       vaciar(
         contenedor,
@@ -27,7 +42,7 @@ export function vistaReserva(contenedor, [id]) {
   return () => clearInterval(temporizador);
 }
 
-function dibujar(contenedor, reserva, recargar) {
+function dibujar(contenedor, reserva, recargar, config, resultadoPago) {
   const e = normalizarExperiencia(reserva.experiencia);
   const pendiente = reserva.estado === 'PENDIENTE_PAGO';
   const cuenta = el('p', { class: 'cuenta-regresiva', role: 'timer', 'aria-live': 'off' });
@@ -72,6 +87,16 @@ function dibujar(contenedor, reserva, recargar) {
       'article',
       { class: 'detalle' },
       el('h1', {}, t('resv.titulo')),
+      resultadoPago
+        ? el(
+            'p',
+            {
+              class: RESULTADOS_OK.includes(resultadoPago) ? 'aviso-pago ok' : 'aviso-pago no',
+              role: 'status',
+            },
+            t(`pago.resultado.${resultadoPago}`),
+          )
+        : null,
       el('p', { class: `estado-reserva estado-${reserva.estado.toLowerCase()}` }, t(`resv.estado.${reserva.estado}`)),
       el('h2', {}, el('a', { href: `#/experiencia/${e.id}` }, e.nombre)),
       el(
@@ -83,7 +108,16 @@ function dibujar(contenedor, reserva, recargar) {
         el('dt', {}, t('resv.codigo')), el('dd', { class: 'codigo' }, reserva.id.slice(0, 8).toUpperCase()),
       ),
       el('div', {}, el('strong', {}, t('resv.total')), bloquePrecio(reserva.totalCop)),
-      pendiente ? [cuenta, el('p', { class: 'nota' }, t('resv.pago'))] : null,
+      pendiente ? cuenta : null,
+      // Botón de Wompi si los pagos están configurados; si no, un aviso.
+      pendiente
+        ? config.habilitado
+          ? botonPagar(reserva.id, config)
+          : el('p', { class: 'nota' }, t('resv.pago'))
+        : null,
+      reserva.estado === 'CONFIRMADA'
+        ? el('p', { class: 'mensaje-ok' }, t('resv.confirmadaTexto'))
+        : null,
       reserva.estado === 'EXPIRADA' ? el('p', { class: 'nota' }, t('resv.vencida')) : null,
       pendiente
         ? el('button', { type: 'button', class: 'boton boton-peligro', onClick: cancelar }, t('resv.cancelar'))

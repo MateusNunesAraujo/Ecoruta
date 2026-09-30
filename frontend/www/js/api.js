@@ -33,6 +33,29 @@ export async function pedir(ruta, { metodo = 'GET', cuerpo } = {}) {
   return datos;
 }
 
+// --- Pagos (Wompi) ---
+
+let configuracionPagos = null;
+
+// { habilitado, sandbox }. Si falla, se asume que no hay pagos en línea.
+export function configPagos() {
+  configuracionPagos ??= pedir('/pagos/config').catch(() => ({
+    habilitado: false,
+    sandbox: false,
+  }));
+  return configuracionPagos;
+}
+
+// Pide al backend el enlace firmado y lleva al turista a Wompi. Al terminar,
+// Wompi lo devuelve a la pantalla de su reserva con el resultado.
+// En la app Android (Bloque 8) se abrirá con @capacitor/browser.
+export async function irAPagar(reservaId) {
+  const { url } = await pedir(`/pagos/reservas/${reservaId}/enlace`, {
+    metodo: 'POST',
+  });
+  location.href = url;
+}
+
 // --- Reservas del turista en este navegador ---
 // Solo se guardan los ids (no nombre ni email) para poder volver a consultarlas.
 const CLAVE_RESERVAS = 'ecoruta.reservas';

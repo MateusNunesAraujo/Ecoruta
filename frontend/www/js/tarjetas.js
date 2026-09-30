@@ -2,7 +2,14 @@
 // fichas culturales, disponibilidad, itinerario y formulario de reserva.
 // El chat usa las mismas funciones para dibujar las "tarjetas" del agente.
 
-import { ErrorApi, pedir, recordarReserva } from './api.js';
+import {
+  configPagos,
+  ErrorApi,
+  irAPagar,
+  misReservas,
+  pedir,
+  recordarReserva,
+} from './api.js';
 import { el } from './dom.js';
 import { duracion, fechaLarga, idioma, precio, t } from './i18n.js';
 
@@ -266,6 +273,63 @@ function campo(nombre, etiqueta, atributos) {
   );
 }
 
+// Botón "Pagar con Wompi" (con aviso de datos de prueba en sandbox).
+export function botonPagar(reservaId, config) {
+  const estado = el('p', { class: 'form-estado', role: 'status' });
+  const boton = el('button', { type: 'button', class: 'boton boton-grande' }, t('pago.boton'));
+  boton.addEventListener('click', async () => {
+    boton.disabled = true;
+    boton.textContent = t('pago.redirigiendo');
+    estado.textContent = '';
+    try {
+      await irAPagar(reservaId);
+    } catch (error) {
+      estado.textContent = error.message;
+      boton.disabled = false;
+      boton.textContent = t('pago.boton');
+    }
+  });
+  return el(
+    'div',
+    { class: 'pago' },
+    boton,
+    config.sandbox ? el('p', { class: 'nota' }, t('pago.sandbox')) : null,
+    estado,
+  );
+}
+
+// Tarjeta "pago" del agente: reservas pendientes de este dispositivo con su
+// botón de pagar. El agente nunca recibe los ids de las reservas.
+function tarjetaPago() {
+  const contenido = el('div', {}, t('cargando'));
+  (async () => {
+    const config = await configPagos();
+    const reservas = await Promise.all(
+      misReservas().map((id) => pedir(`/reservas/${id}`).catch(() => null)),
+    );
+    const pendientes = reservas.filter(
+      (r) => r?.estado === 'PENDIENTE_PAGO' && new Date(r.expiraEn) > new Date(),
+    );
+    if (!config.habilitado || pendientes.length === 0) {
+      contenido.replaceChildren(t(config.habilitado ? 'pago.ninguna' : 'resv.pago'));
+      return;
+    }
+    contenido.replaceChildren(
+      ...pendientes.map((r) => {
+        const e = normalizarExperiencia(r.experiencia);
+        return el(
+          'div',
+          { class: 'pago-pendiente' },
+          el('p', {}, el('a', { href: `#/reserva/${r.id}` }, e.nombre), ` · ${fechaLarga(r.fecha)}`),
+          bloquePrecio(r.totalCop),
+          botonPagar(r.id, config),
+        );
+      }),
+    );
+  })();
+  return el('article', { class: 'tarjeta' }, el('h3', {}, t('pago.titulo')), contenido);
+}
+
 // Tarjeta según el tipo que envía el agente.
 export function tarjetaDelAgente(tarjeta) {
   switch (tarjeta.tipo) {
@@ -277,6 +341,8 @@ export function tarjetaDelAgente(tarjeta) {
       return tarjetaDisponibilidad(tarjeta.disponibilidad);
     case 'itinerario':
       return tarjetaItinerario(tarjeta.dias);
+    case 'pago':
+      return tarjetaPago();
     case 'formulario_reserva':
       return formularioReserva({
         experienciaId: tarjeta.experiencia.id,
