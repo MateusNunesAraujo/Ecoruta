@@ -15,6 +15,25 @@ Los cambios que necesitan tocar JavaScript o archivos de Eliel se piden en
 
 ---
 
+### 2026-09-30 — PC: marca más grande y lema en la cabecera
+**Hecho (solo `css/estilos.css`, desde 768 px):**
+- "Ecoruta Conectada" pasa de 1.05rem a 1.35rem.
+- Lema debajo, en cursiva, con `.marca::after`: "La IA conversa, la
+  comunidad es dueña de su palabra" (es), "AI converses, the community owns
+  its word" (en), "A IA conversa, a comunidade é dona da sua palavra" (pt).
+  Cambia con el idioma gracias a `:lang()` sobre `<html lang>`.
+- En el celular no cambia nada (no hay espacio junto al selector de idioma).
+- Probado a 1024 px en los tres idiomas: la cabecera sigue midiendo 60 px
+  y el menú queda justo debajo.
+
+**Decisiones:**
+- El texto va en el CSS y no en `i18n.js`, porque el enlace de la marca lo
+  crea `app.js` (de Eliel). Pedido 4 opcional para pasarlo a `i18n.js`.
+- Traducciones en/pt propuestas por Claude; el lema en español es de Félix.
+
+**Pendiente:**
+- Que alguien del equipo revise las traducciones en inglés y portugués.
+
 ### 2026-09-30 — Botón "Enviar" del chat con borde de colores y resplandor
 **Hecho (solo `css/estilos.css`):**
 - `.chat-formulario .boton`: píldora oscura (#3b3b3b con anillo interno

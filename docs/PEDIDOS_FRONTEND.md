@@ -162,3 +162,13 @@ Evita que al abrir la app se vea un instante el otro modo antes de que cargue
     </script>
     <link rel="stylesheet" href="css/estilos.css" />
 ```
+
+## ⏳ 4. (Opcional, baja prioridad) Lema de la cabecera desde i18n.js
+- **Qué:** hoy el lema de PC ("La IA conversa, la comunidad es dueña de su
+  palabra") sale de `.marca::after` en el CSS, con una regla `:lang()` por
+  idioma. Si se quiere tener todos los textos en `i18n.js`: en `app.js`,
+  agregar dentro del enlace `.marca` un `el('span', { class: 'lema' }, t('app.lema'))`,
+  cambiar el valor de `app.lema` en los tres idiomas por el lema nuevo, y
+  avisar para cambiar `.marca::after` por `.lema` en el CSS.
+- **Por qué:** así los traductores encuentran todos los textos en un solo
+  archivo. Mientras tanto, la versión en CSS funciona bien.
