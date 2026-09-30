@@ -9,7 +9,8 @@ export function nombreAudioSeguro(nombre: string): string {
   const extension = extname(nombre).toLowerCase();
   const base = nombre
     .slice(0, nombre.length - extname(nombre).length)
-    .replace(/\(mp3cut\.net\)/gi, '')
+    // Con o sin paréntesis: "(mp3cut.net)", "mp3cut.net)"…
+    .replace(/\(?\s*mp3cut\.net\s*\)?/gi, '')
     .normalize('NFD') // separa la letra de su tilde: "ó" -> "o" + "´"
     .replace(/\p{M}/gu, '') // quita las tildes (la ñ queda como n)
     .toLowerCase()
