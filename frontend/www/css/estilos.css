@@ -42,7 +42,8 @@
   --radio: 12px;
   --sombra: 0 1px 3px rgb(0 0 0 / 0.08);
   --portada-verde: #178a52;  /* inicio del degradado del título (4:1 con el fondo) */
-  --portada-final: #143f2a;
+  /* Colores que recorren el título de la portada (todos 4:1 o más con el fondo). */
+  --titulo-colores: linear-gradient(90deg, #178a52, #0f7c86, #2f5fb3, #7a3fb0, #b0306d, #b35a12, #178a52);
   --figura-verde: #20b26b;   /* figura decorativa de la portada */
   --figura-oscuro: #1c2421;
   --alto-nav: 64px;
@@ -87,7 +88,7 @@
     --borde-control: #7a8a82;
     --sombra: 0 1px 3px rgb(0 0 0 / 0.5);
     --portada-verde: #3ddc84;
-    --portada-final: #e4ebe7;
+    --titulo-colores: linear-gradient(90deg, #3ddc84, #3dd6e0, #7fa8ff, #c39bff, #ff8fc4, #ffb366, #3ddc84);
     --figura-verde: #3ddc84;
     --figura-oscuro: #e4ebe7;
   }
@@ -117,7 +118,7 @@
   --borde-control: #7a8a82;
   --sombra: 0 1px 3px rgb(0 0 0 / 0.5);
   --portada-verde: #3ddc84;
-  --portada-final: #e4ebe7;
+  --titulo-colores: linear-gradient(90deg, #3ddc84, #3dd6e0, #7fa8ff, #c39bff, #ff8fc4, #ffb366, #3ddc84);
   --figura-verde: #3ddc84;
   --figura-oscuro: #e4ebe7;
 }
@@ -287,7 +288,7 @@ a { color: var(--verde); }
   margin: 0 auto;
   padding-top: 0.5rem;
 }
-/* Título grande "Ecoruta Conectada" con degradado. Es decorativo (la marca
+/* Título grande "Ecoruta Conectada" con colores que fluyen. Es decorativo (la marca
    ya está en la cabecera), por eso el texto alternativo va vacío: "/ ''". */
 .portada::before {
   content: 'Ecoruta\A Conectada';
@@ -298,9 +299,7 @@ a { color: var(--verde); }
   line-height: 0.95;
   letter-spacing: -0.04em;
   color: var(--portada-verde); /* por si el navegador no soporta background-clip */
-  background:
-    linear-gradient(100deg, transparent 42%, rgb(255 255 255 / 0.35) 50%, transparent 58%) 150% 0 / 250% 100% no-repeat,
-    linear-gradient(90deg, var(--portada-verde) 35%, var(--portada-final) 100%);
+  background: var(--titulo-colores) 0 0 / 200% 100% repeat-x;
   -webkit-background-clip: text;
   background-clip: text;
   -webkit-text-fill-color: transparent;
@@ -364,14 +363,14 @@ body:has(.portada) .marca::after { display: none; }
 }
 
 /* --- Portada: animaciones "agua" ---
-   Entrada escalonada (como si salieran del agua), brillo que recorre el
+   Entrada escalonada (como si salieran del agua), colores que recorren el
    título y figura que flota. En PC, además, el filtro SVG #agua (definido
-   en index.html) ondula el título y la figura. Todo se apaga con "reducir
+   en index.html) ondula la figura; las letras no se deforman. Todo se apaga con "reducir
    movimiento" (ver el @media prefers-reduced-motion al final). */
 .portada::before {
   animation:
     portada-emerger 0.9s cubic-bezier(0.2, 0.7, 0.2, 1) both,
-    portada-brillo 7s ease-in-out 1.2s infinite;
+    portada-colores 12s linear infinite;
 }
 .portada h1 { animation: portada-aparecer 0.8s 0.15s cubic-bezier(0.2, 0.7, 0.2, 1) both; }
 .portada-texto { animation: portada-aparecer 0.8s 0.3s cubic-bezier(0.2, 0.7, 0.2, 1) both; }
@@ -395,10 +394,10 @@ body:has(.portada) .marca::after { display: none; }
   from { opacity: 0; transform: translateY(18px); filter: blur(4px); }
   to { opacity: 1; transform: none; filter: blur(0); }
 }
-/* La luz cruza el título y descansa fuera de él el resto del ciclo. */
-@keyframes portada-brillo {
-  0% { background-position: 150% 0, 0 0; }
-  45%, 100% { background-position: -60% 0, 0 0; }
+/* Los colores recorren el título sin saltos: el degradado empieza y
+   termina en el mismo color y avanza exactamente un ciclo (200%). */
+@keyframes portada-colores {
+  to { background-position: 200% 0; }
 }
 @keyframes portada-flotar {
   0%, 100% { transform: translateY(0) rotate(0deg); }
@@ -409,9 +408,9 @@ body:has(.portada) .marca::after { display: none; }
 .filtros-svg { position: absolute; width: 0; height: 0; overflow: hidden; }
 
 @media (min-width: 768px) {
-  /* Ondulación de agua solo en PC: en celulares económicos un filtro
-     animado puede ir lento. */
-  .portada::before, .portada::after { filter: url(#agua); }
+  /* Ondulación de agua de la figura, solo en PC: en celulares económicos
+     un filtro animado puede ir lento. */
+  .portada::after { filter: url(#agua); }
 }
 
 /* --- Tarjetas --- */

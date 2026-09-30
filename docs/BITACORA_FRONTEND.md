@@ -15,6 +15,18 @@ Los cambios que necesitan tocar JavaScript o archivos de Eliel se piden en
 
 ---
 
+### 2026-09-30 — Portada: colores que fluyen en el título (sin deformar letras)
+**Hecho (a pedido de Félix):**
+- El filtro `#agua` ya no se aplica al título: las letras quedan quietas y
+  nítidas. La figura sigue ondulando en PC.
+- El título usa `--titulo-colores`: degradado verde → turquesa → azul →
+  violeta → magenta → naranja → verde, al doble de ancho y repetido, que
+  avanza un ciclo cada 12 s (`portada-colores`), sin saltos. Reemplaza al
+  brillo blanco y a `--portada-final`.
+- Tonos oscuros en modo claro (4:1 a 6:1 con el fondo) y claros en modo
+  oscuro (más de 7:1).
+- Con "reducir movimiento", los colores quedan quietos.
+
 ### 2026-09-30 — Portada: animaciones de "agua"
 **Hecho:**
 - `index.html`: filtro SVG `#agua` oculto al final de `<body>`. Hace un
