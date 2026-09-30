@@ -15,6 +15,30 @@ Los cambios que necesitan tocar JavaScript o archivos de Eliel se piden en
 
 ---
 
+### 2026-09-30 — Botón "Enviar" del chat con borde de colores y resplandor
+**Hecho (solo `css/estilos.css`):**
+- `.chat-formulario .boton`: píldora oscura (#3b3b3b con anillo interno
+  #262626), borde de 4 px con degradado pastel (verde, ámbar, rosado,
+  violeta, azul) y resplandor difuminado detrás (`::before`). El degradado se
+  mueve lento; brilla más al pasar el mouse, tocarlo o con foco; se atenúa
+  mientras el asistente responde (`:disabled`). 52 px de alto.
+- Sin animación si el dispositivo pide "reducir movimiento".
+- Corregido un fallo que ya existía: a la derecha del botón asomaban las
+  sugerencias del chat al desplazarse. El fondo del formulario ahora llega al
+  borde de la pantalla (`margin-inline: -1rem; padding-inline: 1rem`).
+- Probado: capturas a 360 y 1024 px en claro y oscuro; en una copia del
+  frontend, al tocar el botón el mensaje se envía y el campo se vacía.
+
+**Decisiones:**
+- Se estiliza con `.chat-formulario .boton`, sin tocar `chat.js`, y solo
+  afecta a este botón.
+- El botón no lleva `z-index` ni `isolation`: si los tuviera, el resplandor
+  se dibujaría encima de su fondo en vez de detrás.
+- Mismo aspecto en modo claro y oscuro (texto blanco sobre gris oscuro).
+
+**Pendiente:**
+- Nada.
+
 ### 2026-09-30 — Ajustes: elegir modo claro, oscuro o automático (preparado)
 **Hecho:**
 - `css/estilos.css`: el modo oscuro también se activa con
