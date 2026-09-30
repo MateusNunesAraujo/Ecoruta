@@ -9,6 +9,7 @@ import { vistaExperiencia } from './vistas/experiencia.js';
 import { vistaExperiencias } from './vistas/experiencias.js';
 import { vistaInicio } from './vistas/inicio.js';
 import { vistaLenguas } from './vistas/lenguas.js';
+import { vistaPagoSimulado } from './vistas/pago-simulado.js';
 import { vistaMisReservas, vistaReserva } from './vistas/reserva.js';
 
 const RUTAS = [
@@ -19,6 +20,7 @@ const RUTAS = [
   [/^\/lenguas(?:\/([A-Za-z-]+))?$/, vistaLenguas, 'lenguas'],
   [/^\/reserva\/([0-9a-f-]{36})$/, vistaReserva, 'inicio'],
   [/^\/reservas$/, vistaMisReservas, 'inicio'],
+  [/^\/pago-simulado\/([A-Z0-9-]+)$/, vistaPagoSimulado, 'inicio'],
 ];
 
 const principal = document.getElementById('principal');
