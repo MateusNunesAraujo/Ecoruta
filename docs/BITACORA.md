@@ -12,6 +12,41 @@ Registro de avance. Cada entrada nueva va arriba (la más reciente primero).
 
 ---
 
+### 2026-09-30 — Bloque 9: Despliegue y demo (túnel desde el portátil)
+**Hecho:**
+- `npm run demo` (en `backend/`, script `backend/scripts/demo.mjs`): levanta
+  PostgreSQL, abre un túnel de Cloudflare (`cloudflared`, sin cuenta ni
+  dominio), compila y arranca el backend (o reutiliza uno que ya corra),
+  comprueba la dirección pública y genera el QR en la terminal y en
+  `demo/qr-ecoruta.png` (+ `demo/url.txt`). Ctrl + C apaga todo.
+- `trust proxy` en `loopback` (`main.ts`): con el túnel todas las visitas
+  llegan desde 127.0.0.1; así el límite de mensajes del chat es por visitante.
+- `docs/DEMO.md`: lista de verificación, recorrido de 5 minutos, qué decir
+  con honestidad y plan B.
+- `.gitignore`: `demo/`. Dependencia de desarrollo nueva: `qrcode` (MIT).
+- Probado con un túnel real: por HTTPS cargan la página, el JS, los audios y
+  la API; a través del túnel el chat bloqueó el mensaje 11 (429) mientras una
+  petición desde el propio portátil seguía en 200 (el backend distingue al
+  visitante). Al apagar, la dirección responde 530 (túnel cerrado).
+
+**Decisiones:**
+- Túnel desde el portátil en vez de un servicio en la nube (Render): sin
+  cuenta ni dominio, sin tiempos de "despertar", y el Excel y los audios (que
+  no están en GitHub) no salen del portátil.
+- La dirección `*.trycloudflare.com` cambia en cada ejecución: el QR se
+  regenera solo. Cloudflare indica que no tiene garantía de disponibilidad y
+  admite hasta 200 peticiones simultáneas (suficiente para la demo).
+- `trust proxy` solo para `loopback`: desde internet nadie puede falsificar
+  su IP con `X-Forwarded-For`.
+
+**Pendiente:**
+- Ensayo completo del recorrido de `docs/DEMO.md` (lo hace el equipo).
+- Para Wompi real habría que configurar en su panel la URL de eventos con la
+  dirección del túnel, que cambia en cada ejecución (con pagos simulados no
+  hace falta).
+- Si se quiere una dirección fija: Cloudflare Tunnel con cuenta y dominio, o
+  un servicio en la nube.
+
 ### 2026-09-30 — Pagos simulados para la demo (sin cuenta de Wompi)
 **Hecho:**
 - El equipo no puede crear la cuenta de Wompi (pide muchos datos). Se agregó

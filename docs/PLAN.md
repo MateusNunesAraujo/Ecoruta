@@ -61,7 +61,7 @@ de bloque se mantienen porque la bitácora y el código los usan.
 - Webhook que cambia la reserva a `CONFIRMADA` al aprobarse el pago.
 - Verificar la documentación actual de Wompi antes de implementar.
 
-## Bloque 9 — Despliegue y demo · prioridad 3
+## ✅ Bloque 9 — Despliegue y demo · prioridad 3
 - Desplegar backend + base de datos en un servicio con HTTPS.
 - Código QR hacia la versión web.
 - Ensayo completo del guion de la demo.
