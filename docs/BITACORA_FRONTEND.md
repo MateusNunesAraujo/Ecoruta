@@ -15,6 +15,27 @@ Los cambios que necesitan tocar JavaScript o archivos de Eliel se piden en
 
 ---
 
+### 2026-09-30 — Portada quieta otra vez + "Hablar con el asistente" con borde de colores
+**Hecho (a pedido de Félix):**
+- Se quitaron todas las animaciones de la portada: colores del título,
+  filtro `#agua`, figura flotante y entrada escalonada.
+  `css/estilos.css` e `index.html` volvieron a como estaban en el commit
+  07e3025 (portada estática); las dos entradas de abajo quedan como
+  historial.
+- El botón "Hablar con el asistente" de la portada tiene el mismo estilo
+  que "Enviar" del chat: píldora oscura, borde de colores y resplandor en
+  movimiento. Se reutilizan las mismas reglas con el selector
+  `.accesos a[href='#/chat']` (sin tocar `inicio.js`).
+- `.accesos { isolation: isolate; }` para que el resplandor quede detrás del
+  botón y no detrás del fondo de la página.
+- Probado: capturas en PC (claro) y celular (oscuro); al tocar el botón se
+  abre `#/chat`; mide 52 px.
+
+**Decisiones:**
+- Se identifica el botón por su `href`: `inicio.js` le pone las mismas
+  clases que a los otros botones. Si Eliel cambia esa ruta, hay que
+  actualizar el selector.
+
 ### 2026-09-30 — Portada: colores que fluyen en el título (sin deformar letras)
 **Hecho (a pedido de Félix):**
 - El filtro `#agua` ya no se aplica al título: las letras quedan quietas y
