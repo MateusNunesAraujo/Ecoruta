@@ -10,6 +10,7 @@ import { AppService } from './app.service.js';
 import { CulturalModule } from './cultural/cultural.module.js';
 import { EmprendimientosModule } from './emprendimientos/emprendimientos.module.js';
 import { FaqModule } from './faq/faq.module.js';
+import { PagosModule } from './pagos/pagos.module.js';
 import { ReservasModule } from './reservas/reservas.module.js';
 
 @Module({
@@ -55,6 +56,7 @@ import { ReservasModule } from './reservas/reservas.module.js';
     FaqModule,
     ReservasModule,
     AgenteModule,
+    PagosModule,
   ],
   controllers: [AppController],
   providers: [AppService],

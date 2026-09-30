@@ -277,6 +277,47 @@ export class ReservasService {
     }
   }
 
+  // Confirma una reserva cuyo pago fue APROBADO por Wompi (Bloque 6).
+  // - Si sigue en PENDIENTE_PAGO y no ha vencido: se confirma.
+  // - Si el pago llegó tarde (ya EXPIRADA, CANCELADA o vencida): el cupo ya se
+  //   liberó, así que solo se confirma si todavía hay cupo; si no, devuelve
+  //   SIN_CUPO para que el pago se marque para reembolso.
+  // Se puede llamar varias veces con el mismo pago (webhook y retorno).
+  async confirmarPago(
+    id: string,
+  ): Promise<'CONFIRMADA' | 'YA_CONFIRMADA' | 'SIN_CUPO'> {
+    return this.dataSource.transaction(async (manager) => {
+      // Bloquea la reserva: si llegan el webhook y el retorno a la vez, el
+      // segundo espera y la encuentra ya confirmada.
+      const reserva = await manager.findOne(Reserva, {
+        where: { id },
+        lock: { mode: 'pessimistic_write' },
+      });
+      if (!reserva) throw new NotFoundException(`No existe la reserva ${id}`);
+      if (reserva.estado === 'CONFIRMADA') return 'YA_CONFIRMADA';
+
+      const vigente =
+        reserva.estado === 'PENDIENTE_PAGO' && reserva.expiraEn > new Date();
+      if (!vigente) {
+        // Mismo bloqueo que al crear reservas, para no sobrevender.
+        const experiencia = await manager.findOne(Experiencia, {
+          where: { id: reserva.experienciaId },
+          lock: { mode: 'pessimistic_write' },
+        });
+        const ocupados = await this.cuposOcupados(
+          manager,
+          reserva.experienciaId,
+          reserva.fecha,
+        );
+        const capacidad = experiencia?.capacidad ?? 0;
+        if (capacidad - ocupados < reserva.personas) return 'SIN_CUPO';
+      }
+
+      await manager.update(Reserva, { id }, { estado: 'CONFIRMADA' });
+      return 'CONFIRMADA';
+    });
+  }
+
   // Cada minuto: las PENDIENTE_PAGO vencidas pasan a EXPIRADA.
   @Cron(CronExpression.EVERY_MINUTE)
   async expirarVencidas() {
