@@ -139,6 +139,14 @@ const TEXTOS = {
     'interes.cultura': 'Cultura', 'interes.fotografia': 'Fotografía',
     'interes.navegacion': 'Navegación', 'interes.musica_danza': 'Música y danza',
     'interes.aventura': 'Aventura', 'interes.fauna': 'Fauna',
+
+    'nav.ajustes': 'Ajustes',
+    'ajustes.titulo': 'Ajustes',
+    'ajustes.apariencia': 'Apariencia',
+    'ajustes.tema.auto': 'Automático',
+    'ajustes.tema.claro': 'Claro',
+    'ajustes.tema.oscuro': 'Oscuro',
+    'ajustes.tema.ayuda': 'Automático usa el mismo modo (claro u oscuro) de tu dispositivo.',
   },
 
   en: {
@@ -273,6 +281,14 @@ const TEXTOS = {
     'interes.cultura': 'Culture', 'interes.fotografia': 'Photography',
     'interes.navegacion': 'Boating', 'interes.musica_danza': 'Music and dance',
     'interes.aventura': 'Adventure', 'interes.fauna': 'Wildlife',
+
+    'nav.ajustes': 'Settings',
+    'ajustes.titulo': 'Settings',
+    'ajustes.apariencia': 'Appearance',
+    'ajustes.tema.auto': 'Automatic',
+    'ajustes.tema.claro': 'Light',
+    'ajustes.tema.oscuro': 'Dark',
+    'ajustes.tema.ayuda': 'Automatic uses the same mode (light or dark) as your device.',
   },
 
   pt: {
@@ -407,6 +423,14 @@ const TEXTOS = {
     'interes.cultura': 'Cultura', 'interes.fotografia': 'Fotografia',
     'interes.navegacion': 'Navegação', 'interes.musica_danza': 'Música e dança',
     'interes.aventura': 'Aventura', 'interes.fauna': 'Fauna',
+
+    'nav.ajustes': 'Ajustes',
+    'ajustes.titulo': 'Ajustes',
+    'ajustes.apariencia': 'Aparência',
+    'ajustes.tema.auto': 'Automático',
+    'ajustes.tema.claro': 'Claro',
+    'ajustes.tema.oscuro': 'Escuro',
+    'ajustes.tema.ayuda': 'Automático usa o mesmo modo (claro ou escuro) do seu dispositivo.',
   },
 };
 

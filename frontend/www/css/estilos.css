@@ -49,12 +49,16 @@
   line-height: 1.5;
 }
 
-/* --- Modo oscuro: se activa solo si el dispositivo lo tiene activado ---
+/* --- Modo oscuro ---
+   Por defecto sigue al dispositivo (prefers-color-scheme). En Ajustes el
+   turista puede fijarlo: la app pone data-tema="claro" u "oscuro" en <html>.
    Solo cambian las variables; las reglas de abajo no se tocan. El verde pasa
    a ser claro (acento) con texto oscuro encima, y la cabecera queda en un
-   verde profundo. Todos los textos cumplen 4.5:1 (WCAG AA). */
+   verde profundo. Todos los textos cumplen 4.5:1 (WCAG AA).
+   ⚠️ Los dos bloques de variables oscuras deben ser iguales: si cambias uno,
+   copia el cambio en el otro. */
 @media (prefers-color-scheme: dark) {
-  :root {
+  :root:not([data-tema='claro']) {
     --verde: #7ccf9f;
     --sobre-verde: #0d1f15;
     --verde-hover: #9adcb5;
@@ -80,6 +84,33 @@
     --sombra: 0 1px 3px rgb(0 0 0 / 0.5);
   }
 }
+:root[data-tema='oscuro'] {
+  --verde: #7ccf9f;
+  --sobre-verde: #0d1f15;
+  --verde-hover: #9adcb5;
+  --verde-oscuro: #a8e0bf;
+  --verde-claro: #1e3a2b;
+  --cabecera-fondo: #173d2a;
+  --cabecera-control: #0f2a1d;
+  --tierra: #e3a86b;
+  --sobre-tierra: #1a1208;
+  --ambar: #3a2e14;
+  --texto-ambar: #f2d08a;
+  --borde-ambar: #7a6030;
+  --rojo: #ff8f8f;
+  --rojo-claro: #3a1c1e;
+  --neutro-fondo: #2a302d;
+  --neutro-texto: #c9d0cc;
+  --fondo: #111714;
+  --superficie: #1a2320;
+  --texto: #e4ebe7;
+  --texto-suave: #a8b4ad;
+  --borde: #34423b;
+  --borde-control: #7a8a82;
+  --sombra: 0 1px 3px rgb(0 0 0 / 0.5);
+}
+:root[data-tema='claro'] { color-scheme: light; }
+:root[data-tema='oscuro'] { color-scheme: dark; }
 
 *, *::before, *::after { box-sizing: border-box; }
 
@@ -156,7 +187,9 @@ a { color: var(--verde); }
   right: 0;
   z-index: 5;
   display: grid;
-  grid-template-columns: repeat(4, 1fr);
+  /* Una columna por enlace, sin importar cuántos haya (4 o 5 con Ajustes). */
+  grid-auto-flow: column;
+  grid-auto-columns: 1fr;
   min-height: var(--alto-nav);
   padding-bottom: env(safe-area-inset-bottom);
   background: var(--superficie);
@@ -168,7 +201,10 @@ a { color: var(--verde); }
   align-items: center;
   justify-content: center;
   gap: 2px;
+  padding: 0 2px;
   font-size: 0.75rem;
+  line-height: 1.2;
+  text-align: center;
   color: var(--texto-suave);
   text-decoration: none;
 }
@@ -344,6 +380,32 @@ a { color: var(--verde); }
 .cuenta-regresiva { font-size: 1.1rem; font-weight: 700; color: var(--tierra); }
 .lista-reservas { padding-left: 1.2rem; }
 .lista-reservas li { margin-bottom: 0.5rem; }
+
+/* --- Ajustes (#/ajustes) ---
+   Cada opción es un <label class="opcion"> con un radio y un <span>. El radio
+   queda invisible encima de toda la opción: se toca con el dedo y sigue
+   funcionando con teclado y lector de pantalla. */
+.grupo-opciones { border: 0; padding: 0; margin: 0 0 0.75rem; min-width: 0; }
+.grupo-opciones legend { font-weight: 600; padding: 0; margin-bottom: 0.5rem; }
+.opciones { display: grid; grid-template-columns: repeat(3, 1fr); gap: 0.4rem; max-width: 26rem; }
+.opcion { position: relative; display: block; }
+.opcion input { position: absolute; inset: 0; width: 100%; height: 100%; margin: 0; opacity: 0; cursor: pointer; }
+.opcion span {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 44px;
+  padding: 0.3rem 0.5rem;
+  border: 1px solid var(--borde-control);
+  border-radius: 999px;
+  background: var(--superficie);
+  color: var(--texto);
+  font-size: 0.95rem;
+  font-weight: 600;
+  text-align: center;
+}
+.opcion input:checked + span { background: var(--verde); border-color: var(--verde); color: var(--sobre-verde); }
+.opcion input:focus-visible + span { outline: 3px solid var(--tierra); outline-offset: 2px; }
 
 .aviso { padding: 1.5rem 0; text-align: center; color: var(--texto-suave); }
 

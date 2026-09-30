@@ -15,6 +15,35 @@ Los cambios que necesitan tocar JavaScript o archivos de Eliel se piden en
 
 ---
 
+### 2026-09-30 — Ajustes: elegir modo claro, oscuro o automático (preparado)
+**Hecho:**
+- `css/estilos.css`: el modo oscuro también se activa con
+  `<html data-tema="oscuro">`, y `data-tema="claro"` fuerza el claro aunque el
+  dispositivo esté en oscuro. Sin atributo, sigue al dispositivo (como antes).
+- Menú inferior con `grid-auto-flow: column`: se adapta a 4 o 5 opciones.
+  Etiquetas centradas por si alguna ocupa dos líneas.
+- Estilos de la pantalla de Ajustes: `.grupo-opciones`, `.opciones` y
+  `.opcion` (radio invisible encima de una píldora de 44 px).
+- `js/i18n.js`: 7 claves nuevas en es/en/pt (`nav.ajustes`, `ajustes.*`).
+  Ninguna clave movida ni borrada; los tres idiomas tienen las mismas claves.
+- El JavaScript de la pantalla (ruta, `tema.js`, `vistas/ajustes.js` y un
+  script en `index.html`) quedó como pedido 3 en `PEDIDOS_FRONTEND.md`, con
+  el código completo.
+
+**Decisiones:**
+- El JavaScript es de Eliel: se pide en vez de hacerlo aquí (decisión de
+  Félix). Antes se probó en una copia del frontend fuera del repositorio,
+  con el dispositivo en claro y en oscuro.
+- La pestaña se llama "Ajustes" / "Settings" y no "Configuración", porque a
+  360 px cada opción del menú mide unos 72 px.
+- Las variables oscuras están dos veces en el CSS (una para
+  `prefers-color-scheme` y otra para `data-tema`), porque CSS no permite
+  unir un `@media` con un selector. Hay un aviso para mantenerlas iguales.
+
+**Pendiente:**
+- Pedido 3 a Eliel. Hasta entonces la app funciona igual que antes (modo
+  automático) y el menú sigue con 4 opciones.
+
 ### 2026-09-30 — Modo oscuro automático
 **Hecho:**
 - `css/estilos.css`: bloque `@media (prefers-color-scheme: dark)` que solo
