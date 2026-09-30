@@ -12,6 +12,46 @@ Registro de avance. Cada entrada nueva va arriba (la más reciente primero).
 
 ---
 
+### 2026-09-30 — Agente: información práctica verificada y examen de calidad
+**Contexto:** Mateus veía respuestas "tontas" porque su `.env` tenía
+`LLM_PROVIDER=mock` (reglas fijas, no IA). Con Gemini las respuestas eran
+buenas, pero sobre salud, transporte o frontera respondía de memoria (no con
+las preguntas frecuentes verificadas del Excel, que el agente no podía leer)
+y en preguntas generales no mostraba experiencias.
+
+**Hecho:**
+- Herramienta `consultar_informacion_practica(consulta, categoria?)`:
+  busca en las preguntas frecuentes (por raíz de palabra, en los 3 idiomas;
+  `faq/busqueda.ts`) y devuelve también cómo llegar y normas de visita de las
+  comunidades nombradas. El prompt obliga a usarla y citar la fuente.
+- `buscar_experiencias` sin intereses → muestra variada (una por
+  emprendimiento) para "¿qué se puede hacer?".
+- La respuesta de `/api/agente/mensaje` incluye `herramientas` (las que usó).
+- Detector de idioma: más palabras de inglés y portugués ("need", "visit",
+  "preciso", "vacina"…); fallaba con "Do I need a passport…" y "Preciso de
+  vacina…".
+- Mock: preguntas prácticas (responde con la respuesta verificada y su
+  fuente), preguntas generales, pide fecha y personas si faltan, y usa la
+  fecha al buscar disponibilidad.
+- Examen del agente: `npm run evaluar` (en `backend/`, con el backend
+  corriendo): 25 preguntas típicas en es/en/pt con lo esperado en cada una y
+  detector de texto indígena escrito por el LLM.
+- Resultado: **Gemini 25/25** (sin usar el respaldo) y **Mock 25/25**.
+  113 pruebas unitarias.
+- CLAUDE.md (herramientas) y `docs/DEMO.md` (ejecutar el examen) actualizados.
+
+**Decisiones:**
+- Las preguntas frecuentes sí pasan por el LLM: son información práctica,
+  no contenido cultural de las comunidades (regla 2).
+- Búsqueda por palabras clave simple (sin embeddings ni servicios externos):
+  12 preguntas frecuentes no justifican más.
+- El examen espera 7 s entre preguntas (límite del chat y cuota gratuita).
+
+**Pendiente:**
+- Mateus debe poner `LLM_PROVIDER=gemini` en su `.env` para usar la IA.
+- Ampliar el examen con preguntas reales que hagan los jurados o turistas.
+- Los datos de comunidades (cómo llegar, normas) solo están en español.
+
 ### 2026-09-30 — Corrección del agente: lenguas por cualquier nombre y conversación
 **Problema (reportado probando la demo con `LLM_PROVIDER=mock`):**
 "Cómo se dice delfín en lengua magüta" mostraba saludos en Bora y "Ahora

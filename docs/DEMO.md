@@ -14,6 +14,8 @@ internet** durante toda la demo.
   - `LLM_PROVIDER=gemini` con `GEMINI_API_KEY` y `GROQ_API_KEY` (si se
     agota la cuota, responde el modo Mock automáticamente).
   - `PAGOS_SIMULADOS=true` (no hay cuenta de Wompi).
+- [ ] Con el backend corriendo y `LLM_PROVIDER=gemini`, en `backend/`:
+      `npm run evaluar` → deben aprobarse las 25 preguntas del examen.
 - [ ] Ensayar el recorrido completo de abajo con el cronómetro.
 
 **30 minutos antes**
