@@ -56,7 +56,7 @@ de bloque se mantienen porque la bitácora y el código los usan.
 - Textos de la interfaz en es/en/pt.
 - `js/config.js` con la URL base de la API.
 
-## Bloque 6 — Pagos · prioridad 2
+## ✅ Bloque 6 — Pagos · prioridad 2
 - Wompi en modo sandbox: generar enlace de pago para una reserva.
 - Webhook que cambia la reserva a `CONFIRMADA` al aprobarse el pago.
 - Verificar la documentación actual de Wompi antes de implementar.

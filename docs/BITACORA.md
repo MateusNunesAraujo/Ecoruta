@@ -12,6 +12,68 @@ Registro de avance. Cada entrada nueva va arriba (la más reciente primero).
 
 ---
 
+### 2026-09-30 — Bloque 6: Pagos con Wompi (sandbox)
+**Hecho:**
+- Módulo `pagos/`: entity `IntentoPago` (tabla `intentos_pago`), service,
+  controller y funciones de firma en `wompi.ts`.
+- Endpoints: `GET /api/pagos/config` (`{ habilitado, sandbox }`),
+  `POST /api/pagos/reservas/:id/enlace` (URL firmada del Web Checkout),
+  `POST /api/pagos/webhook` (eventos de Wompi) y
+  `GET /api/pagos/retorno/:id?id=<transacción>` (vuelta desde Wompi →
+  redirige a `#/reserva/<id>?pago=<resultado>`).
+- `ReservasService.confirmarPago()`: confirma la reserva (con bloqueo) y
+  aplica la regla del pago tardío.
+- Agente: herramienta `generar_enlace_pago()` → tarjeta `pago`; el prompt
+  prohíbe pedir datos de tarjeta en el chat. Mock reconoce "pagar/pay".
+- Frontend: botón "Pagar con Wompi" en la reserva, datos de prueba en modo
+  sandbox, aviso del resultado al volver, tarjeta de pago en el chat. Sin
+  llaves de Wompi se muestra "el pago estará disponible muy pronto".
+- CLAUDE.md: nueva descripción de `generar_enlace_pago()`.
+- `.env.example`: `WOMPI_INTEGRITY_SECRET`, `WOMPI_API_URL`, `URL_PUBLICA`.
+- Probado con llaves de prueba locales y eventos firmados por nosotros
+  (16 comprobaciones): enlace y firma correctos, vence con el cupo, firma
+  falsa → 401, rechazado → reintento con referencia nueva, monto alterado →
+  ignorado, aprobado → CONFIRMADA (evento repetido sin efecto), pago tardío
+  con cupo → CONFIRMADA, sin cupo → `REQUIERE_REEMBOLSO`, retorno con
+  transacción inexistente (consulta real al sandbox) → `DESCONOCIDO`.
+  Capturas a tamaño de celular sin errores de JS. 65 pruebas unitarias.
+  Los datos de prueba se borraron.
+
+**Decisiones:**
+- Web Checkout de Wompi: el turista paga en la página de Wompi; nunca
+  manejamos datos de tarjeta. Enlace firmado con SHA256 (referencia + monto
+  en centavos + moneda + expiración + secreto de integridad).
+- `expiration-time` del enlace = `expiraEn` de la reserva: no se puede pagar
+  una reserva ya vencida.
+- Dos caminos para confirmar, ambos confiables e idempotentes: webhook
+  (firma verificada con `WOMPI_EVENTS_SECRET`) y retorno (el backend consulta
+  la transacción a `https://sandbox.wompi.co/v1/transactions/:id`, no confía
+  en el navegador). El retorno permite probar en local sin webhook.
+- Un intento de pago por cada clic en "Pagar", con referencia única
+  (`ECR-…`): un pago tardío de un intento anterior no se pierde.
+- Se valida que monto y moneda coincidan con lo firmado.
+- Pago aprobado después de vencer: se confirma si aún hay cupo; si no, el
+  intento queda `REQUIERE_REEMBOLSO` (aviso en el log) y el turista ve que
+  el emprendimiento lo contactará. Propuesta, pendiente de validar con el
+  equipo.
+- `generar_enlace_pago()` no recibe el id de la reserva: el frontend muestra
+  las reservas pendientes de ese dispositivo (el id no pasa por el LLM).
+
+**Pendiente:**
+- Crear la cuenta sandbox de Wompi (https://comercios.wompi.co →
+  Desarrolladores) y poner en `.env`: `WOMPI_PUBLIC_KEY` (pub_test_…),
+  `WOMPI_INTEGRITY_SECRET` (test_integrity_…) y `WOMPI_EVENTS_SECRET`
+  (test_events_…). Probar un pago real en sandbox con Nequi `3991111111`
+  (aprobado) y `3992222222` (rechazado), o tarjeta `4242 4242 4242 4242`.
+- El checksum del ejemplo de la documentación de Wompi no coincide con su
+  propia cadena de ejemplo (parece ilustrativo). Confirmar la validación con
+  un evento real del sandbox.
+- Bloque 9: configurar en el panel de Wompi la URL de eventos
+  `https://<dominio>/api/pagos/webhook` y `URL_PUBLICA` con el dominio.
+- Bloque 8: en la app, abrir Wompi con `@capacitor/browser`.
+- Reembolsos (`REQUIERE_REEMBOLSO`) y cancelar reservas pagadas: hoy son
+  manuales (no hay panel del emprendedor).
+
 ### 2026-09-30 — Tareas pendientes: datos nuevos, prueba real de los LLM y tasa BRL
 **Hecho:**
 - Datos: el equipo agregó 17 audios Bora (`.mp3`) y la atribución de las
