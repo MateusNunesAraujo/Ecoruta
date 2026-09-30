@@ -127,6 +127,9 @@ const TEXTOS = {
 
     'iti.titulo': 'Itinerario sugerido',
     'iti.dia': 'Día {n}',
+    'iti.manana': 'Mañana',
+    'iti.tarde': 'Tarde',
+    'iti.reservar': 'Reservar',
 
     'dia.lunes': 'lunes', 'dia.martes': 'martes', 'dia.miercoles': 'miércoles',
     'dia.jueves': 'jueves', 'dia.viernes': 'viernes', 'dia.sabado': 'sábado',
@@ -269,6 +272,9 @@ const TEXTOS = {
 
     'iti.titulo': 'Suggested itinerary',
     'iti.dia': 'Day {n}',
+    'iti.manana': 'Morning',
+    'iti.tarde': 'Afternoon',
+    'iti.reservar': 'Book',
 
     'dia.lunes': 'Monday', 'dia.martes': 'Tuesday', 'dia.miercoles': 'Wednesday',
     'dia.jueves': 'Thursday', 'dia.viernes': 'Friday', 'dia.sabado': 'Saturday',
@@ -411,6 +417,9 @@ const TEXTOS = {
 
     'iti.titulo': 'Roteiro sugerido',
     'iti.dia': 'Dia {n}',
+    'iti.manana': 'Manhã',
+    'iti.tarde': 'Tarde',
+    'iti.reservar': 'Reservar',
 
     'dia.lunes': 'segunda', 'dia.martes': 'terça', 'dia.miercoles': 'quarta',
     'dia.jueves': 'quinta', 'dia.viernes': 'sexta', 'dia.sabado': 'sábado',

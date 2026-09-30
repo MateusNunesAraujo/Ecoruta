@@ -15,6 +15,35 @@ Los cambios que necesitan tocar JavaScript o archivos de Eliel se piden en
 
 ---
 
+### 2026-09-30 — Itinerario como línea de tiempo (CSS listo, JS pedido)
+**Hecho:**
+- `css/estilos.css`: la tarjeta de itinerario es una línea de tiempo (un
+  punto por día sobre una línea vertical). Bloques `.iti-bloque` con
+  "☀️ Mañana / 🌇 Tarde · hora", foto (o relleno con canoa si no hay),
+  nombre, emprendimiento, duración, precio en negrita y botón Reservar.
+- Diseño según el ancho de la tarjeta (`container-type` + `@container`):
+  angosta = foto arriba y Reservar a todo el ancho; ancha (460 px o más) =
+  foto | texto | Reservar en una fila. En el chat, el itinerario ocupa las
+  dos columnas.
+- El formato actual (solo texto) también se ve como línea de tiempo con el
+  CSS nuevo, antes de que Eliel cambie el JS.
+- `js/i18n.js`: `iti.manana`, `iti.tarde`, `iti.reservar` en es/en/pt.
+- Pedido 6: nuevo `tarjetaItinerario` (tarjetas.js) y la foto en el
+  resumen del backend, con el código probado.
+- Probado en una copia con datos de ejemplo: 360 y 900 px, claro y oscuro;
+  botones de 44 px con `aria-label`, que abren `#/experiencia/<id>`.
+
+**Decisiones:**
+- "Mañana/Tarde" se calcula en el frontend con la misma regla que el
+  backend (`horaSalida` antes de las 12:00), sin cambiar la API.
+- Reservar lleva a la página de la experiencia, que ya tiene disponibilidad
+  y formulario; así no se duplica la lógica de reservas.
+- `@container` en vez de `@media`: en el chat la tarjeta va dentro de una
+  burbuja más angosta que la pantalla.
+
+**Pendiente:**
+- Pedido 6 (Eliel). Confirmar el formato de `fotos` en los datos.
+
 ### 2026-09-30 — Sin lema en la cabecera
 **Hecho (a pedido de Félix, solo `css/estilos.css`):**
 - Se quitó el lema de debajo de "Ecoruta Conectada" en la cabecera de todas

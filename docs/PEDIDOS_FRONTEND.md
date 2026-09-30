@@ -189,3 +189,125 @@ Evita que al abrir la app se vea un instante el otro modo antes de que cargue
   `.portada-palabra` (naranja `--tierra`, fuente `--fuente-lenguas`, grande).
 - **Antes:** el equipo debe confirmar qué palabra es la de la imagen del
   diseño, con su fuente y comunidad, y cargarla como ficha verificada.
+
+## ⏳ 6. Itinerario como línea de tiempo con foto, duración, precio y Reservar
+- **Qué:** que la tarjeta de itinerario del chat muestre, por cada día, los
+  bloques "☀️ Mañana · 06:30" y "🌇 Tarde · 14:00", y en cada bloque: foto,
+  nombre, emprendimiento, duración, precio por persona y un botón
+  **Reservar** que lleva a `#/experiencia/<id>` (donde está el formulario de
+  disponibilidad y reserva).
+- **Ya está hecho en `feat/frontend-diseno`:** todo el CSS (línea de tiempo,
+  bloques, foto o relleno si no hay foto, diseño angosto/ancho con
+  `@container`) y los textos `iti.manana`, `iti.tarde`, `iti.reservar` en
+  es/en/pt. Con el CSS, el formato actual (solo texto) ya se ve como línea
+  de tiempo; lo de abajo agrega foto, duración, precio y Reservar.
+- **Probado:** en una copia del frontend con este mismo código y datos de
+  ejemplo, a 360 y 900 px, claro y oscuro. Los botones Reservar miden 44 px,
+  llevan `aria-label` con el nombre de la experiencia y abren
+  `#/experiencia/<id>`.
+
+### 6.1 Frontend: reemplazar `tarjetaItinerario` en `frontend/www/js/tarjetas.js`
+No cambia su firma ni dónde se llama (`case 'itinerario'`). Usa `precio` y
+`duracion`, que `tarjetas.js` ya importa de `i18n.js`.
+```js
+// Itinerario como línea de tiempo: cada día con sus bloques de mañana y
+// tarde; cada bloque con foto, duración, precio y botón Reservar.
+export function tarjetaItinerario(dias) {
+  return el(
+    'article',
+    { class: 'tarjeta tarjeta-itinerario' },
+    el('h3', {}, t('iti.titulo')),
+    el(
+      'ol',
+      { class: 'iti-dias' },
+      dias.map((d) =>
+        el(
+          'li',
+          { class: 'iti-dia' },
+          el('h4', { class: 'iti-dia-titulo' }, t('iti.dia', { n: d.dia })),
+          el('ol', { class: 'iti-bloques' }, d.experiencias.map(bloqueItinerario)),
+        ),
+      ),
+    ),
+  );
+}
+
+function bloqueItinerario(experiencia) {
+  const e = normalizarExperiencia(experiencia);
+  // Igual que el backend (armar_itinerario): sale antes de las 12:00 = mañana.
+  const manana = (e.horaSalida ?? '00:00') < '12:00';
+  const valor = precio(e.precioCop);
+  const tiempo = duracion(e.duracionMinutos);
+  return el(
+    'li',
+    { class: `iti-bloque ${manana ? 'iti-manana' : 'iti-tarde'}` },
+    el(
+      'p',
+      { class: 'iti-momento' },
+      t(manana ? 'iti.manana' : 'iti.tarde'),
+      e.horaSalida ? ` · ${e.horaSalida}` : null,
+    ),
+    el(
+      'div',
+      { class: 'iti-experiencia' },
+      e.foto
+        ? el('img', { class: 'iti-foto', src: e.foto, alt: '', loading: 'lazy' })
+        : el('span', { class: 'iti-foto sin-foto', 'aria-hidden': 'true' }),
+      el(
+        'div',
+        { class: 'iti-info' },
+        el('a', { class: 'iti-nombre', href: `#/experiencia/${e.id}` }, e.nombre),
+        el('p', { class: 'tarjeta-sub' }, e.emprendimiento, e.comunidad ? ` · ${e.comunidad}` : null),
+        tiempo || valor
+          ? el(
+              'p',
+              { class: 'iti-meta' },
+              tiempo ? `⏱ ${tiempo}` : null,
+              tiempo && valor ? ' · ' : null,
+              valor ? el('strong', {}, valor.cop) : null,
+              valor ? ` ${t('exp.porPersona')}` : null,
+            )
+          : null,
+      ),
+      el(
+        'a',
+        {
+          class: 'boton iti-reservar',
+          href: `#/experiencia/${e.id}`,
+          'aria-label': `${t('iti.reservar')}: ${e.nombre}`,
+        },
+        t('iti.reservar'),
+      ),
+    ),
+  );
+}
+```
+
+### 6.2 Frontend: `normalizarExperiencia` (mismo archivo), agregar la foto
+Para cuando la experiencia viene completa de la API (no del agente):
+```diff
+     longitud: e.longitud,
++    foto: e.emprendimiento?.fotos?.[0] ?? null,
+   };
+```
+
+### 6.3 Backend: foto en el resumen (`backend/src/agente/tarjetas.ts`)
+Hoy `ResumenExperiencia` no trae foto; las fotos están en
+`Emprendimiento.fotos`. Agregar la primera:
+```diff
+ export interface ResumenExperiencia {
+   ...
+   longitud: number | null;
++  foto: string | null;
+ }
+```
+```diff
+     longitud: experiencia.longitud,
++    foto: experiencia.emprendimiento?.fotos?.[0] ?? null,
+   };
+```
+- ⚠️ Revisar qué guarda `fotos` (viene del Excel con `fila.lista('fotos')`):
+  si son nombres de archivo y no URLs, `foto` debe ser la ruta que sirve el
+  frontend (por ejemplo `fotos/<archivo>`). Si no hay foto, se muestra un
+  relleno de colores con una canoa.
+- La foto no pasa por el LLM (`paraLlm` no la incluye), solo va a la tarjeta.
