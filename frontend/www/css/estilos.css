@@ -14,12 +14,25 @@
 }
 
 :root {
+  /* Avisa al navegador que hay tema claro y oscuro: así adapta solo las
+     barras de desplazamiento, el selector de idioma y los campos de fecha. */
+  color-scheme: light dark;
   --verde: #1f5f3f;        /* selva: botones y enlaces (contraste 7.9:1 con blanco) */
-  --verde-oscuro: #143f2a;
+  --sobre-verde: #ffffff;  /* texto encima de --verde (botones, burbuja del turista) */
+  --verde-hover: #143f2a;  /* fondo del botón al pasar el mouse */
+  --verde-oscuro: #143f2a; /* texto encima de --verde-claro */
   --verde-claro: #e3efe7;
+  --cabecera-fondo: #1f5f3f;
+  --cabecera-control: #143f2a;
   --tierra: #7a4a1e;       /* río y madera: detalles */
+  --sobre-tierra: #ffffff;
   --ambar: #fff3dc;
+  --texto-ambar: #6b4a00;
+  --borde-ambar: #e2c48c;
   --rojo: #a4262c;
+  --rojo-claro: #fbeaea;
+  --neutro-fondo: #eeeeee; /* reservas canceladas o vencidas */
+  --neutro-texto: #444444;
   --fondo: #f7f5ef;
   --superficie: #ffffff;
   --texto: #1c2421;
@@ -34,6 +47,38 @@
   color: var(--texto);
   background: var(--fondo);
   line-height: 1.5;
+}
+
+/* --- Modo oscuro: se activa solo si el dispositivo lo tiene activado ---
+   Solo cambian las variables; las reglas de abajo no se tocan. El verde pasa
+   a ser claro (acento) con texto oscuro encima, y la cabecera queda en un
+   verde profundo. Todos los textos cumplen 4.5:1 (WCAG AA). */
+@media (prefers-color-scheme: dark) {
+  :root {
+    --verde: #7ccf9f;
+    --sobre-verde: #0d1f15;
+    --verde-hover: #9adcb5;
+    --verde-oscuro: #a8e0bf;
+    --verde-claro: #1e3a2b;
+    --cabecera-fondo: #173d2a;
+    --cabecera-control: #0f2a1d;
+    --tierra: #e3a86b;
+    --sobre-tierra: #1a1208;
+    --ambar: #3a2e14;
+    --texto-ambar: #f2d08a;
+    --borde-ambar: #7a6030;
+    --rojo: #ff8f8f;
+    --rojo-claro: #3a1c1e;
+    --neutro-fondo: #2a302d;
+    --neutro-texto: #c9d0cc;
+    --fondo: #111714;
+    --superficie: #1a2320;
+    --texto: #e4ebe7;
+    --texto-suave: #a8b4ad;
+    --borde: #34423b;
+    --borde-control: #7a8a82;
+    --sombra: 0 1px 3px rgb(0 0 0 / 0.5);
+  }
 }
 
 *, *::before, *::after { box-sizing: border-box; }
@@ -69,7 +114,7 @@ a { color: var(--verde); }
   gap: 0.5rem;
   padding: 0.5rem 1rem;
   padding-top: max(0.5rem, env(safe-area-inset-top));
-  background: var(--verde);
+  background: var(--cabecera-fondo);
   color: #fff;
 }
 .marca {
@@ -87,7 +132,7 @@ a { color: var(--verde); }
   min-height: 44px;
   border-radius: 8px;
   border: 1px solid rgb(255 255 255 / 0.5);
-  background: var(--verde-oscuro);
+  background: var(--cabecera-control);
   color: #fff;
   padding: 0 0.5rem;
   font: inherit;
@@ -141,21 +186,21 @@ a { color: var(--verde); }
   border: 2px solid var(--verde);
   border-radius: 999px;
   background: var(--verde);
-  color: #fff;
+  color: var(--sobre-verde);
   font: inherit;
   font-weight: 600;
   text-decoration: none;
   cursor: pointer;
 }
-.boton:hover { background: var(--verde-oscuro); border-color: var(--verde-oscuro); }
+.boton:hover { background: var(--verde-hover); border-color: var(--verde-hover); }
 .boton:disabled { opacity: 0.6; cursor: wait; }
 .boton-secundario { background: var(--superficie); color: var(--verde); }
 .boton-secundario:hover { background: var(--verde-claro); color: var(--verde-oscuro); }
 .boton-peligro { background: var(--superficie); color: var(--rojo); border-color: var(--rojo); }
-.boton-peligro:hover { background: #fbeaea; border-color: var(--rojo); }
+.boton-peligro:hover { background: var(--rojo-claro); border-color: var(--rojo); }
 .boton-grande { width: 100%; min-height: 52px; font-size: 1.05rem; }
 .boton-audio { min-height: 44px; padding: 0.25rem 0.9rem; margin-bottom: 0.75rem; }
-.boton-audio[aria-pressed='true'] { background: var(--tierra); border-color: var(--tierra); color: #fff; }
+.boton-audio[aria-pressed='true'] { background: var(--tierra); border-color: var(--tierra); color: var(--sobre-tierra); }
 
 .enlace {
   display: inline-block;
@@ -184,7 +229,7 @@ a { color: var(--verde); }
   cursor: pointer;
   white-space: nowrap;
 }
-.chip[aria-current='true'] { background: var(--verde); border-color: var(--verde); color: #fff; }
+.chip[aria-current='true'] { background: var(--verde); border-color: var(--verde); color: var(--sobre-verde); }
 
 /* --- Portada --- */
 .portada { text-align: center; padding-top: 1rem; }
@@ -255,7 +300,7 @@ a { color: var(--verde); }
   border: 1px solid var(--borde-control);
   border-radius: 8px;
   font: inherit;
-  background: #fff;
+  background: var(--superficie);
   color: var(--texto);
   width: 100%;
 }
@@ -271,10 +316,10 @@ a { color: var(--verde); }
 .mensaje { max-width: 92%; }
 .mensaje > p { margin: 0; padding: 0.6rem 0.9rem; border-radius: var(--radio); white-space: pre-wrap; }
 .mensaje.usuario { align-self: flex-end; }
-.mensaje.usuario > p { background: var(--verde); color: #fff; border-bottom-right-radius: 4px; }
+.mensaje.usuario > p { background: var(--verde); color: var(--sobre-verde); border-bottom-right-radius: 4px; }
 .mensaje.asistente { align-self: flex-start; width: 100%; }
 .mensaje.asistente > p { background: var(--superficie); border: 1px solid var(--borde); border-bottom-left-radius: 4px; max-width: 92%; }
-.mensaje.error > p { background: var(--ambar); border-color: #e2c48c; }
+.mensaje.error > p { background: var(--ambar); border-color: var(--borde-ambar); }
 .mensaje.escribiendo { color: var(--texto-suave); font-style: italic; padding-left: 0.5rem; }
 .mensaje-tarjetas { display: grid; gap: 0.6rem; margin-top: 0.6rem; }
 .chat-sugerencias { display: flex; gap: 0.4rem; overflow-x: auto; margin: 0 -1rem 0.6rem; padding: 0 1rem 0.25rem; }
@@ -289,11 +334,11 @@ a { color: var(--verde); }
 
 /* --- Reservas --- */
 .estado-reserva { display: inline-block; font-weight: 700; padding: 0.25rem 0.75rem; border-radius: 999px; background: var(--verde-claro); color: var(--verde-oscuro); }
-.estado-pendiente_pago { background: var(--ambar); color: #6b4a00; }
-.estado-cancelada, .estado-expirada { background: #eee; color: #444; }
+.estado-pendiente_pago { background: var(--ambar); color: var(--texto-ambar); }
+.estado-cancelada, .estado-expirada { background: var(--neutro-fondo); color: var(--neutro-texto); }
 .aviso-pago { padding: 0.75rem 1rem; border-radius: var(--radio); font-weight: 600; }
 .aviso-pago.ok { background: var(--verde-claro); color: var(--verde-oscuro); }
-.aviso-pago.no { background: var(--ambar); color: #6b4a00; }
+.aviso-pago.no { background: var(--ambar); color: var(--texto-ambar); }
 .pago { margin: 1rem 0; }
 .pago-pendiente { border-top: 1px dashed var(--borde); padding-top: 0.75rem; margin-top: 0.75rem; }
 .cuenta-regresiva { font-size: 1.1rem; font-weight: 700; color: var(--tierra); }

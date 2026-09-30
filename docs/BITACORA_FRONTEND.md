@@ -15,6 +15,34 @@ Los cambios que necesitan tocar JavaScript o archivos de Eliel se piden en
 
 ---
 
+### 2026-09-30 — Modo oscuro automático
+**Hecho:**
+- `css/estilos.css`: bloque `@media (prefers-color-scheme: dark)` que solo
+  cambia las variables de `:root`. Se activa si el dispositivo está en modo
+  oscuro; no hay botón para cambiarlo.
+- `color-scheme: light dark` para que el navegador adapte el selector de
+  idioma, los campos de fecha y las barras de desplazamiento.
+- Los 11 colores escritos a mano pasaron a variables nuevas
+  (`--sobre-verde`, `--verde-hover`, `--cabecera-fondo`,
+  `--cabecera-control`, `--sobre-tierra`, `--texto-ambar`, `--borde-ambar`,
+  `--rojo-claro`, `--neutro-fondo`, `--neutro-texto`). En modo claro
+  conservan el mismo valor: el modo claro no cambia.
+- `index.html`: segunda etiqueta `theme-color` (#173d2a) para la barra del
+  navegador en modo oscuro. El JavaScript no la usa.
+- Probado con capturas en modo claro y oscuro de la app real (360 y 1024 px)
+  y de una página de muestra con tarjetas, chips, chat, formulario y estados.
+
+**Decisiones:**
+- En oscuro, el verde pasa a ser un acento claro (#7ccf9f) con texto oscuro
+  encima, porque un verde oscuro sobre fondo negro no se lee. La cabecera
+  queda en un verde profundo (#173d2a) para no deslumbrar.
+- Contraste revisado con un script: textos entre 7:1 y 15:1, bordes de
+  campos 4.4:1 o más.
+
+**Pendiente:**
+- Verificar en el APK (Bloque 8) que el WebView de Android siga el modo
+  oscuro del teléfono (pedido 2 en `PEDIDOS_FRONTEND.md`).
+
 ### 2026-09-30 — Botones de 44 px, bordes visibles y foco en la cabecera
 **Hecho (solo `css/estilos.css`):**
 - A 44 px de alto: selector de idioma, enlace "Ecoruta Conectada" de la
