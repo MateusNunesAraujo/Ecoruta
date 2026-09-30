@@ -30,6 +30,9 @@ Los cambios que necesitan tocar JavaScript o archivos de Eliel se piden en
   botón y no detrás del fondo de la página.
 - Misma forma de píldora (`border-radius: 999px`) que los otros dos botones
   de la portada; el botón Enviar del chat conserva sus esquinas de 16 px.
+- Mismo alto visual que los otros dos: los tres ya medían 52 px, pero el
+  borde de 4 px y el anillo interno de 5 px achicaban la parte oscura. En la
+  portada el borde de colores pasa a 2 px (como los otros) y el anillo a 3 px.
 - Probado: capturas en PC (claro) y celular (oscuro); al tocar el botón se
   abre `#/chat`; mide 52 px.
 
