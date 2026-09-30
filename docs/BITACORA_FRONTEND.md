@@ -28,6 +28,8 @@ Los cambios que necesitan tocar JavaScript o archivos de Eliel se piden en
   `.accesos a[href='#/chat']` (sin tocar `inicio.js`).
 - `.accesos { isolation: isolate; }` para que el resplandor quede detrás del
   botón y no detrás del fondo de la página.
+- Misma forma de píldora (`border-radius: 999px`) que los otros dos botones
+  de la portada; el botón Enviar del chat conserva sus esquinas de 16 px.
 - Probado: capturas en PC (claro) y celular (oscuro); al tocar el botón se
   abre `#/chat`; mide 52 px.
 

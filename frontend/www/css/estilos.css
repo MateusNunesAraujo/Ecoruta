@@ -519,6 +519,8 @@ body:has(.portada) .marca::after { display: none; }
 /* .accesos es su propia capa: el resplandor queda detrás del botón y no
    detrás del fondo de la página. */
 .accesos { isolation: isolate; }
+/* En la portada, misma forma de píldora que los otros botones. */
+.accesos a[href='#/chat'] { border-radius: 999px; }
 .chat-formulario .boton:disabled::before { opacity: 0.25; }
 @keyframes enviar-brillo {
   to { background-position: 0 0, 200% 0; }
