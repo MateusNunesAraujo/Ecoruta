@@ -16,6 +16,7 @@
     "start:prod": "node dist/main",
     "seed": "nest build && node dist/seed/seed.js",
     "demo": "node scripts/demo.mjs",
+    "evaluar": "node scripts/evaluar-agente.mjs",
     "lint": "oxlint src/ test/",
     "test": "vitest run",
     "test:watch": "vitest",

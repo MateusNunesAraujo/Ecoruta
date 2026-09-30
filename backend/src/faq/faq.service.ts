@@ -1,6 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository, type FindOptionsWhere } from 'typeorm';
+import { puntuar } from './busqueda.js';
 import type { Idioma } from './catalogos.js';
 import { PreguntaFrecuente } from './pregunta-frecuente.entity.js';
 
@@ -10,6 +11,42 @@ export class FaqService {
     @InjectRepository(PreguntaFrecuente)
     private readonly repositorio: Repository<PreguntaFrecuente>,
   ) {}
+
+  // Las preguntas que mejor responden a una consulta (máx. 3). Se busca en
+  // los tres idiomas a la vez. Con categoría, solo dentro de ella.
+  async buscar(consulta: string, categoria?: string) {
+    const where: FindOptionsWhere<PreguntaFrecuente> = {};
+    if (categoria) where.categoria = categoria;
+    const preguntas = await this.repositorio.find({
+      where,
+      order: { id: 'ASC' },
+    });
+    const puntuadas = preguntas
+      .map((p) => ({
+        p,
+        puntos: puntuar(
+          consulta,
+          [
+            p.preguntaEs,
+            p.respuestaEs,
+            p.preguntaEn,
+            p.respuestaEn,
+            p.preguntaPt,
+            p.respuestaPt,
+          ]
+            .filter(Boolean)
+            .join(' '),
+        ),
+      }))
+      .filter((x) => x.puntos > 0)
+      .sort((a, b) => b.puntos - a.puntos)
+      .map((x) => x.p);
+    // Si nada coincide pero se pidió una categoría, se devuelve esa categoría.
+    return (puntuadas.length ? puntuadas : categoria ? preguntas : []).slice(
+      0,
+      3,
+    );
+  }
 
   async listar(filtros: { categoria?: string; idioma?: Idioma }) {
     // TypeORM 1.x no acepta "undefined" en el where.

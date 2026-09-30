@@ -4,6 +4,9 @@ import { ExperienciasService } from '../emprendimientos/experiencias.service.js'
 import { INTERESES, type Interes } from '../emprendimientos/intereses.js';
 import type { Idioma } from '../faq/catalogos.js';
 import { esFechaValida } from '../reservas/fechas.js';
+import { EmprendimientosService } from '../emprendimientos/emprendimientos.service.js';
+import { CATEGORIAS_FAQ } from '../faq/catalogos.js';
+import { FaqService } from '../faq/faq.service.js';
 import { PagosService } from '../pagos/pagos.service.js';
 import { ReservasService } from '../reservas/reservas.service.js';
 import type { DefinicionHerramienta } from './providers/llm-provider.interface.js';
@@ -38,6 +41,8 @@ export class HerramientasAgente {
     private readonly cultural: CulturalService,
     private readonly reservas: ReservasService,
     private readonly pagos: PagosService,
+    private readonly faq: FaqService,
+    private readonly emprendimientos: EmprendimientosService,
   ) {}
 
   // Definiciones que se envían al LLM (JSON Schema). Los temas culturales se
@@ -58,12 +63,31 @@ export class HerramientasAgente {
         nombre: 'buscar_experiencias',
         descripcion:
           'Busca experiencias turísticas de emprendimientos locales según los ' +
-          'intereses del turista. Si se da una fecha, solo devuelve las ' +
-          'disponibles ese día.',
+          'intereses del turista. Sin intereses devuelve una muestra variada ' +
+          '(úsala así para preguntas generales como "¿qué se puede hacer?"). ' +
+          'Si se da una fecha, solo devuelve las disponibles ese día.',
         parametros: {
           type: 'object',
           properties: { intereses, fecha },
-          required: ['intereses'],
+        },
+      },
+      {
+        nombre: 'consultar_informacion_practica',
+        descripcion:
+          'Información práctica VERIFICADA para el viaje: salud y vacunas, ' +
+          'dinero y pagos, clima y ropa, conectividad, frontera y documentos, ' +
+          'seguridad, cómo llegar y normas de visita de las comunidades. ' +
+          'Úsala SIEMPRE para esos temas en vez de responder de memoria.',
+        parametros: {
+          type: 'object',
+          properties: {
+            consulta: {
+              type: 'string',
+              description: 'La pregunta del turista, con sus palabras clave',
+            },
+            categoria: { type: 'string', enum: [...CATEGORIAS_FAQ] },
+          },
+          required: ['consulta'],
         },
       },
       {
@@ -170,6 +194,8 @@ export class HerramientasAgente {
           return await this.contenidoCultural(argumentos, mensajesTurista);
         case 'generar_enlace_pago':
           return this.accesoPago();
+        case 'consultar_informacion_practica':
+          return await this.informacionPractica(argumentos, idioma);
         default:
           return this.error(`La herramienta "${nombre}" no existe.`);
       }
@@ -222,10 +248,20 @@ export class HerramientasAgente {
     idioma: Idioma,
   ): Promise<ResultadoHerramienta> {
     const intereses = this.leerIntereses(args.intereses);
-    if (intereses.length === 0) {
-      return this.error(`Intereses válidos: ${INTERESES.join(', ')}`);
-    }
-    let encontradas = (await this.experiencias.buscarPorIntereses(intereses))
+    // Sin intereses ("¿qué se puede hacer?"): muestra variada, una
+    // experiencia por emprendimiento.
+    const base =
+      intereses.length > 0
+        ? await this.experiencias.buscarPorIntereses(intereses)
+        : [
+            ...new Map(
+              (await this.experiencias.listar()).map((e) => [
+                e.emprendimientoId,
+                e,
+              ]),
+            ).values(),
+          ];
+    let encontradas = base
       // Primero las que coinciden con más intereses.
       .map((e) => ({
         e,
@@ -383,6 +419,63 @@ export class HerramientasAgente {
           totalCop,
         },
       ],
+    };
+  }
+
+  // Preguntas frecuentes verificadas + datos de las comunidades nombradas.
+  // Es información práctica (no contenido cultural): el LLM la usa para
+  // responder, citando la fuente, en vez de responder de memoria.
+  private async informacionPractica(
+    args: Record<string, unknown>,
+    idioma: Idioma,
+  ): Promise<ResultadoHerramienta> {
+    const consulta = String(args.consulta ?? '').trim();
+    const categoria = (CATEGORIAS_FAQ as readonly string[]).includes(
+      String(args.categoria),
+    )
+      ? String(args.categoria)
+      : undefined;
+    if (!consulta && !categoria) {
+      return this.error('Falta la consulta del turista.');
+    }
+    const sufijo = { es: 'Es', en: 'En', pt: 'Pt' } as const;
+    const [preguntas, comunidades] = await Promise.all([
+      this.faq.buscar(consulta, categoria),
+      this.emprendimientos.comunidadesMencionadas(consulta),
+    ]);
+    if (preguntas.length === 0 && comunidades.length === 0) {
+      return {
+        paraModelo: {
+          encontrado: false,
+          mensaje:
+            'No hay información verificada sobre eso. Dilo con honestidad y ' +
+            'no inventes datos (salud, requisitos o precios cambian).',
+        },
+        tarjetas: [],
+      };
+    }
+    return {
+      paraModelo: {
+        encontrado: true,
+        preguntasFrecuentes: preguntas.map((p) => ({
+          pregunta: p[`pregunta${sufijo[idioma]}`] ?? p.preguntaEs,
+          respuesta: p[`respuesta${sufijo[idioma]}`] ?? p.respuestaEs,
+          fuente: p.fuente,
+          revisadoEl: p.fechaRevision,
+        })),
+        // Estos datos solo existen en español en el Excel.
+        comunidades: comunidades.map((c) => ({
+          nombre: c.nombre,
+          ubicacion: c.referenciaUbicacion,
+          comoLlegar: c.comoLlegar,
+          normasDeVisita: c.normasVisita,
+          fuente: c.fuente,
+        })),
+        nota:
+          'Responde solo con esta información, en el idioma del turista, y ' +
+          'menciona la fuente. Si no responde exactamente la pregunta, dilo.',
+      },
+      tarjetas: [],
     };
   }
 

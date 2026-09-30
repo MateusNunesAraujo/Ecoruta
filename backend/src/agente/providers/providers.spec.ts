@@ -326,6 +326,17 @@ describe('MockProvider', () => {
     expect((await preguntar(texto)).llamadas[0]?.nombre).toBe(herramienta);
   });
 
+  it.each([
+    ['¿Hay que vacunarse para ir?', 'consultar_informacion_practica'],
+    ['¿Cómo llego a Puerto Nariño?', 'consultar_informacion_practica'],
+    ['Do I need a passport for Tabatinga?', 'consultar_informacion_practica'],
+    ['¿Qué se puede hacer en el Amazonas?', 'buscar_experiencias'],
+    ['What can I do in Leticia?', 'buscar_experiencias'],
+    ['O que posso fazer na Amazônia?', 'buscar_experiencias'],
+  ])('práctica o general: "%s" -> %s', async (texto, herramienta) => {
+    expect((await preguntar(texto)).llamadas[0]?.nombre).toBe(herramienta);
+  });
+
   it('sin intención clara responde con ayuda y sin herramientas', async () => {
     const r = await preguntar('buenas');
     expect(r.llamadas).toHaveLength(0);

@@ -1,6 +1,8 @@
 import type { CulturalService } from '../cultural/cultural.service.js';
 import type { FichaCultural } from '../cultural/ficha-cultural.entity.js';
 import type { ExperienciasService } from '../emprendimientos/experiencias.service.js';
+import type { EmprendimientosService } from '../emprendimientos/emprendimientos.service.js';
+import type { FaqService } from '../faq/faq.service.js';
 import type { PagosService } from '../pagos/pagos.service.js';
 import type { ReservasService } from '../reservas/reservas.service.js';
 import { HerramientasAgente } from './herramientas.js';
@@ -42,6 +44,8 @@ describe('HerramientasAgente: obtener_contenido_cultural', () => {
     cultural,
     {} as ReservasService,
     {} as PagosService,
+    {} as FaqService,
+    {} as EmprendimientosService,
   );
 
   afterEach(() => listar.mockClear());

@@ -189,6 +189,16 @@ const TEXTOS: Record<string, Record<Idioma, string>> = {
     en: "We don't have that word verified in {lengua} yet. You can ask me about: {temas}.",
     pt: 'Ainda não temos essa palavra verificada em {lengua}. Você pode me perguntar sobre: {temas}.',
   },
+  preguntarReserva: {
+    es: '¡Con gusto! ¿Para qué fecha y cuántas personas? (Por ejemplo: EXP-01 el 2026-10-05 para 2 personas).',
+    en: 'Happy to help! For which date and how many people? (For example: EXP-01 on 2026-10-05 for 2 people).',
+    pt: 'Com prazer! Para qual data e quantas pessoas? (Por exemplo: EXP-01 no dia 2026-10-05 para 2 pessoas).',
+  },
+  infoNoEncontrada: {
+    es: 'No tengo información verificada sobre eso todavía. Te recomiendo consultarlo con la oficina de turismo de Leticia.',
+    en: "I don't have verified information about that yet. Please check with the Leticia tourist office.",
+    pt: 'Ainda não tenho informação verificada sobre isso. Recomendo consultar o escritório de turismo de Leticia.',
+  },
   culturalEnOtras: {
     es: 'Esa palabra sí está en: {lenguas}.',
     en: 'That word is available in: {lenguas}.',
@@ -235,16 +245,20 @@ export class MockProvider implements LlmProvider {
   readonly nombre = 'mock';
 
   generar(peticion: PeticionLlm): Promise<RespuestaLlm> {
-    const ultimo = peticion.turnos.at(-1);
-    if (ultimo?.tipo === 'resultado') {
+    const ultimoTurno = peticion.turnos.at(-1);
+    if (ultimoTurno?.tipo === 'resultado') {
       return Promise.resolve(this.responderResultado(peticion));
     }
     const llamada = this.elegirHerramienta(peticion);
-    return Promise.resolve(
-      llamada
-        ? { texto: null, llamadas: [llamada] }
-        : { texto: TEXTOS.ayuda[peticion.idioma], llamadas: [] },
-    );
+    if (llamada) return Promise.resolve({ texto: null, llamadas: [llamada] });
+    // Quiere reservar pero faltan datos: se preguntan (no se suponen).
+    const ultimo =
+      ultimoTurno?.tipo === 'usuario' ? sinTildes(ultimoTurno.texto) : '';
+    const clave = /reserv|\bbook/.test(ultimo) ? 'preguntarReserva' : 'ayuda';
+    return Promise.resolve({
+      texto: TEXTOS[clave][peticion.idioma],
+      llamadas: [],
+    });
   }
 
   private elegirHerramienta(peticion: PeticionLlm): LlamadaHerramienta | null {
@@ -263,6 +277,10 @@ export class MockProvider implements LlmProvider {
 
     if (/\bpag(ar|o)\b|\bpay\b|pagamento/.test(texto)) {
       return llamada('generar_enlace_pago', {});
+    }
+    // Quiere reservar pero no dijo qué experiencia o fecha: se pregunta.
+    if (/reserv|\bbook/.test(texto) && !(experiencia && fecha)) {
+      return null; // responde con el texto "preguntarReserva"
     }
     if (experiencia && fecha && /reserv|book/.test(texto)) {
       const personas = Number(
@@ -318,6 +336,24 @@ export class MockProvider implements LlmProvider {
         ...(lengua && { lengua }),
       });
     }
+    // Preguntas prácticas: salud, dinero, frontera, cómo llegar, normas…
+    if (
+      /vacun|fiebre|febre|malaria|pasaporte|passport|passaporte|documento|efectivo|cash|dinheiro|tarjeta de credito|credit card|cartao|clima|lluvia|ropa|clothes|roupa|internet|senal|signal|wifi|segur|safe|agua del grifo|tap water|frontera|border|fronteira|como llego|como llegar|how do i get|como chego|normas|puedo tomar fotos|take photos|tirar fotos/.test(
+        texto,
+      )
+    ) {
+      return llamada('consultar_informacion_practica', {
+        consulta: texto.trim(),
+      });
+    }
+    // Preguntas generales: muestra variada de experiencias.
+    if (
+      /que se puede hacer|que hacer|que me recomiendas|what can i do|what to do|recommend|o que (posso )?fazer|o que tem para fazer/.test(
+        texto,
+      )
+    ) {
+      return llamada('buscar_experiencias', {});
+    }
     const intereses = Object.entries(PALABRAS_INTERES)
       .filter(([, palabras]) => palabras.some((p) => texto.includes(p)))
       .map(([interes]) => interes);
@@ -327,7 +363,11 @@ export class MockProvider implements LlmProvider {
       return llamada('armar_itinerario', { intereses, dias });
     }
     if (intereses.length > 0) {
-      return llamada('buscar_experiencias', { intereses });
+      // Con fecha ("¿hay cupo el sábado 2026-10-03?"), solo las disponibles.
+      return llamada('buscar_experiencias', {
+        intereses,
+        ...(fecha && { fecha }),
+      });
     }
     return null;
   }
@@ -384,6 +424,37 @@ export class MockProvider implements LlmProvider {
             : t('noDisponible', { motivo: r.mensaje }),
           llamadas: [],
         };
+      case 'consultar_informacion_practica': {
+        // El Mock no redacta: entrega la respuesta verificada y su fuente.
+        const faq = (
+          r.preguntasFrecuentes as
+            { respuesta: string; fuente: string | null }[] | undefined
+        )?.[0];
+        const comunidad = (
+          r.comunidades as
+            | {
+                nombre: string;
+                comoLlegar: string | null;
+                normasDeVisita: string | null;
+              }[]
+            | undefined
+        )?.[0];
+        const partes = [
+          faq
+            ? `${faq.respuesta}${faq.fuente ? ` (${faq.fuente})` : ''}`
+            : null,
+          comunidad?.comoLlegar
+            ? `${comunidad.nombre}: ${comunidad.comoLlegar}`
+            : null,
+          comunidad?.normasDeVisita
+            ? `${comunidad.nombre}: ${comunidad.normasDeVisita}`
+            : null,
+        ].filter(Boolean);
+        return {
+          texto: partes.length ? partes.join(' ') : t('infoNoEncontrada'),
+          llamadas: [],
+        };
+      }
       case 'generar_enlace_pago':
         return {
           texto: r.mostrado ? t('pago') : t('pagoNoDisponible'),
