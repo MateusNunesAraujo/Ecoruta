@@ -172,3 +172,18 @@ Evita que al abrir la app se vea un instante el otro modo antes de que cargue
   avisar para cambiar `.marca::after` por `.lema` en el CSS.
 - **Por qué:** así los traductores encuentran todos los textos en un solo
   archivo. Mientras tanto, la versión en CSS funciona bien.
+
+## ⏳ 5. Palabra indígena destacada en la portada (desde la base de datos)
+- **Qué:** el diseño de la portada lleva arriba del título grande una palabra
+  en lengua indígena, en naranja. Por la regla 1 de CLAUDE.md no se puede
+  escribir a mano en el CSS ni en el HTML: debe venir de una ficha
+  `VERIFICADA` de `/api/cultural`.
+- **Cómo:** en `vistas/inicio.js`, pedir una ficha verificada (por ejemplo,
+  un saludo) y, si existe, agregar como primer hijo de `section.portada`:
+  `el('p', { class: 'portada-palabra', lang: <código ISO de la lengua> }, ficha.textoOriginal)`,
+  con un enlace a `#/lenguas/<lengua>` o su atribución (fuente y comunidad).
+  Si no hay conexión o no hay fichas verificadas, no se muestra nada.
+- **Pendiente de diseño:** cuando exista, se agrega el estilo de
+  `.portada-palabra` (naranja `--tierra`, fuente `--fuente-lenguas`, grande).
+- **Antes:** el equipo debe confirmar qué palabra es la de la imagen del
+  diseño, con su fuente y comunidad, y cargarla como ficha verificada.

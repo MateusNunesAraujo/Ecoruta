@@ -15,6 +15,35 @@ Los cambios que necesitan tocar JavaScript o archivos de Eliel se piden en
 
 ---
 
+### 2026-09-30 — Portada nueva: título grande, lema y figura
+**Hecho (solo `css/estilos.css`):**
+- `.portada::before`: "Ecoruta / Conectada" grande con degradado de verde a
+  oscuro (en modo oscuro, de verde a claro). Es decorativo: lleva texto
+  alternativo vacío porque la marca ya está en la cabecera.
+- `.portada-texto::before`: lema en negrita "La IA conversa. La comunidad es
+  dueña de su palabra", en es/en/pt con `:lang()`.
+- `.portada::after`: figura de dos semicírculos partidos en verde y oscuro,
+  dibujada con 4 degradados radiales (sin imágenes). Radio 64 px en el
+  celular y 100 px en PC.
+- Celular: todo alineado a la izquierda; la figura va entre el texto y los
+  botones (`order`). PC: dos columnas, con el texto a la izquierda y la
+  figura y los botones a la derecha (`grid-template-areas`).
+- En la portada se oculta el lema de la cabecera (`body:has(.portada)`),
+  para no repetirlo.
+- Nuevas variables `--portada-verde`, `--portada-final`, `--figura-verde` y
+  `--figura-oscuro` en claro y en los dos bloques oscuros.
+- Probado con capturas a 360 y 1100 px, en claro y oscuro.
+
+**Decisiones:**
+- La palabra en lengua indígena del diseño NO se puso: por la regla 1 de
+  CLAUDE.md debe salir de una ficha verificada (pedido 5).
+- Verde del título #178a52 (4:1 con el fondo, suficiente para texto grande)
+  en vez del #20b26b del diseño (2.5:1). La figura sí usa #20b26b, porque es
+  solo decoración.
+
+**Pendiente:**
+- Pedido 5 (palabra indígena desde la base de datos) y su estilo.
+
 ### 2026-09-30 — PC: marca más grande y lema en la cabecera
 **Hecho (solo `css/estilos.css`, desde 768 px):**
 - "Ecoruta Conectada" pasa de 1.05rem a 1.35rem.
