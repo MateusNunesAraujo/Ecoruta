@@ -12,6 +12,35 @@ Registro de avance. Cada entrada nueva va arriba (la más reciente primero).
 
 ---
 
+### 2026-09-30 — Corrección del agente: lenguas por cualquier nombre y conversación
+**Problema (reportado probando la demo con `LLM_PROVIDER=mock`):**
+"Cómo se dice delfín en lengua magüta" mostraba saludos en Bora y "Ahora
+maloca" mostraba experiencias de cultura. Causas: solo se reconocían los
+nombres "tikuna/ticuna" (no Magüta ni autodenominaciones); si no se entendía
+la lengua se buscaba en todas; el Mock solo conocía 4 temas y no seguía la
+conversación. Con Gemini, "Ahora maloca" mostraba maloca en las 4 lenguas.
+
+**Hecho:**
+- `cultural/nombres-lengua.ts`: reconoce una lengua por nombre común,
+  autodenominación del Excel (Duüxügu, Mɨnɨka…) y alias conocidos (Magüta,
+  witoto, uitoto…), sin tildes ni mayúsculas y con ɨ → i.
+- `obtener_contenido_cultural`: la lengua es texto libre y la resuelve el
+  backend (el LLM no recibe las autodenominaciones). Lengua desconocida → no
+  se muestran fichas de otras lenguas. Palabra que no existe en esa lengua →
+  el LLM recibe los temas disponibles y en qué otras lenguas sí está.
+- Si el LLM no pasa la lengua, el backend usa la última que nombró el
+  turista en la conversación (salvo que pida "todas").
+- Prompt: no decir que se muestran tarjetas si no se usó la herramienta.
+- Mock: reconoce todos los temas de las fichas (y traducciones en/pt), la
+  lengua tras "lengua/idioma" o al final de una pregunta cultural, y sigue la
+  conversación varios mensajes.
+- Probado con la conversación real (delfín en magüta → maloca → perro →
+  quechua) con Mock y con Gemini: respuestas correctas y 0 filtraciones de
+  texto indígena. 99 pruebas unitarias.
+
+**Pendiente:**
+- Para la demo usar `LLM_PROVIDER=gemini` (el Mock es solo para desarrollo).
+
 ### 2026-09-30 — Bloque 9: Despliegue y demo (túnel desde el portátil)
 **Hecho:**
 - `npm run demo` (en `backend/`, script `backend/scripts/demo.mjs`): levanta
