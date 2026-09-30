@@ -1,6 +1,18 @@
 /* Ecoruta Conectada — estilos mobile-first.
    Primero para celular; los @media de abajo ajustan pantallas grandes. */
 
+/* Noto Sans para el texto en lenguas indígenas: dibuja bien ɨ, ʉ, ü̃ y ṵ̈́
+   (acentos combinables). Va dentro del proyecto, no desde Google Fonts, para
+   que funcione sin señal. Recortada a latín + IPA + acentos combinables,
+   grosores 400-700. Licencia: fuentes/OFL-NotoSans.txt */
+@font-face {
+  font-family: 'Noto Sans Ecoruta';
+  src: url('../fuentes/NotoSans-ecoruta.woff2') format('woff2');
+  font-weight: 400 700;
+  font-style: normal;
+  font-display: swap;
+}
+
 :root {
   --verde: #1f5f3f;        /* selva: botones y enlaces (contraste 7.9:1 con blanco) */
   --verde-oscuro: #143f2a;
@@ -16,6 +28,7 @@
   --radio: 12px;
   --sombra: 0 1px 3px rgb(0 0 0 / 0.08);
   --alto-nav: 64px;
+  --fuente-lenguas: 'Noto Sans Ecoruta', 'Noto Sans', system-ui, sans-serif;
   font-family: system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
   color: var(--texto);
   background: var(--fondo);
@@ -194,6 +207,8 @@ a { color: var(--verde); }
 .ficha-texto.pequeno { font-size: 1.1rem; }
 .ficha-significado { font-size: 1.05rem; }
 .ficha-pronunciacion, .ficha-contexto { font-size: 0.92rem; color: var(--texto-suave); }
+/* Texto en lengua indígena (palabra, autodenominación y pronunciación). */
+.ficha-texto, .ficha-pronunciacion i { font-family: var(--fuente-lenguas); }
 .ficha-atribucion { font-size: 0.8rem; color: var(--texto-suave); border-top: 1px dashed var(--borde); padding-top: 0.5rem; margin: 0; }
 
 .tarjeta-disponibilidad.ok { border-left: 4px solid var(--verde); }
