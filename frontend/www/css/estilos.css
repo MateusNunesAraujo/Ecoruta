@@ -298,7 +298,9 @@ a { color: var(--verde); }
   line-height: 0.95;
   letter-spacing: -0.04em;
   color: var(--portada-verde); /* por si el navegador no soporta background-clip */
-  background: linear-gradient(90deg, var(--portada-verde) 35%, var(--portada-final) 100%);
+  background:
+    linear-gradient(100deg, transparent 42%, rgb(255 255 255 / 0.35) 50%, transparent 58%) 150% 0 / 250% 100% no-repeat,
+    linear-gradient(90deg, var(--portada-verde) 35%, var(--portada-final) 100%);
   -webkit-background-clip: text;
   background-clip: text;
   -webkit-text-fill-color: transparent;
@@ -359,6 +361,57 @@ body:has(.portada) .marca::after { display: none; }
   .portada-texto { grid-area: texto; }
   .portada::after { --r: 100px; grid-area: figura; align-self: end; justify-self: center; }
   .accesos { grid-area: accesos; }
+}
+
+/* --- Portada: animaciones "agua" ---
+   Entrada escalonada (como si salieran del agua), brillo que recorre el
+   título y figura que flota. En PC, además, el filtro SVG #agua (definido
+   en index.html) ondula el título y la figura. Todo se apaga con "reducir
+   movimiento" (ver el @media prefers-reduced-motion al final). */
+.portada::before {
+  animation:
+    portada-emerger 0.9s cubic-bezier(0.2, 0.7, 0.2, 1) both,
+    portada-brillo 7s ease-in-out 1.2s infinite;
+}
+.portada h1 { animation: portada-aparecer 0.8s 0.15s cubic-bezier(0.2, 0.7, 0.2, 1) both; }
+.portada-texto { animation: portada-aparecer 0.8s 0.3s cubic-bezier(0.2, 0.7, 0.2, 1) both; }
+.portada::after {
+  animation:
+    /* portada-emerger (sin blur): así no pisa el filtro de agua. */
+    portada-emerger 0.9s 0.45s cubic-bezier(0.2, 0.7, 0.2, 1) both,
+    portada-flotar 6s 1.4s ease-in-out infinite;
+}
+.accesos > * { animation: portada-aparecer 0.7s cubic-bezier(0.2, 0.7, 0.2, 1) both; }
+.accesos > :nth-child(1) { animation-delay: 0.55s; }
+.accesos > :nth-child(2) { animation-delay: 0.65s; }
+.accesos > :nth-child(3) { animation-delay: 0.75s; }
+.accesos > :nth-child(4) { animation-delay: 0.85s; }
+
+@keyframes portada-emerger {
+  from { opacity: 0; transform: translateY(0.35em) scaleY(0.92); }
+  to { opacity: 1; transform: none; }
+}
+@keyframes portada-aparecer {
+  from { opacity: 0; transform: translateY(18px); filter: blur(4px); }
+  to { opacity: 1; transform: none; filter: blur(0); }
+}
+/* La luz cruza el título y descansa fuera de él el resto del ciclo. */
+@keyframes portada-brillo {
+  0% { background-position: 150% 0, 0 0; }
+  45%, 100% { background-position: -60% 0, 0 0; }
+}
+@keyframes portada-flotar {
+  0%, 100% { transform: translateY(0) rotate(0deg); }
+  50% { transform: translateY(-8px) rotate(-2deg); }
+}
+
+/* El filtro solo sirve dentro del SVG; el SVG no ocupa espacio. */
+.filtros-svg { position: absolute; width: 0; height: 0; overflow: hidden; }
+
+@media (min-width: 768px) {
+  /* Ondulación de agua solo en PC: en celulares económicos un filtro
+     animado puede ir lento. */
+  .portada::before, .portada::after { filter: url(#agua); }
 }
 
 /* --- Tarjetas --- */
@@ -604,4 +657,5 @@ body:has(.portada) .marca::after { display: none; }
 @media (prefers-reduced-motion: reduce) {
   * { scroll-behavior: auto !important; }
   .chat-formulario .boton, .chat-formulario .boton::before { animation: none; }
+  .portada::before, .portada::after, .portada h1, .portada-texto, .accesos > * { animation: none; filter: none; }
 }

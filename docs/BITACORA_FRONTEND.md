@@ -15,6 +15,39 @@ Los cambios que necesitan tocar JavaScript o archivos de Eliel se piden en
 
 ---
 
+### 2026-09-30 — Portada: animaciones de "agua"
+**Hecho:**
+- `index.html`: filtro SVG `#agua` oculto al final de `<body>`. Hace un
+  ruido de ondas anchas, lo difumina, desplaza las letras con él y vuelve a
+  suavizar los bordes. Se anima con `<animate>` de SVG (el patrón cambia
+  cada 12 s y la intensidad sube y baja cada 6 s), sin JavaScript.
+- `css/estilos.css`:
+  - entrada escalonada: título, bienvenida, lema, figura y botones suben y
+    aparecen uno tras otro (0 a 0.85 s);
+  - brillo que cruza el título cada 7 s (capa de degradado blanco
+    recortada al texto);
+  - la figura flota (sube 8 px y gira 2°, cada 6 s);
+  - en PC (768 px o más), el filtro `#agua` ondula el título y la figura.
+- Con "reducir movimiento" se apagan todas las animaciones y el filtro.
+- Probado con capturas en distintos momentos, en claro y oscuro, a 500 y
+  1280 px, y con "reducir movimiento".
+
+**Decisiones:**
+- unseen.co usa WebGL y JavaScript; aquí se imita con CSS y SVG para no
+  tocar el JavaScript de Eliel. Las ondas no siguen al cursor, porque eso
+  necesita JavaScript.
+- La ondulación va solo en PC: en celulares económicos un filtro SVG
+  animado puede ir lento. En el celular quedan la entrada, el brillo y la
+  flotación, que son livianos (opacity y transform).
+- La figura entra con `portada-emerger` (sin `filter`), porque una animación
+  que termina en `filter: blur(0)` y se queda fija anula el filtro `#agua`.
+- Primero el filtro dejaba los bordes dentados: se difuminó el ruido
+  (`stdDeviation` 8) y se añadió un desenfoque de 0.6 px al final.
+
+**Pendiente:**
+- Probar la fluidez en un celular y un PC reales (en headless no se puede
+  medir).
+
 ### 2026-09-30 — Portada nueva: título grande, lema y figura
 **Hecho (solo `css/estilos.css`):**
 - `.portada::before`: "Ecoruta / Conectada" grande con degradado de verde a

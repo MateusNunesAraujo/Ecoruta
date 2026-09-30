@@ -21,5 +21,26 @@
       </noscript>
     </main>
     <nav id="navegacion" class="navegacion" aria-label="Menú"></nav>
+
+    <!-- Filtro "agua" de la portada (lo usa css/estilos.css en PC): un ruido
+         que cambia lento deforma las letras como un reflejo en el agua.
+         Se anima con <animate> de SVG, sin JavaScript. -->
+    <svg class="filtros-svg" aria-hidden="true" focusable="false" width="0" height="0">
+      <filter id="agua" x="-5%" y="-15%" width="110%" height="130%" color-interpolation-filters="sRGB">
+        <!-- 1. Ruido de ondas anchas que cambia lento. -->
+        <feTurbulence type="fractalNoise" baseFrequency="0.006 0.02" numOctaves="1" seed="3">
+          <animate attributeName="baseFrequency" dur="12s" repeatCount="indefinite"
+                   values="0.006 0.02; 0.008 0.028; 0.005 0.016; 0.006 0.02" />
+        </feTurbulence>
+        <!-- 2. Se difumina para que las ondas sean suaves, sin granitos. -->
+        <feGaussianBlur stdDeviation="8" result="ondas" />
+        <!-- 3. Mueve las letras según las ondas; la intensidad sube y baja. -->
+        <feDisplacementMap in="SourceGraphic" in2="ondas" scale="10" xChannelSelector="R" yChannelSelector="G">
+          <animate attributeName="scale" dur="6s" repeatCount="indefinite" values="6; 12; 6" />
+        </feDisplacementMap>
+        <!-- 4. Devuelve el suavizado a los bordes de las letras. -->
+        <feGaussianBlur stdDeviation="0.6" />
+      </filter>
+    </svg>
   </body>
 </html>
