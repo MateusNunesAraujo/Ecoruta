@@ -10,5 +10,6 @@ export const ES_APP = Boolean(window.Capacitor?.isNativePlatform?.());
 export const API_BASE = ES_APP ? 'https://CAMBIAR-POR-LA-URL-DESPLEGADA' : '';
 
 // Referencia de precio para turistas de Brasil (triple frontera).
-// ⚠️ Tasa APROXIMADA, no oficial: verificarla antes de la demo.
-export const COP_POR_BRL = 730;
+// Tasa aproximada (no oficial) consultada el 2026-09-30: 1 BRL ≈ 634-635 COP
+// (Wise y otros conversores). Actualizarla si cambia mucho.
+export const COP_POR_BRL = 635;
