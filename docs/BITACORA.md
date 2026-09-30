@@ -12,6 +12,43 @@ Registro de avance. Cada entrada nueva va arriba (la más reciente primero).
 
 ---
 
+### 2026-09-30 — Tareas pendientes: datos nuevos, prueba real de los LLM y tasa BRL
+**Hecho:**
+- Datos: el equipo agregó 17 audios Bora (`.mp3`) y la atribución de las
+  fichas Bora. Seed: 0 errores y 1 aviso (EXP-05 sin precio, se deja así).
+  Los campos solo en español también se dejan así por ahora.
+- El renombrado de audios acepta "mp3cut.net" con o sin paréntesis
+  (`Buenas_tardes_Boramp3cut.net).mp3` → `buenas_tardes_bora.mp3`).
+- Prueba real con las claves de Gemini y Groq (8 conversaciones en es/en/pt
+  por proveedor, con un detector automático que compara cada respuesta con
+  los 66 textos indígenas): **0 filtraciones**. Gemini rechazó escribir
+  palabras indígenas "sin herramientas" y ofreció la tarjeta verificada.
+- Groq: `llama-3.3-70b-versatile` ya no existe en la cuenta (404). Nuevo
+  modelo por defecto: `openai/gpt-oss-120b`, con `reasoning_effort: "low"`.
+- Prompt: si el turista no dio fecha o número de personas, el agente los
+  pregunta antes de `crear_reserva` (antes los suponía).
+- Mock como último respaldo: si Gemini y Groq fallan (límites del nivel
+  gratuito), responde el Mock en vez de un 503; también si el proveedor falla
+  a mitad de un mensaje.
+- Tasa COP/BRL: 730 → **635** (Wise y otros conversores, 2026-09-30).
+- 56 pruebas unitarias pasan.
+
+**Decisiones:**
+- A mitad de un mensaje no se pasa de Groq a Gemini (Gemini 3 exige su
+  "thoughtSignature" en los turnos anteriores); se pasa al Mock.
+- Recomendado para la demo: `LLM_PROVIDER=gemini` (aguantó más mensajes
+  seguidos que Groq en el nivel gratuito).
+
+**Pendiente:**
+- Límites del nivel gratuito: Groq (`gpt-oss-120b`) se agotó por tokens por
+  minuto a los ~3 mensajes seguidos; Gemini respondió 429 con ráfagas de
+  ~10 mensajes. En la demo, con varias personas a la vez, algunas respuestas
+  saldrán del Mock.
+- La 1.ª respuesta de Gemini una vez tardó más de 20 s (se cortó por el
+  tiempo límite y pasó al respaldo).
+- Fusionar `feat/frontend` en `main`: `gh` no está instalado, lo hace una
+  persona desde GitHub.
+
 ### 2026-09-30 — TRASPASO: estado para continuar en otro computador
 **Estado exacto:**
 - Trabajo en la rama **`feat/frontend`** (subida a GitHub con este commit).
