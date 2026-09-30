@@ -18,6 +18,7 @@ import {
   type RespuestaLlm,
   type TurnoLlm,
 } from './providers/llm-provider.interface.js';
+import { MockProvider } from './providers/mock.provider.js';
 import type { Tarjeta } from './tarjetas.js';
 
 // Máximo de vueltas "LLM pide herramienta -> backend responde" por mensaje.
@@ -128,13 +129,22 @@ export class AgenteService {
   }
 
   // Primera vuelta: prueba los proveedores en orden (respaldo). Siguientes
-  // vueltas: sigue con el mismo, para no mezclar formatos a mitad de camino.
+  // vueltas: sigue con el mismo, para no mezclar formatos a mitad de camino
+  // (Gemini 3 exige su "firma" en los turnos anteriores). Si ese falla, pasa
+  // al Mock, que puede continuar desde el resultado de cualquier herramienta.
   private async generar(
     peticion: PeticionLlm,
     fijo: LlmProvider | null,
     idioma: Idioma,
   ): Promise<{ proveedor: LlmProvider; respuesta: RespuestaLlm }> {
-    const candidatos = fijo ? [fijo] : this.proveedores;
+    const candidatos = fijo
+      ? [
+          fijo,
+          ...this.proveedores.filter(
+            (p) => p instanceof MockProvider && p !== fijo,
+          ),
+        ]
+      : this.proveedores;
     for (const proveedor of candidatos) {
       try {
         return { proveedor, respuesta: await proveedor.generar(peticion) };

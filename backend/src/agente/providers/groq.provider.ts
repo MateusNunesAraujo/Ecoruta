@@ -75,6 +75,11 @@ export class GroqProvider implements LlmProvider {
       tool_choice: 'auto',
       temperature: 0.4,
       max_tokens: 800,
+      // Los modelos gpt-oss "razonan" antes de responder: con "low" gastan
+      // muchos menos tokens (el nivel gratuito limita tokens por minuto).
+      ...(this.modelo.startsWith('openai/gpt-oss') && {
+        reasoning_effort: 'low',
+      }),
     };
 
     let respuesta: Response;

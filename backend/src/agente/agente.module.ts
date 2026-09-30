@@ -21,8 +21,8 @@ import { MockProvider } from './providers/mock.provider.js';
 
 // Elige los proveedores según LLM_PROVIDER en el .env:
 // - mock:   sin red ni cuota (desarrollo).
-// - gemini: Gemini, con Groq de respaldo si hay GROQ_API_KEY.
-// - groq:   Groq, con Gemini de respaldo si hay GEMINI_API_KEY.
+// - gemini: Gemini, con Groq de respaldo si hay GROQ_API_KEY, y Mock al final.
+// - groq:   Groq, con Gemini de respaldo si hay GEMINI_API_KEY, y Mock al final.
 function crearProveedores(config: ConfigService): LlmProvider[] {
   const tipo = config.get<string>('LLM_PROVIDER', 'mock').trim().toLowerCase();
   const claveGemini = config.get<string>('GEMINI_API_KEY', '').trim();
@@ -35,7 +35,7 @@ function crearProveedores(config: ConfigService): LlmProvider[] {
   const groq = () =>
     new GroqProvider(
       claveGroq,
-      config.get<string>('GROQ_MODEL') || 'llama-3.3-70b-versatile',
+      config.get<string>('GROQ_MODEL') || 'openai/gpt-oss-120b',
     );
 
   let proveedores: LlmProvider[];
@@ -64,6 +64,11 @@ function crearProveedores(config: ConfigService): LlmProvider[] {
         `LLM_PROVIDER="${tipo}" no válido. Usa gemini, groq o mock.`,
       );
   }
+  // Último respaldo: si los LLM fallan (sin conexión o límite del nivel
+  // gratuito), responde el Mock. Es más simple, pero igual busca
+  // experiencias, muestra fichas y abre el formulario de reserva.
+  if (tipo !== 'mock') proveedores.push(new MockProvider());
+
   new Logger('AgenteModule').log(
     `Proveedores LLM: ${proveedores.map((p) => p.nombre).join(' -> ')}`,
   );

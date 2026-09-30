@@ -168,6 +168,21 @@ describe('GroqProvider', () => {
     });
   });
 
+  it('pide razonamiento bajo solo a los modelos gpt-oss', async () => {
+    const respuesta = { choices: [{ message: { content: 'ok' } }] };
+    const conGptOss = fetchFalso(200, respuesta);
+    await new GroqProvider('k', 'openai/gpt-oss-120b', conGptOss.fn).generar(
+      peticion,
+    );
+    expect(conGptOss.json().reasoning_effort).toBe('low');
+
+    const otroModelo = fetchFalso(200, respuesta);
+    await new GroqProvider('k', 'qwen/qwen3.8-27b', otroModelo.fn).generar(
+      peticion,
+    );
+    expect(otroModelo.json().reasoning_effort).toBeUndefined();
+  });
+
   it('argumentos inválidos no rompen: se usan como {}', async () => {
     const f = fetchFalso(200, {
       choices: [
