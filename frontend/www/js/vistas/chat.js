@@ -1,5 +1,6 @@
 import { pedir } from '../api.js';
 import { el, vaciar } from '../dom.js';
+import { crearDictado } from '../dictado.js';
 import { idioma, t } from '../i18n.js';
 import { tarjetaDelAgente } from '../tarjetas.js';
 
@@ -39,7 +40,8 @@ export function vistaChat(contenedor) {
     required: true,
   });
   const boton = el('button', { type: 'submit', class: 'boton' }, t('chat.enviar'));
-  const formulario = el('form', { class: 'chat-formulario' }, entrada, boton);
+  const dictado = crearDictado(entrada);
+  const formulario = el('form', { class: 'chat-formulario' }, entrada, dictado?.boton, boton);
 
   const dibujar = () => {
     vaciar(
@@ -82,6 +84,7 @@ export function vistaChat(contenedor) {
 
   formulario.addEventListener('submit', (evento) => {
     evento.preventDefault();
+    dictado?.detener();
     enviar(entrada.value);
   });
 
@@ -115,10 +118,14 @@ export function vistaChat(contenedor) {
       lista,
       sugerencias,
       formulario,
+      dictado?.estado,
       el('p', { class: 'nota' }, t('chat.privacidad')),
+      dictado?.aviso,
     ),
   );
   dibujar();
+  // Al salir del chat, apagar el micrófono si quedó escuchando.
+  return () => dictado?.detener();
 }
 
 function burbuja(mensaje) {
