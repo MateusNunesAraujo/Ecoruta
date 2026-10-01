@@ -467,7 +467,8 @@ export function crearDictado(entrada) {
 (La línea de `formulario` se reemplaza; `el()` ignora los `null`, así que sin
 dictado el formulario queda igual que hoy.)
 
-## ⏳ 8. Carita del asistente en el botón "Hablar con el asistente"
+## ✅ 8. Carita del asistente en el botón "Hablar con el asistente"
+- **Hecho el 2026-09-30 por Eliel** (rama `feat/offline`), tal cual el diff.
 - **Qué:** en la portada, cambiar el emoji 💬 del botón por la carita del
   avatar. El emoji va pegado al texto (sin etiqueta propia), así que el CSS
   no puede reemplazarlo; hace falta envolverlo en un `<span>`.
@@ -607,7 +608,8 @@ function botonVolver() {
 - Después: `npm test` y `npm run evaluar` (el examen podría tener preguntas
   que esperan la palabra "asistente").
 
-## ⏳ 11. Título "Autodenominación / Nombre" en la página de una lengua
+## ✅ 11. Título "Autodenominación / Nombre" en la página de una lengua
+- **Hecho el 2026-09-30 por Eliel** (rama `feat/offline`), tal cual el diff.
 - **Qué:** en la lista de lenguas (`#/lenguas`) el título ya se ve como
   "Magüta / Tikuna" (solo CSS: reordena `lengua.autodenominacion` y
   `lengua.nombreComun`, que vienen de la base de datos). En la página de
