@@ -12,9 +12,10 @@ const NOMBRE_IDIOMA: Record<Idioma, string> = {
 // aquí se repiten como segunda capa de protección.
 export function crearPromptSistema(idioma: Idioma): string {
   const hoy = ahoraEnColombia();
-  return `Eres el asistente de Ecoruta Conectada: conectas a turistas con
+  return `Te llamas MoniA y eres la voz de Ecoruta Conectada: conectas a turistas con
 emprendimientos de etnoturismo y ecoturismo de comunidades indígenas de
-Leticia (Amazonas, Colombia), sin intermediarios.
+Leticia (Amazonas, Colombia), sin intermediarios. Si te preguntan tu nombre,
+responde que te llamas MoniA.
 
 Hoy es ${diaDeLaSemana(hoy.fecha)} ${hoy.fecha}, ${hoy.hora} (hora de Colombia).
 Usa esa fecha para entender "mañana", "el sábado", etc., y pasa las fechas a

@@ -1,4 +1,7 @@
+import { confirmar } from '../alertas.js';
+import { leerRespuesta } from '../almacen.js';
 import { configPagos, misReservas, pedir } from '../api.js';
+import { colaReservas, quitarDeCola } from '../cola.js';
 import { el, vaciar } from '../dom.js';
 import { fechaLarga, t } from '../i18n.js';
 import {
@@ -72,7 +75,12 @@ function dibujar(contenedor, reserva, recargar, config, resultadoPago) {
   }
 
   const cancelar = async () => {
-    if (!confirm(t('resv.confirmarCancelar'))) return;
+    const seguro = await confirmar(t('resv.confirmarCancelar'), {
+      si: t('resv.cancelarSi'),
+      no: t('resv.cancelarNo'),
+      peligro: true,
+    });
+    if (!seguro) return;
     try {
       await pedir(`/reservas/${reserva.id}/cancelar`, { metodo: 'POST' });
       recargar();
@@ -131,10 +139,17 @@ function dibujar(contenedor, reserva, recargar, config, resultadoPago) {
 // #/reservas: reservas hechas desde este dispositivo.
 export function vistaMisReservas(contenedor) {
   const ids = misReservas();
+  const cola = colaReservas();
   const lista = el('ul', { class: 'lista-reservas' });
   vaciar(
     contenedor,
-    el('section', {}, el('h1', {}, t('resv.lista')), ids.length ? lista : aviso(t('resv.ninguna'))),
+    el(
+      'section',
+      {},
+      el('h1', {}, t('resv.lista')),
+      cola.length ? listaCola(cola, () => vistaMisReservas(contenedor)) : null,
+      ids.length ? lista : cola.length ? null : aviso(t('resv.ninguna')),
+    ),
   );
   for (const id of ids) {
     const item = el('li', {}, el('a', { href: `#/reserva/${id}` }, id.slice(0, 8).toUpperCase()));
@@ -151,4 +166,59 @@ export function vistaMisReservas(contenedor) {
       })
       .catch(() => {});
   }
+}
+
+// Pre-reservas hechas sin señal (Bloque 7): aún no apartan cupo.
+function listaCola(cola, redibujar) {
+  const lista = el('ul', { class: 'lista-reservas lista-cola' });
+  // El nombre de la experiencia sale de la copia guardada del catálogo.
+  leerRespuesta('/experiencias').then((catalogo) => {
+    const nombres = new Map(
+      (catalogo?.datos ?? []).map((e) => [e.id, normalizarExperiencia(e).nombre]),
+    );
+    vaciar(
+      lista,
+      cola.map((r) =>
+        el(
+          'li',
+          { 'data-estado': r.estado },
+          el('a', { href: `#/experiencia/${r.cuerpo.experienciaId}` }, nombres.get(r.cuerpo.experienciaId) ?? r.cuerpo.experienciaId),
+          el(
+            'span',
+            { class: 'tarjeta-meta' },
+            ` · ${fechaLarga(r.cuerpo.fecha)} · ${t('resv.personas')}: ${r.cuerpo.personas} · `,
+            r.estado === 'RECHAZADA'
+              ? `${t('cola.rechazada')}: ${r.motivo ? t(`disp.motivo.${r.motivo}`) : r.mensaje}`
+              : t('cola.pendiente'),
+          ),
+          ' ',
+          el(
+            'button',
+            {
+              type: 'button',
+              class: 'enlace',
+              onClick: async () => {
+                if (
+                  r.estado === 'PENDIENTE' &&
+                  !(await confirmar(t('cola.confirmarQuitar'), { si: t('cola.quitarSi'), peligro: true }))
+                ) {
+                  return;
+                }
+                quitarDeCola(r.idLocal);
+                redibujar();
+              },
+            },
+            t('cola.quitar'),
+          ),
+        ),
+      ),
+    );
+  });
+  return el(
+    'section',
+    { class: 'seccion' },
+    el('h2', {}, t('cola.titulo')),
+    el('p', { class: 'nota' }, t('cola.explicacion')),
+    lista,
+  );
 }

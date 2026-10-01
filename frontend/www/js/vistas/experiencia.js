@@ -1,4 +1,4 @@
-import { pedir } from '../api.js';
+import { esSinConexion, pedir } from '../api.js';
 import { el, vaciar } from '../dom.js';
 import { rutaAnterior } from '../historial.js';
 import { duracion, fechaLarga, t } from '../i18n.js';
@@ -170,7 +170,23 @@ function seccionReserva(experiencia, fechaInicial) {
         }),
       );
     } catch (error) {
-      vaciar(resultado, el('p', { class: 'mensaje-error' }, error.message));
+      if (!esSinConexion(error)) {
+        vaciar(resultado, el('p', { class: 'mensaje-error' }, error.message));
+        return;
+      }
+      // Sin señal no se pueden ver los cupos: se ofrece dejar una
+      // pre-reserva que se envía al volver la conexión (Bloque 7).
+      const n = Number(personas.value);
+      vaciar(
+        resultado,
+        el('p', { class: 'nota' }, t('cola.sinVerificar')),
+        formularioReserva({
+          experienciaId: experiencia.id,
+          fecha: fecha.value,
+          personas: n,
+          totalCop: n * experiencia.precioCop,
+        }),
+      );
     } finally {
       boton.disabled = false;
     }

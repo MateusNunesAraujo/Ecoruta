@@ -5,12 +5,15 @@
 import {
   configPagos,
   ErrorApi,
+  esSinConexion,
   irAPagar,
   misReservas,
   pedir,
   recordarReserva,
 } from './api.js';
-import { el } from './dom.js';
+import { leerRespuesta } from './almacen.js';
+import { encolarReserva } from './cola.js';
+import { el, vaciar } from './dom.js';
 import { duracion, fechaLarga, idioma, precio, t } from './i18n.js';
 
 // Código ISO 639-3 de cada lengua: el atributo lang ayuda a los lectores de
@@ -284,24 +287,32 @@ export function formularioReserva({ experienciaId, fecha, personas, totalCop }) 
     boton.disabled = true;
     boton.textContent = t('res.enviando');
     estado.textContent = '';
+    const cuerpo = {
+      experienciaId,
+      fecha,
+      personas,
+      nombre: String(datos.get('nombre')).trim(),
+      email: String(datos.get('email')).trim(),
+      ...(String(datos.get('telefono')).trim() && {
+        telefono: String(datos.get('telefono')).trim(),
+      }),
+      idioma: idioma(),
+    };
     try {
-      const reserva = await pedir('/reservas', {
-        metodo: 'POST',
-        cuerpo: {
-          experienciaId,
-          fecha,
-          personas,
-          nombre: String(datos.get('nombre')).trim(),
-          email: String(datos.get('email')).trim(),
-          ...(String(datos.get('telefono')).trim() && {
-            telefono: String(datos.get('telefono')).trim(),
-          }),
-          idioma: idioma(),
-        },
-      });
+      const reserva = await pedir('/reservas', { metodo: 'POST', cuerpo });
       recordarReserva(reserva.id);
       location.hash = `#/reserva/${reserva.id}`;
     } catch (error) {
+      // Sin señal: se guarda en el teléfono y se envía al volver (Bloque 7).
+      if (esSinConexion(error) && encolarReserva(cuerpo, totalCop)) {
+        vaciar(
+          formulario,
+          el('h3', {}, t('cola.guardadaTitulo')),
+          el('p', {}, t('cola.guardada')),
+          el('a', { class: 'boton boton-secundario', href: '#/reservas' }, t('resv.lista')),
+        );
+        return;
+      }
       const motivo = error instanceof ErrorApi ? error.datos?.motivo : null;
       estado.textContent = motivo ? t(`disp.motivo.${motivo}`) : error.message;
       boton.disabled = false;
@@ -382,9 +393,37 @@ function tarjetaPago() {
   return el('article', { class: 'tarjeta' }, el('h3', {}, t('pago.titulo')), contenido);
 }
 
+// Preguntas frecuentes guardadas en el teléfono (chat sin señal, Bloque 7).
+// Son las mismas respuestas verificadas que usa el agente.
+function tarjetaFaqGuardadas() {
+  const contenido = el('div', {}, t('cargando'));
+  (async () => {
+    const copia = await leerRespuesta('/faq');
+    if (!copia?.datos.length) {
+      contenido.replaceChildren(t('chat.faqNinguna'));
+      return;
+    }
+    const sufijo = { es: 'Es', en: 'En', pt: 'Pt' }[idioma()];
+    contenido.replaceChildren(
+      ...copia.datos.map((p) =>
+        el(
+          'details',
+          { class: 'faq' },
+          el('summary', {}, p[`pregunta${sufijo}`] ?? p.preguntaEs),
+          el('p', {}, p[`respuesta${sufijo}`] ?? p.respuestaEs),
+          p.fuente ? el('p', { class: 'nota' }, `${t('len.fuente')}: ${p.fuente}`) : null,
+        ),
+      ),
+    );
+  })();
+  return el('article', { class: 'tarjeta tarjeta-faq' }, el('h3', {}, t('chat.faqTitulo')), contenido);
+}
+
 // Tarjeta según el tipo que envía el agente.
 export function tarjetaDelAgente(tarjeta) {
   switch (tarjeta.tipo) {
+    case 'faq_guardadas':
+      return tarjetaFaqGuardadas();
     case 'experiencia':
       return tarjetaExperiencia(tarjeta.experiencia);
     case 'ficha_cultural':

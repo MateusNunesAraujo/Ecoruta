@@ -77,7 +77,14 @@ function dibujarLengua(contenedor, lengua, fichas) {
       'section',
       {},
       el('a', { class: 'enlace', href: '#/lenguas' }, '← ', t('len.todas')),
-      el('h1', {}, lengua.nombreComun),
+      el(
+        'h1',
+        {},
+        lengua.autodenominacion
+          ? [el('span', { class: 'ficha-texto pequeno' }, lengua.autodenominacion), ' / ']
+          : null,
+        lengua.nombreComun,
+      ),
       el('p', {}, descripcion(lengua)),
       lengua.fuente ? el('p', { class: 'nota' }, `${t('len.fuente')}: ${lengua.fuente}`) : null,
       el('div', { class: 'rejilla' }, fichas.map(tarjetaFicha)),

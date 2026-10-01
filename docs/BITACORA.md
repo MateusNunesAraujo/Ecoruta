@@ -12,6 +12,106 @@ Registro de avance. Cada entrada nueva va arriba (la más reciente primero).
 
 ---
 
+### 2026-09-30 — Ventanas emergentes con SweetAlert2
+**Hecho:**
+- Los dos `confirm()` del navegador (cancelar reserva y quitar pre-reserva)
+  ahora usan SweetAlert2 a través de `js/alertas.js` (`confirmar()` y
+  `avisar()`). No quedan `alert`/`confirm`/`prompt` en el frontend.
+- Librería descargada (no CDN) en
+  `frontend/www/vendor/sweetalert2/sweetalert2.esm.all.min.js` (v11.26.25,
+  MIT, 79 KB, con su `LICENSE`). Revisada: no hace peticiones a internet.
+- `sw.js`: la librería y `alertas.js` en `ARCHIVOS_APP`; `VERSION` = `v2`.
+- Textos de botones en es/en/pt ("Sí, cancelar" / "No, mantenerla"…).
+- Probado en Chrome a tamaño de celular: "No" deja la reserva pendiente,
+  "Sí" la cancela, tema claro/oscuro, inglés, y con el servidor apagado la
+  ventana de "Quitar" funciona desde la caché. Ningún diálogo nativo, 0
+  errores de JS.
+
+**Decisiones:**
+- Módulo ES (`esm.all`): se importa como el resto del frontend, sin
+  `<script>` extra, y ya trae su CSS.
+- Colores desde las variables de la app (`var(--superficie)`,
+  `var(--texto)`) y botones con las clases `.boton` (`buttonsStyling:
+  false`): la ventana sigue el tema sin duplicar estilos. En
+  `estilos.css` solo 3 reglas de forma (`.alerta`).
+- En acciones peligrosas el foco empieza en "No" (Enter no confirma por
+  error).
+
+**Pendiente:**
+- Para actualizar la librería: reemplazar el archivo, ajustar la versión en
+  `js/alertas.js` y subir `VERSION` en `sw.js`.
+
+### 2026-09-30 — Bloque 7: Modo offline (mínimo) + pedidos 8, 10 y 11
+**Hecho:**
+- Pendientes de la bitácora/pedidos antes del bloque: pedido 8 (carita de
+  MoniA en el botón del chat), 11 (título "autodenominación / nombre" en la
+  página de cada lengua) y 10 (MoniA en el prompt, el Mock y el aviso de no
+  disponible). Datos: se cargó el Excel corregido de la hoja Lenguas (ya no
+  salen autodenominaciones que no estén en el Excel).
+- `frontend/www/sw.js` (solo web): guarda los archivos de la app, la fuente y
+  las imágenes (pedido 1). Archivos de la app: primero la red (los cambios se
+  ven enseguida; si tarda más de 4 s o no hay señal, la copia). Audios y
+  fotos: primero la copia. La API no pasa por el Service Worker.
+- `js/almacen.js`: IndexedDB con la última respuesta de `/experiencias`,
+  `/emprendimientos`, `/cultural` y `/faq`. `pedir()` la guarda al recibirla
+  y, sin conexión, la devuelve. Un filtro por interés nunca abierto se arma
+  filtrando la copia del catálogo.
+- `js/precarga.js`: al abrir con señal (y al volver la señal) descarga en
+  segundo plano catálogo, detalle de las 13 experiencias, lenguas con sus
+  fichas, FAQ (20 JSON) y, en la web, los 60 audios (2,1 MB) y las fotos.
+- `js/conexion.js`: aviso debajo de la cabecera ("Sin conexión: muestro la
+  información guardada el …"; "Volvió la conexión"; "Pre-reservas
+  enviadas: N").
+- `js/cola.js`: cola de pre-reservas. Sin señal, el detalle de la
+  experiencia ofrece el formulario aunque no pueda ver los cupos; la
+  pre-reserva se guarda en el teléfono como "Pendiente de confirmar" (aún no
+  aparta cupo) y se envía sola al volver la señal (evento `online` y al abrir
+  la app). "Mis reservas" la muestra con "Quitar".
+- Chat sin conexión: aviso + preguntas frecuentes guardadas (en el idioma del
+  turista, desplegables, con su fuente). Esos avisos no se envían al LLM en
+  el historial.
+- Textos nuevos en es/en/pt (174 claves, ninguna falta).
+- Probado en Chrome sin interfaz a tamaño de celular, APAGANDO el backend a
+  mitad de la prueba (y también con el modo sin red de Chrome): la página
+  abre desde el Service Worker; catálogo, filtro, lenguas, fichas y un audio
+  funcionan sin servidor; pre-reserva guardada; chat con aviso + 12 FAQ; al
+  volver la señal la pre-reserva quedó en `PENDIENTE_PAGO` y una con fecha
+  pasada quedó "No se pudo reservar: Esa fecha ya pasó". 0 errores de JS.
+  Backend: build, lint y 114 pruebas pasan. La reserva de prueba se canceló.
+
+**Decisiones:**
+- "Sin conexión" = sin red o backend inalcanzable (502/503/504/530 sin JSON,
+  como el túnel cerrado). Un 503 con JSON (MoniA no disponible) es una
+  respuesta real y no activa el modo offline.
+- La cola vive en `localStorage` (es pequeña y se lee al dibujar la
+  portada). Los datos personales solo quedan en el teléfono y se borran al
+  enviarse; si el backend la rechaza, se conserva sin nombre, email ni
+  teléfono para avisar al turista.
+- Las reservas y los pagos no se guardan en IndexedDB: cambian cada minuto.
+- En la app Android no se registra el Service Worker ni se guardan audios en
+  caché (van dentro del APK); IndexedDB y la cola sí funcionan igual.
+- Primero la red (no primero la copia) para los archivos de la app: así los
+  cambios de diseño se ven sin tener que subir la versión del Service Worker.
+
+**Pendiente:**
+- Diseño del modo sin conexión: lo hizo Eliel (Mateus lo autorizó esta vez)
+  en `estilos.css`: franja `.aviso-conexion` ámbar (`data-estado="sin"`) o
+  verde (`"ok"`), en PC en su propia fila de la cuadrícula (cabecera, menú,
+  aviso, contenido; `.principal` pasó a `grid-row: 4`); preguntas
+  desplegables en `.tarjeta-faq`; `.lista-cola` con borde ámbar o rojo si fue
+  rechazada. Probado en celular (claro/oscuro) y PC. Félix puede ajustarlo.
+- Al agregar un archivo JS/CSS nuevo, sumarlo a `ARCHIVOS_APP` en `sw.js` y
+  subir `VERSION`.
+- Si la respuesta del servidor se pierde después de crear la reserva, la
+  cola podría enviarla dos veces (no hay clave de idempotencia). Poco
+  probable; el cupo duplicado vence a los 15 min.
+- Bloque 8: usar `@capacitor/network` (más fiable que `navigator.onLine`).
+- Hoja Lenguas del Excel: Tikuna sigue como `nombre_comun` = Magüta y
+  `autodenominacion` = Tikuna, por eso se ve "Tikuna / Magüta". Para "Magüta /
+  Tikuna", intercambiar esas dos celdas y correr `npm run seed`.
+- Pruebas: en Windows, Chrome sin interfaz necesita un perfil con ruta corta
+  (si no, CacheStorage falla por el límite de 260 caracteres).
+
 ### 2026-09-30 — Integración del diseño de Félix y sus pedidos de JavaScript
 **Hecho:**
 - Unido `feat/frontend-diseno` en `feat/agente-info` (avance directo, sin

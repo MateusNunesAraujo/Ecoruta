@@ -1,4 +1,4 @@
-import { pedir } from '../api.js';
+import { esSinConexion, pedir } from '../api.js';
 import { el, vaciar } from '../dom.js';
 import { crearDictado } from '../dictado.js';
 import { idioma, t } from '../i18n.js';
@@ -58,10 +58,17 @@ export function vistaChat(contenedor) {
     texto = texto.trim();
     if (!texto || enviando) return;
     // Solo el texto de los mensajes anteriores (sin tarjetas) va al servidor.
+    // Los avisos de "sin conexión" no son parte de la conversación.
     const historial = mensajes
+      .filter((m) => !m.sinConexion)
       .slice(-MAX_HISTORIAL)
       .map((m) => ({ rol: m.rol, texto: m.texto }));
     mensajes.push({ rol: 'usuario', texto });
+    if (!navigator.onLine) {
+      responderSinConexion();
+      entrada.value = '';
+      return;
+    }
     enviando = true;
     entrada.value = '';
     dibujar();
@@ -73,13 +80,28 @@ export function vistaChat(contenedor) {
       mensajes.push({ rol: 'asistente', texto: respuesta.texto, tarjetas: respuesta.tarjetas });
     } catch (error) {
       // 429 (muchos mensajes) y 503 (sin LLM) ya traen un mensaje amable.
-      mensajes.push({ rol: 'asistente', texto: error.message, error: true });
+      if (esSinConexion(error)) agregarAvisoSinConexion();
+      else mensajes.push({ rol: 'asistente', texto: error.message, error: true });
     } finally {
       enviando = false;
       guardar(mensajes);
       dibujar();
       entrada.focus();
     }
+  };
+
+  // Sin señal MoniA no puede responder: aviso + preguntas frecuentes guardadas.
+  const agregarAvisoSinConexion = () =>
+    mensajes.push({
+      rol: 'asistente',
+      texto: t('chat.sinConexion'),
+      tarjetas: [{ tipo: 'faq_guardadas' }],
+      sinConexion: true,
+    });
+  const responderSinConexion = () => {
+    agregarAvisoSinConexion();
+    guardar(mensajes);
+    dibujar();
   };
 
   formulario.addEventListener('submit', (evento) => {

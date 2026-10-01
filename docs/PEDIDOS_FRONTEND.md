@@ -8,7 +8,8 @@ Estado: ⏳ pendiente · ✅ hecho · ❌ cancelado
 
 ---
 
-## ⏳ 1. Cachear la fuente en el Service Worker (Bloque 7)
+## ✅ 1. Cachear la fuente en el Service Worker (Bloque 7)
+- **Hecho el 2026-09-30 por Eliel** (rama `feat/offline`): `sw.js` guarda la fuente, `img/mono-asistente.webp`, `img/avatar-cara.webp` y todos los JS (incluidos `tema.js`, `ajustes.js`, `dictado.js` e `historial.js`).
 - **Sigue pendiente (2026-09-30, Eliel):** todavía no existe `sw.js`. Al
   crearlo en el Bloque 7, cachear también `js/tema.js`, `js/vistas/ajustes.js`
   y `js/dictado.js`.
@@ -467,7 +468,8 @@ export function crearDictado(entrada) {
 (La línea de `formulario` se reemplaza; `el()` ignora los `null`, así que sin
 dictado el formulario queda igual que hoy.)
 
-## ⏳ 8. Carita del asistente en el botón "Hablar con el asistente"
+## ✅ 8. Carita del asistente en el botón "Hablar con el asistente"
+- **Hecho el 2026-09-30 por Eliel** (rama `feat/offline`), tal cual el diff.
 - **Qué:** en la portada, cambiar el emoji 💬 del botón por la carita del
   avatar. El emoji va pegado al texto (sin etiqueta propia), así que el CSS
   no puede reemplazarlo; hace falta envolverlo en un `<span>`.
@@ -564,7 +566,8 @@ function botonVolver() {
 ```
 - Si hay Service Worker, cachear `js/historial.js`.
 
-## ⏳ 10. El asistente se llama MoniA (backend)
+## ✅ 10. El asistente se llama MoniA (backend)
+- **Hecho el 2026-09-30 por Eliel** (rama `feat/offline`): 10.1, 10.2 y 10.3, más una frase en el prompt para que responda "MoniA" si le preguntan su nombre. 114 pruebas pasan; el examen no busca la palabra "asistente".
 - **Qué:** el equipo decidió que el asistente se llama **MoniA**. En el
   frontend ya está (menú, título del chat, saludo "Soy MoniA", "Hablar con
   MoniA", "MoniA está escribiendo…", "Volver con MoniA"). Falta que la IA
@@ -607,7 +610,8 @@ function botonVolver() {
 - Después: `npm test` y `npm run evaluar` (el examen podría tener preguntas
   que esperan la palabra "asistente").
 
-## ⏳ 11. Título "Autodenominación / Nombre" en la página de una lengua
+## ✅ 11. Título "Autodenominación / Nombre" en la página de una lengua
+- **Hecho el 2026-09-30 por Eliel** (rama `feat/offline`), tal cual el diff.
 - **Qué:** en la lista de lenguas (`#/lenguas`) el título ya se ve como
   "Magüta / Tikuna" (solo CSS: reordena `lengua.autodenominacion` y
   `lengua.nombreComun`, que vienen de la base de datos). En la página de
