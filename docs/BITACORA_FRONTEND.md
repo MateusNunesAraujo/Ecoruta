@@ -15,6 +15,27 @@ Los cambios que necesitan tocar JavaScript o archivos de Eliel se piden en
 
 ---
 
+### 2026-09-30 — PC ancho: barra lateral fija en el chat y detalle en 3 columnas
+**Hecho (solo `css/estilos.css`, desde 1024 px; el celular no cambia):**
+- El chat y el detalle se ensanchan de 960 a 1180 px (`--ancho-amplio`).
+- Chat: la fila del título pasa a una barra lateral FIJA a la izquierda
+  (`position: fixed`, debajo del menú): carita grande de MoniA, título y
+  "Nueva conversación". La conversación va a la derecha y la caja de
+  escribir sigue fija abajo.
+- Detalle: cuadrícula de 3 columnas: "← Volver" (sticky) | contenido |
+  "Reservar" (sticky; si el formulario crece más que la pantalla, se
+  desplaza por dentro). Los campos de fecha y personas van uno debajo del
+  otro en esa columna.
+- `--tope: 124px` (cabecera 60 + menú 48 + 16 de aire), medido en la app.
+- Probado desplazando la página: la barra del chat, Volver y Reservar se
+  quedan a 124 px mientras el resto se mueve.
+
+**Decisiones:**
+- En el chat se usa `fixed` y no `sticky`: dentro de una cuadrícula, la
+  caja de escribir dejaría de quedarse fija abajo.
+- La reserva se reconoce como la `.seccion` sin `.rejilla` (la otra es la de
+  saludos), con `:has()`; no hace falta cambiar el JS.
+
 ### 2026-09-30 — El asistente se llama MoniA
 **Hecho (solo `js/i18n.js`, a pedido de Félix):**
 - Los 18 textos visibles con "asistente / assistant / assistente" (6 por

@@ -938,6 +938,75 @@ a { color: var(--verde); }
   .rejilla { grid-template-columns: repeat(3, 1fr); }
 }
 
+/* --- PC ancho (1024 px o más): chat y detalle aprovechan el espacio ---
+   --tope: alto de cabecera (60 px) + menú (48 px) + 16 px de aire. Los
+   elementos "fijos" quedan justo debajo del menú al desplazarse. */
+@media (min-width: 1024px) {
+  :root { --tope: 124px; --ancho-amplio: 1180px; }
+  .principal:has(> .chat), .principal:has(> .detalle) { max-width: var(--ancho-amplio); }
+
+  /* Chat: barra lateral FIJA a la izquierda (carita, "MoniA" y "Nueva
+     conversación"); la conversación va a la derecha. Es position: fixed
+     (no sticky) para que la caja de escribir siga fija abajo. */
+  .chat { padding-left: calc(15rem + 2rem); }
+  .chat > .titulo-fila {
+    position: fixed;
+    top: var(--tope);
+    left: max(1rem, calc((100vw - var(--ancho-amplio)) / 2 + 1rem));
+    z-index: 4;
+    width: 15rem;
+    flex-direction: column;
+    align-items: stretch;
+    gap: 0.75rem;
+    padding: 1.25rem;
+    border: 1px solid var(--borde);
+    border-radius: var(--radio);
+    background: var(--superficie);
+    box-shadow: var(--sombra);
+    text-align: center;
+  }
+  .chat > .titulo-fila::before {
+    content: '';
+    align-self: center;
+    width: 96px;
+    height: 85px;
+    background: url('../img/avatar-cara.webp') center / contain no-repeat;
+  }
+  .chat > .titulo-fila h1 { margin: 0; }
+  .chat .titulo-fila .enlace { justify-content: center; }
+
+  /* Detalle: Volver (fijo) | contenido | Reservar (fijo). */
+  .detalle {
+    max-width: none;
+    display: grid;
+    grid-template-columns: max-content minmax(0, 1fr) 21rem;
+    column-gap: 2rem;
+    align-items: start;
+  }
+  .detalle > * { grid-column: 2; }
+  .detalle > .enlace:first-child {
+    grid-column: 1;
+    grid-row: 1 / span 30;
+    position: sticky;
+    top: var(--tope);
+    margin: 0;
+  }
+  /* La sección de reserva (la que no tiene fichas) va a la derecha. Si el
+     formulario crece más que la pantalla, se desplaza por dentro. */
+  .detalle > .seccion:not(:has(.rejilla)) {
+    grid-column: 3;
+    grid-row: 1 / span 30;
+    position: sticky;
+    top: var(--tope);
+    margin-top: 0;
+    max-height: calc(100vh - var(--tope) - 1rem);
+    overflow-y: auto;
+  }
+  .detalle > .seccion:not(:has(.rejilla)) > h2 { margin-top: 0; }
+  .detalle .formulario-disponibilidad .boton[type='submit'] { width: 100%; }
+  .detalle .formulario-disponibilidad .campos-fila { flex-direction: column; gap: 0; }
+}
+
 @media (prefers-reduced-motion: reduce) {
   * { scroll-behavior: auto !important; }
   .chat-formulario .boton, .chat-formulario .boton::before,
