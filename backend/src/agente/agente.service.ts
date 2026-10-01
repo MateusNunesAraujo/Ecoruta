@@ -32,9 +32,9 @@ const SIN_RESPUESTA: Record<Idioma, string> = {
   pt: 'Desculpe, não consegui concluir seu pedido. Pode dizer de outra forma?',
 };
 const NO_DISPONIBLE: Record<Idioma, string> = {
-  es: 'El asistente no está disponible en este momento. Puedes explorar el catálogo mientras tanto.',
-  en: 'The assistant is not available right now. You can browse the catalog in the meantime.',
-  pt: 'O assistente não está disponível agora. Enquanto isso, você pode explorar o catálogo.',
+  es: 'MoniA no está disponible en este momento. Puedes explorar el catálogo mientras tanto.',
+  en: 'MoniA is not available right now. You can browse the catalog in the meantime.',
+  pt: 'MoniA não está disponível agora. Enquanto isso, você pode explorar o catálogo.',
 };
 
 export interface RespuestaAgente {

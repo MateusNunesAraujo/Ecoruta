@@ -160,9 +160,9 @@ const PALABRAS_CULTURALES = [
 
 const TEXTOS: Record<string, Record<Idioma, string>> = {
   ayuda: {
-    es: 'Hola, soy el asistente de Ecoruta. Cuéntame qué te interesa (aves, delfines, artesanías, cultura…) o pregúntame cómo se saluda en una lengua indígena.',
-    en: "Hi, I'm the Ecoruta assistant. Tell me what you're interested in (birds, dolphins, crafts, culture…) or ask me how to greet in an Indigenous language.",
-    pt: 'Olá, sou o assistente da Ecoruta. Conte o que te interessa (aves, botos, artesanato, cultura…) ou pergunte como se cumprimenta numa língua indígena.',
+    es: 'Hola, soy MoniA, de Ecoruta. Cuéntame qué te interesa (aves, delfines, artesanías, cultura…) o pregúntame cómo se saluda en una lengua indígena.',
+    en: "Hi, I'm MoniA from Ecoruta. Tell me what you're interested in (birds, dolphins, crafts, culture…) or ask me how to greet in an Indigenous language.",
+    pt: 'Olá, sou MoniA, da Ecoruta. Conte o que te interessa (aves, botos, artesanato, cultura…) ou pergunte como se cumprimenta numa língua indígena.',
   },
   encontradas: {
     es: 'Estas son las experiencias que encontré ({n}). Mira las tarjetas y dime cuál te gusta.',

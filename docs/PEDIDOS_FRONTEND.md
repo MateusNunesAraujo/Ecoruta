@@ -565,7 +565,8 @@ function botonVolver() {
 ```
 - Si hay Service Worker, cachear `js/historial.js`.
 
-## ⏳ 10. El asistente se llama MoniA (backend)
+## ✅ 10. El asistente se llama MoniA (backend)
+- **Hecho el 2026-09-30 por Eliel** (rama `feat/offline`): 10.1, 10.2 y 10.3, más una frase en el prompt para que responda "MoniA" si le preguntan su nombre. 114 pruebas pasan; el examen no busca la palabra "asistente".
 - **Qué:** el equipo decidió que el asistente se llama **MoniA**. En el
   frontend ya está (menú, título del chat, saludo "Soy MoniA", "Hablar con
   MoniA", "MoniA está escribiendo…", "Volver con MoniA"). Falta que la IA
