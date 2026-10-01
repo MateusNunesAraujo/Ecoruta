@@ -1,4 +1,6 @@
+import { guardarRespuesta, leerRespuesta } from './almacen.js';
 import { API_BASE } from './config.js';
+import { avisarSinConexion, hayConexion } from './conexion.js';
 import { t } from './i18n.js';
 
 // Error de la API con el código HTTP y el mensaje del backend.
@@ -10,9 +12,51 @@ export class ErrorApi extends Error {
   }
 }
 
+// ¿El error es por falta de conexión (sin red o backend inalcanzable)?
+export function esSinConexion(error) {
+  return error instanceof ErrorApi && error.status === 0;
+}
+
+// Respuestas que se guardan para verlas sin señal (Bloque 7). No se guardan
+// reservas ni pagos: cambian a cada minuto.
+const GUARDABLES = /^\/(experiencias|emprendimientos|cultural|faq)(\/|\?|$)/;
+
 // Llama al backend: pedir('/experiencias') o
 // pedir('/reservas', { metodo: 'POST', cuerpo: {...} }).
 export async function pedir(ruta, { metodo = 'GET', cuerpo } = {}) {
+  const guardable = metodo === 'GET' && GUARDABLES.test(ruta);
+  try {
+    const datos = await pedirAlServidor(ruta, metodo, cuerpo);
+    hayConexion();
+    if (guardable) guardarRespuesta(ruta, datos);
+    return datos;
+  } catch (error) {
+    if (guardable && esSinConexion(error)) {
+      const copia = await copiaLocal(ruta);
+      if (copia) {
+        avisarSinConexion(copia.guardadoEn);
+        return copia.datos;
+      }
+    }
+    if (esSinConexion(error)) avisarSinConexion();
+    throw error;
+  }
+}
+
+// Copia guardada de la ruta. Si es un filtro que nunca se abrió con señal
+// (/experiencias?interes=aves), se filtra la copia del catálogo completo.
+async function copiaLocal(ruta) {
+  const copia = await leerRespuesta(ruta);
+  const interes = /^\/experiencias\?interes=([a-z_]+)$/.exec(ruta)?.[1];
+  if (copia || !interes) return copia;
+  const catalogo = await leerRespuesta('/experiencias');
+  return catalogo && {
+    guardadoEn: catalogo.guardadoEn,
+    datos: catalogo.datos.filter((e) => e.intereses?.includes(interes)),
+  };
+}
+
+async function pedirAlServidor(ruta, metodo, cuerpo) {
   let respuesta;
   try {
     respuesta = await fetch(`${API_BASE}/api${ruta}`, {
@@ -21,6 +65,11 @@ export async function pedir(ruta, { metodo = 'GET', cuerpo } = {}) {
       body: cuerpo ? JSON.stringify(cuerpo) : undefined,
     });
   } catch {
+    throw new ErrorApi(0, t('error.red'));
+  }
+  // 502/503/504/530 sin JSON: el backend no responde (por ejemplo, el túnel de
+  // la demo está cerrado). Cuenta como falta de conexión.
+  if ([502, 503, 504, 530].includes(respuesta.status) && !respuesta.headers.get('content-type')?.includes('json')) {
     throw new ErrorApi(0, t('error.red'));
   }
   const datos = await respuesta.json().catch(() => null);

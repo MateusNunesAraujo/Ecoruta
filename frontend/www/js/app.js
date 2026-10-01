@@ -2,9 +2,13 @@
 // Las rutas usan "#" (ej. #/experiencia/EXP-01) para que funcionen igual en
 // la web y en la app Android, sin configurar nada en el servidor.
 
+import { enviarCola } from './cola.js';
+import { ES_APP } from './config.js';
+import { iniciarConexion, mostrarBreve } from './conexion.js';
 import { el, vaciar } from './dom.js';
 import { registrarRuta } from './historial.js';
 import { cambiarIdioma, idioma, IDIOMAS, iniciarIdioma, t } from './i18n.js';
+import { precargar } from './precarga.js';
 import { aplicarTema } from './tema.js';
 import { vistaAjustes } from './vistas/ajustes.js';
 import { vistaChat } from './vistas/chat.js';
@@ -90,9 +94,27 @@ function dibujarMarco() {
   );
 }
 
+// --- Sin señal (Bloque 7) ---
+// Al volver la señal se envían las pre-reservas guardadas y se actualiza la
+// copia del catálogo y de las lenguas.
+function alVolverLaSenal() {
+  enviarCola();
+  precargar();
+}
+window.addEventListener('ecoruta:cola-enviada', (evento) => {
+  mostrarBreve(t('cola.enviadas', { n: evento.detail.creadas }));
+  if (location.hash === '#/reservas') navegar();
+});
+// Web: el Service Worker guarda los archivos para abrir la página sin señal.
+// En la app Android no hace falta (los archivos van dentro del APK).
+if (!ES_APP && 'serviceWorker' in navigator) {
+  navigator.serviceWorker.register('sw.js').catch(() => {});
+}
+
 aplicarTema();
 iniciarIdioma();
 dibujarMarco();
+iniciarConexion({ alVolver: alVolverLaSenal });
 // "Ir al contenido": mueve el foco sin cambiar la ruta (el "#" es del enrutador).
 document.querySelector('.saltar').addEventListener('click', (evento) => {
   evento.preventDefault();
@@ -100,3 +122,4 @@ document.querySelector('.saltar').addEventListener('click', (evento) => {
 });
 window.addEventListener('hashchange', navegar);
 navegar();
+alVolverLaSenal();

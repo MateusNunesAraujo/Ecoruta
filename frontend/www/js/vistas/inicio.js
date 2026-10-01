@@ -1,10 +1,11 @@
 import { misReservas } from '../api.js';
+import { colaReservas } from '../cola.js';
 import { el, vaciar } from '../dom.js';
 import { t } from '../i18n.js';
 
 // Pantalla de inicio: a ella llega el turista al escanear el QR.
 export function vistaInicio(contenedor) {
-  const hayReservas = misReservas().length > 0;
+  const hayReservas = misReservas().length > 0 || colaReservas().length > 0;
   vaciar(
     contenedor,
     el(
