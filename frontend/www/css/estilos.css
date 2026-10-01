@@ -968,6 +968,12 @@ a { color: var(--verde); }
   to { opacity: 1; transform: none; }
 }
 
+/* Ventanas de SweetAlert2 (js/alertas.js). Colores y botones ya vienen de
+   la app (background: var(--superficie), clases .boton); aquí solo forma. */
+.alerta { border: 1px solid var(--borde); border-radius: var(--radio); }
+.alerta .swal2-actions { gap: 0.6rem; }
+.alerta .swal2-actions .boton { margin: 0; }
+
 /* Chat sin señal: preguntas frecuentes guardadas, desplegables. */
 .tarjeta-faq details { border-top: 1px dashed var(--borde); }
 .tarjeta-faq details:first-child { border-top: 0; }

@@ -12,6 +12,35 @@ Registro de avance. Cada entrada nueva va arriba (la más reciente primero).
 
 ---
 
+### 2026-09-30 — Ventanas emergentes con SweetAlert2
+**Hecho:**
+- Los dos `confirm()` del navegador (cancelar reserva y quitar pre-reserva)
+  ahora usan SweetAlert2 a través de `js/alertas.js` (`confirmar()` y
+  `avisar()`). No quedan `alert`/`confirm`/`prompt` en el frontend.
+- Librería descargada (no CDN) en
+  `frontend/www/vendor/sweetalert2/sweetalert2.esm.all.min.js` (v11.26.25,
+  MIT, 79 KB, con su `LICENSE`). Revisada: no hace peticiones a internet.
+- `sw.js`: la librería y `alertas.js` en `ARCHIVOS_APP`; `VERSION` = `v2`.
+- Textos de botones en es/en/pt ("Sí, cancelar" / "No, mantenerla"…).
+- Probado en Chrome a tamaño de celular: "No" deja la reserva pendiente,
+  "Sí" la cancela, tema claro/oscuro, inglés, y con el servidor apagado la
+  ventana de "Quitar" funciona desde la caché. Ningún diálogo nativo, 0
+  errores de JS.
+
+**Decisiones:**
+- Módulo ES (`esm.all`): se importa como el resto del frontend, sin
+  `<script>` extra, y ya trae su CSS.
+- Colores desde las variables de la app (`var(--superficie)`,
+  `var(--texto)`) y botones con las clases `.boton` (`buttonsStyling:
+  false`): la ventana sigue el tema sin duplicar estilos. En
+  `estilos.css` solo 3 reglas de forma (`.alerta`).
+- En acciones peligrosas el foco empieza en "No" (Enter no confirma por
+  error).
+
+**Pendiente:**
+- Para actualizar la librería: reemplazar el archivo, ajustar la versión en
+  `js/alertas.js` y subir `VERSION` en `sw.js`.
+
 ### 2026-09-30 — Bloque 7: Modo offline (mínimo) + pedidos 8, 10 y 11
 **Hecho:**
 - Pendientes de la bitácora/pedidos antes del bloque: pedido 8 (carita de

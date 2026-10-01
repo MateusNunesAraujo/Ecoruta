@@ -1,3 +1,4 @@
+import { confirmar } from '../alertas.js';
 import { leerRespuesta } from '../almacen.js';
 import { configPagos, misReservas, pedir } from '../api.js';
 import { colaReservas, quitarDeCola } from '../cola.js';
@@ -74,7 +75,12 @@ function dibujar(contenedor, reserva, recargar, config, resultadoPago) {
   }
 
   const cancelar = async () => {
-    if (!confirm(t('resv.confirmarCancelar'))) return;
+    const seguro = await confirmar(t('resv.confirmarCancelar'), {
+      si: t('resv.cancelarSi'),
+      no: t('resv.cancelarNo'),
+      peligro: true,
+    });
+    if (!seguro) return;
     try {
       await pedir(`/reservas/${reserva.id}/cancelar`, { metodo: 'POST' });
       recargar();
@@ -191,8 +197,13 @@ function listaCola(cola, redibujar) {
             {
               type: 'button',
               class: 'enlace',
-              onClick: () => {
-                if (r.estado === 'PENDIENTE' && !confirm(t('cola.confirmarQuitar'))) return;
+              onClick: async () => {
+                if (
+                  r.estado === 'PENDIENTE' &&
+                  !(await confirmar(t('cola.confirmarQuitar'), { si: t('cola.quitarSi'), peligro: true }))
+                ) {
+                  return;
+                }
                 quitarDeCola(r.idLocal);
                 redibujar();
               },

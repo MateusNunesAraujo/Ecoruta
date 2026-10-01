@@ -10,7 +10,7 @@
 //
 // Al agregar un archivo nuevo a la app, súmalo a ARCHIVOS_APP y sube VERSION.
 
-const VERSION = 'v1';
+const VERSION = 'v2';
 const CACHE_APP = `ecoruta-app-${VERSION}`;
 const CACHE_MEDIOS = 'ecoruta-medios'; // mismo nombre en js/precarga.js
 const ESPERA_RED_MS = 4000;
@@ -22,6 +22,8 @@ const ARCHIVOS_APP = [
   'fuentes/NotoSans-ecoruta.woff2',
   'img/mono-asistente.webp',
   'img/avatar-cara.webp',
+  'vendor/sweetalert2/sweetalert2.esm.all.min.js',
+  'js/alertas.js',
   'js/almacen.js',
   'js/api.js',
   'js/app.js',
