@@ -12,8 +12,8 @@ Estado: ⏳ pendiente · ✅ hecho · ❌ cancelado
 - **Sigue pendiente (2026-09-30, Eliel):** todavía no existe `sw.js`. Al
   crearlo en el Bloque 7, cachear también `js/tema.js`, `js/vistas/ajustes.js`
   y `js/dictado.js`.
-- **Qué:** agregar `fuentes/NotoSans-ecoruta.woff2` e `img/mono-asistente.webp`
-  a la lista de archivos que `sw.js` guarda en caché.
+- **Qué:** agregar `fuentes/NotoSans-ecoruta.woff2`, `img/mono-asistente.webp`
+  e `img/avatar-cara.webp` a la lista de archivos que `sw.js` guarda en caché.
 - **Por qué:** el texto en lenguas indígenas usa esa fuente. Sin la caché, en
   la versión web sin señal se vería con la fuente del sistema, y los acentos
   combinables (ṵ̈́, ü̃) pueden verse mal. En el APK no hace falta, porque el
@@ -466,3 +466,19 @@ export function crearDictado(entrada) {
 ```
 (La línea de `formulario` se reemplaza; `el()` ignora los `null`, así que sin
 dictado el formulario queda igual que hoy.)
+
+## ⏳ 8. Carita del asistente en el botón "Hablar con el asistente"
+- **Qué:** en la portada, cambiar el emoji 💬 del botón por la carita del
+  avatar. El emoji va pegado al texto (sin etiqueta propia), así que el CSS
+  no puede reemplazarlo; hace falta envolverlo en un `<span>`.
+- **Ya está hecho en `feat/frontend-diseno-2`:** la imagen
+  `img/avatar-cara.webp` y la clase `.icono-avatar` en el CSS. En el menú
+  y junto a las respuestas del chat la carita ya aparece solo con CSS.
+- **Cambio en `frontend/www/js/vistas/inicio.js` (1 línea):**
+```diff
+-        el('a', { class: 'boton boton-grande', href: '#/chat' }, '💬 ', t('inicio.chat')),
++        el('a', { class: 'boton boton-grande', href: '#/chat' }, el('span', { class: 'icono-avatar', 'aria-hidden': 'true' }), t('inicio.chat')),
+```
+- **Probado** en una copia con ese mismo HTML: la carita se ve a la izquierda
+  del texto, en claro y oscuro. El selector `.accesos a[href='#/chat']` del
+  borde de colores no cambia.

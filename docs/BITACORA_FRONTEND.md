@@ -15,6 +15,32 @@ Los cambios que necesitan tocar JavaScript o archivos de Eliel se piden en
 
 ---
 
+### 2026-09-30 — Carita del asistente en el menú y en el chat
+Rama nueva `feat/frontend-diseno-2`, creada desde `feat/agente-info` después
+de que Eliel unió el PR #2 y aplicó los pedidos 3, 6 y 7.
+
+**Hecho:**
+- Nueva imagen `frontend/www/img/avatar-cara.webp` (9,7 KB, 160×142 px,
+  fondo transparente): la carita del mono con gafas que entregó Félix. Se le
+  quitó el fondo negro igual que al avatar de la portada; el borde celeste
+  es parte del dibujo y se conserva.
+- `css/estilos.css`:
+  - menú: la carita reemplaza al 💬 de "Asistente"
+    (`.navegacion a[data-seccion='chat'] .icono`, el emoji queda en 0 px);
+  - chat: cada respuesta del asistente (saludo, respuestas, errores y
+    "escribiendo…") lleva la carita a la izquierda. `.mensaje.asistente`
+    pasa a cuadrícula de dos columnas: avatar de 36 px y contenido;
+  - `.icono-avatar` para el botón de la portada (tamaño en rem, porque con
+    `font-size: 0` un tamaño en em sería 0).
+- Pedido 8: una línea en `inicio.js` para cambiar el 💬 del botón "Hablar
+  con el asistente" por la carita.
+- Probado en una copia con una conversación de ejemplo (itinerario, error,
+  "escribiendo…") a 360 y 900 px, claro y oscuro; el chat sigue enviando.
+
+**Pendiente:**
+- Pedido 8 (Eliel). Cachear `img/avatar-cara.webp` en el Service Worker
+  (pedido 1).
+
 ### 2026-09-30 — Unión con las ramas de Eliel
 **Hecho:**
 - Unida `feat/pagos` (pagos simulados) y después `feat/agente-info`, la

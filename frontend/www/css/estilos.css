@@ -215,6 +215,19 @@ a { color: var(--verde); }
   text-decoration: none;
 }
 .navegacion .icono { font-size: 1.3rem; }
+/* Carita del asistente (img/avatar-cara.webp, 160×142, fondo transparente)
+   en lugar del emoji 💬: en el menú y, con .icono-avatar, donde se use. */
+.navegacion a[data-seccion='chat'] .icono,
+.icono-avatar {
+  display: inline-block;
+  width: 1.65rem;
+  height: 1.45rem;
+  font-size: 0; /* oculta el emoji que pone el JS */
+  background: url('../img/avatar-cara.webp') center / contain no-repeat;
+  vertical-align: middle;
+}
+/* En rem, no em: con font-size 0 un tamaño en em sería 0. */
+.icono-avatar { width: 1.75rem; height: 1.55rem; margin-right: 0.35rem; }
 .navegacion a[aria-current='page'] { color: var(--verde); font-weight: 700; }
 
 /* --- Botones y chips --- */
@@ -559,6 +572,26 @@ a { color: var(--verde); }
 .mensaje.usuario > p { background: var(--verde); color: var(--sobre-verde); border-bottom-right-radius: 4px; }
 .mensaje.asistente { align-self: flex-start; width: 100%; }
 .mensaje.asistente > p { background: var(--superficie); border: 1px solid var(--borde); border-bottom-left-radius: 4px; max-width: 92%; }
+/* Respuestas del asistente con su carita a la izquierda, para que se note
+   que hablas con el avatar. Columna 1: avatar; columna 2: burbuja, tarjetas
+   o "escribiendo…". */
+.mensaje.asistente {
+  display: grid;
+  grid-template-columns: 36px minmax(0, 1fr);
+  column-gap: 0.5rem;
+  align-items: start;
+}
+.mensaje.asistente::before {
+  content: '';
+  grid-column: 1;
+  grid-row: 1 / span 2;
+  width: 36px;
+  height: 32px;
+  margin-top: 0.15rem;
+  background: url('../img/avatar-cara.webp') center / contain no-repeat;
+}
+.mensaje.asistente > * { grid-column: 2; }
+.mensaje.asistente.escribiendo { padding-left: 0; align-items: center; }
 .mensaje.error > p { background: var(--ambar); border-color: var(--borde-ambar); }
 .mensaje.escribiendo { color: var(--texto-suave); font-style: italic; padding-left: 0.5rem; }
 .mensaje-tarjetas { display: grid; gap: 0.6rem; margin-top: 0.6rem; }
