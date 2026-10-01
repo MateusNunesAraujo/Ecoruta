@@ -175,7 +175,7 @@ function listaCola(cola, redibujar) {
       cola.map((r) =>
         el(
           'li',
-          {},
+          { 'data-estado': r.estado },
           el('a', { href: `#/experiencia/${r.cuerpo.experienciaId}` }, nombres.get(r.cuerpo.experienciaId) ?? r.cuerpo.experienciaId),
           el(
             'span',

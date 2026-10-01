@@ -13,7 +13,7 @@ let aviso = null;
 let temporizador = null;
 
 export function iniciarConexion({ alVolver }) {
-  aviso = el('p', { id: 'aviso-conexion', class: 'aviso-conexion nota', role: 'status', hidden: true });
+  aviso = el('p', { id: 'aviso-conexion', class: 'aviso-conexion', role: 'status', hidden: true });
   document.getElementById('cabecera').after(aviso);
   if (!navigator.onLine) avisarSinConexion();
 
@@ -32,6 +32,7 @@ export function avisarSinConexion(guardadoEn) {
   aviso.textContent = guardadoEn
     ? t('conexion.guardado', { fecha: new Date(guardadoEn).toLocaleString(document.documentElement.lang, { dateStyle: 'medium', timeStyle: 'short' }) })
     : t('conexion.sin');
+  aviso.dataset.estado = 'sin'; // ámbar (estilos.css)
   aviso.hidden = false;
 }
 
@@ -44,6 +45,7 @@ export function mostrarBreve(texto) {
   if (!aviso) return;
   clearTimeout(temporizador);
   aviso.textContent = texto;
+  aviso.dataset.estado = 'ok'; // verde (estilos.css)
   aviso.hidden = false;
   temporizador = setTimeout(() => {
     aviso.hidden = true;

@@ -65,8 +65,12 @@ Registro de avance. Cada entrada nueva va arriba (la más reciente primero).
   cambios de diseño se ven sin tener que subir la versión del Service Worker.
 
 **Pendiente:**
-- Félix: dar estilo a `.aviso-conexion` (hoy usa `.nota` y queda pegado al
-  borde), `.tarjeta-faq` / `details.faq` y `.lista-cola`.
+- Diseño del modo sin conexión: lo hizo Eliel (Mateus lo autorizó esta vez)
+  en `estilos.css`: franja `.aviso-conexion` ámbar (`data-estado="sin"`) o
+  verde (`"ok"`), en PC en su propia fila de la cuadrícula (cabecera, menú,
+  aviso, contenido; `.principal` pasó a `grid-row: 4`); preguntas
+  desplegables en `.tarjeta-faq`; `.lista-cola` con borde ámbar o rojo si fue
+  rechazada. Probado en celular (claro/oscuro) y PC. Félix puede ajustarlo.
 - Al agregar un archivo JS/CSS nuevo, sumarlo a `ARCHIVOS_APP` en `sw.js` y
   subir `VERSION`.
 - Si la respuesta del servidor se pierde después de crear la reserva, la

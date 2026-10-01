@@ -926,10 +926,96 @@ a { color: var(--verde); }
 
 .aviso { padding: 1.5rem 0; text-align: center; color: var(--texto-suave); }
 
+/* --- Sin conexión (Bloque 7) ---
+   Franja debajo de la cabecera (#aviso-conexion, la crea js/conexion.js).
+   data-estado="sin": ámbar, como "pendiente". data-estado="ok": verde, por
+   unos segundos ("Volvió la conexión", "Pre-reservas enviadas"). */
+.aviso-conexion {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.6rem;
+  margin: 0;
+  padding: 0.6rem 1rem;
+  background: var(--ambar);
+  color: var(--texto-ambar);
+  border-bottom: 1px solid var(--borde-ambar);
+  font-size: 0.9rem;
+  font-weight: 600;
+  line-height: 1.35;
+  text-align: center;
+  animation: aviso-entra 0.25s ease-out;
+}
+.aviso-conexion[hidden] { display: none; }
+/* Punto indicador: aro hueco sin señal, punto lleno con señal. */
+.aviso-conexion::before {
+  content: '';
+  flex: none;
+  width: 0.7rem;
+  height: 0.7rem;
+  border-radius: 50%;
+  border: 2px solid currentColor;
+  box-sizing: border-box;
+}
+.aviso-conexion[data-estado='ok'] {
+  background: var(--verde-claro);
+  color: var(--verde-oscuro);
+  border-bottom-color: var(--verde);
+}
+.aviso-conexion[data-estado='ok']::before { background: currentColor; }
+@keyframes aviso-entra {
+  from { opacity: 0; transform: translateY(-0.4rem); }
+  to { opacity: 1; transform: none; }
+}
+
+/* Chat sin señal: preguntas frecuentes guardadas, desplegables. */
+.tarjeta-faq details { border-top: 1px dashed var(--borde); }
+.tarjeta-faq details:first-child { border-top: 0; }
+.tarjeta-faq summary {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  min-height: 44px;
+  padding: 0.35rem 0;
+  font-weight: 600;
+  cursor: pointer;
+  list-style: none;
+}
+.tarjeta-faq summary::-webkit-details-marker { display: none; }
+.tarjeta-faq summary::before {
+  content: '';
+  flex: none;
+  width: 0.45rem;
+  height: 0.45rem;
+  border-right: 2px solid var(--verde);
+  border-bottom: 2px solid var(--verde);
+  transform: rotate(-45deg);
+  transition: transform 0.15s;
+}
+.tarjeta-faq details[open] summary::before { transform: rotate(45deg); }
+.tarjeta-faq details p { margin: 0 0 0.6rem 0.95rem; }
+
+/* Mis reservas: pre-reservas hechas sin señal (aún sin cupo). */
+.lista-cola { list-style: none; padding: 0; display: grid; gap: 0.6rem; }
+.lista-cola li {
+  margin: 0;
+  padding: 0.75rem 1rem;
+  background: var(--superficie);
+  border: 1px solid var(--borde);
+  border-left: 4px solid var(--borde-ambar);
+  border-radius: var(--radio);
+  box-shadow: var(--sombra);
+}
+.lista-cola li[data-estado='RECHAZADA'] { border-left-color: var(--rojo); }
+.lista-cola li a { font-weight: 600; }
+.lista-cola .enlace { display: block; margin-top: 0.35rem; }
+
 /* --- Pantallas medianas y grandes --- */
 @media (min-width: 768px) {
   :root { --alto-nav: 0px; }
-  body { display: grid; grid-template-columns: 1fr; grid-template-rows: auto auto 1fr; }
+  /* Filas: cabecera, menú, aviso de conexión (0 px si está oculto), contenido. */
+  body { display: grid; grid-template-columns: 1fr; grid-template-rows: auto auto auto 1fr; }
+  .aviso-conexion { grid-row: 3; }
   .cabecera { grid-row: 1; }
   .navegacion {
     position: sticky;
@@ -947,7 +1033,7 @@ a { color: var(--verde); }
   /* Marca más grande (solo PC). Con line-height fijo cabe en 44px y la
      cabecera sigue midiendo 60px (ver top de .navegacion). */
   .marca { font-size: 1.35rem; line-height: 1.2; }
-  .principal { grid-row: 3; padding-bottom: 2rem; }
+  .principal { grid-row: 4; padding-bottom: 2rem; }
   .rejilla { grid-template-columns: repeat(2, 1fr); }
   .mensaje-tarjetas { grid-template-columns: repeat(2, 1fr); }
   .chat-formulario { bottom: 0.5rem; }
@@ -1029,6 +1115,7 @@ a { color: var(--verde); }
 
 @media (prefers-reduced-motion: reduce) {
   * { scroll-behavior: auto !important; }
+  .aviso-conexion, .tarjeta-faq summary::before { animation: none; transition: none; }
   .chat-formulario .boton, .chat-formulario .boton::before,
   .accesos a[href='#/chat'], .accesos a[href='#/chat']::before { animation: none; }
   .boton-dictar[aria-pressed='true'] { animation: none; box-shadow: 0 0 0 4px rgb(164 38 44 / 0.4); }
