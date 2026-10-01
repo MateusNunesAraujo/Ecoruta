@@ -9,7 +9,7 @@ Claude Code: al terminar un bloque, márcalo con ✅ y registra la entrada en
 ## ✅ Bloque 0 — Base del proyecto
 NestJS + TypeORM conectado a PostgreSQL con Docker Compose, `.env.example`.
 
-## Bloque 1 — Emprendimientos (23 sep)
+## ✅ Bloque 1 — Emprendimientos (23 sep)
 - Entidad `Emprendimiento`: nombre, comunidad, descripción (es/en/pt),
   intereses (ej. aves, delfines, gastronomía, artesanías, caminata),
   precio base en COP, duración, capacidad por fecha, ubicación (lat/lng),
@@ -18,7 +18,7 @@ NestJS + TypeORM conectado a PostgreSQL con Docker Compose, `.env.example`.
   `GET /api/emprendimientos/:id`.
 - Seed con 5–6 emprendimientos DE EJEMPLO, marcados como ficticios.
 
-## Bloque 2 — Contenido cultural (23–24 sep)
+## ✅ Bloque 2 — Contenido cultural (23–24 sep)
 - Entidad `FichaCultural`: lengua (tikuna, murui, yagua, miraña, bora), tema,
   palabra o frase, traducción, guía de pronunciación, audio (URL opcional),
   narrativa, fuente, comunidad de origen, estado (`PENDIENTE` | `VERIFICADA`).
@@ -27,7 +27,7 @@ NestJS + TypeORM conectado a PostgreSQL con Docker Compose, `.env.example`.
   con estado `PENDIENTE`. El contenido real lo cargan personas del equipo
   desde fuentes verificadas (Memoria Viva, SINCHI, Laboratorio de Lenguas UNAL).
 
-## Bloque 3 — Reservas (24–25 sep)
+## ✅ Bloque 3 — Reservas (24–25 sep)
 - Entidad `Reserva`: emprendimiento, fecha, número de personas, datos mínimos
   del turista, idioma, estado, fecha de expiración.
 - Consultar disponibilidad por fecha (capacidad − cupos ocupados).
@@ -35,7 +35,7 @@ NestJS + TypeORM conectado a PostgreSQL con Docker Compose, `.env.example`.
 - Expirar reservas pendientes después de ~15 minutos.
 - Endpoints: disponibilidad, crear, consultar por id, cancelar.
 
-## Bloque 4 — Agente conversacional (25–26 sep)
+## ✅ Bloque 4 — Agente conversacional (25–26 sep)
 - Interfaz `LlmProvider` + `MockProvider` primero, luego `GeminiProvider` y
   `GroqProvider`. Selección con `LLM_PROVIDER`.
 - Herramientas del agente (ver CLAUDE.md) conectadas a los servicios de los
@@ -45,32 +45,36 @@ NestJS + TypeORM conectado a PostgreSQL con Docker Compose, `.env.example`.
   (emprendimientos, fichas culturales, reservas).
 - Detección del idioma del turista (es/en/pt).
 
-## Bloque 5 — Frontend web (26–27 sep)
+## Pendientes, en orden de prioridad (actualizado el 29 sep)
+El hackathon es el 30 de septiembre: se hacen en este orden. Los números
+de bloque se mantienen porque la bitácora y el código los usan.
+
+## ✅ Bloque 5 — Frontend web · prioridad 1
 - Mobile-first, en `frontend/www/`, servido por NestJS.
 - Pantallas: inicio con selector de idioma, chat, catálogo, detalle de
   emprendimiento, ficha cultural (con audio), estado de la reserva.
 - Textos de la interfaz en es/en/pt.
 - `js/config.js` con la URL base de la API.
 
-## Bloque 6 — Pagos (27 sep)
+## ✅ Bloque 6 — Pagos · prioridad 2
 - Wompi en modo sandbox: generar enlace de pago para una reserva.
 - Webhook que cambia la reserva a `CONFIRMADA` al aprobarse el pago.
 - Verificar la documentación actual de Wompi antes de implementar.
 
-## Bloque 7 — Modo offline (28 sep)
+## ✅ Bloque 9 — Despliegue y demo · prioridad 3
+- Desplegar backend + base de datos en un servicio con HTTPS.
+- Código QR hacia la versión web.
+- Ensayo completo del guion de la demo.
+
+## Bloque 7 — Modo offline (mínimo) · prioridad 4
 - Service Worker (web), IndexedDB para catálogo y fichas culturales.
 - Cola de pre-reservas que se envía al recuperar la conexión.
 - Aviso y preguntas frecuentes cuando el chat no tiene señal.
 
-## Bloque 8 — App Android con Capacitor (28–29 sep)
+## Bloque 8 — App Android con Capacitor (opcional) · prioridad 5
 - Capacitor en `frontend/`, `webDir: "www"`, plataforma Android.
 - Plugins `@capacitor/network` y `@capacitor/browser`. CORS en NestJS.
 - Generar APK de prueba.
-
-## Bloque 9 — Despliegue y demo (29 sep)
-- Desplegar backend + base de datos en un servicio con HTTPS.
-- Código QR hacia la versión web.
-- Ensayo completo del guion de la demo.
 
 ---
 

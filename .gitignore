@@ -10,6 +10,11 @@ node_modules/
 backend/dist/
 *.tsbuildinfo
 
+# Datos reales (nombres y voces de hablantes, contactos): el repositorio es
+# público, así que se comparten fuera de Git. Ver docs/BITACORA.md.
+docs/datos/
+frontend/www/audio/
+
 # Capacitor / Android (archivos generados y locales)
 frontend/android/.gradle/
 frontend/android/app/build/
@@ -23,6 +28,9 @@ frontend/android/app/src/main/assets/public/
 # Preferencias personales de Claude Code
 CLAUDE.local.md
 .claude/settings.local.json
+
+# Código QR y dirección de la demo (cambian en cada ejecución de npm run demo)
+demo/
 
 # Registros y temporales
 *.log

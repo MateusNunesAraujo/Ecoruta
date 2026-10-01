@@ -1,0 +1,33 @@
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <meta name="description" content="Reserva experiencias directamente con emprendimientos indígenas y locales de Leticia, Amazonas." />
+    <meta name="theme-color" content="#1f5f3f" media="(prefers-color-scheme: light)" />
+    <meta name="theme-color" content="#173d2a" media="(prefers-color-scheme: dark)" />
+    <title>Ecoruta Conectada</title>
+    <script>
+      // Aplica el tema guardado en Ajustes antes de dibujar la página, para
+      // que no se vea un destello del otro modo al abrirla.
+      try {
+        var tema = localStorage.getItem('ecoruta.tema');
+        if (tema === 'claro' || tema === 'oscuro') document.documentElement.dataset.tema = tema;
+      } catch (e) {}
+    </script>
+    <link rel="stylesheet" href="css/estilos.css" />
+    <!-- Módulos ES nativos: sin framework ni bundler. -->
+    <script type="module" src="js/app.js"></script>
+  </head>
+  <body>
+    <a class="saltar" href="#principal">Ir al contenido</a>
+    <header id="cabecera" class="cabecera"></header>
+    <main id="principal" class="principal" tabindex="-1">
+      <noscript>
+        Ecoruta Conectada necesita JavaScript. / Ecoruta Conectada requires
+        JavaScript. / Ecoruta Conectada precisa de JavaScript.
+      </noscript>
+    </main>
+    <nav id="navegacion" class="navegacion" aria-label="Menú"></nav>
+  </body>
+</html>
