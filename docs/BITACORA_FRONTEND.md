@@ -15,6 +15,20 @@ Los cambios que necesitan tocar JavaScript o archivos de Eliel se piden en
 
 ---
 
+### 2026-09-30 — Lenguas: título "Autodenominación / Nombre común"
+**Hecho (solo `css/estilos.css`, a pedido de Félix):**
+- En la lista de lenguas, la autodenominación (que ya se mostraba debajo
+  del título) pasa delante del nombre, en la misma línea y con " / ": por
+  ejemplo "Magüta / Tikuna". Se aplica a las 5 lenguas; si una no tiene
+  autodenominación, solo se ve su nombre.
+- Pedido 11: lo mismo en el `<h1>` de la página de cada lengua (JS).
+- Probado con datos de relleno (API simulada) a 360 y 1000 px.
+
+**Decisiones:**
+- "Magüta" NO se escribe en el código (regla 1): las dos partes vienen de
+  la base de datos (`autodenominacion` y `nombreComun`); el CSS solo las
+  reordena con `order` y agrega el separador.
+
 ### 2026-09-30 — PC ancho: barra lateral fija en el chat y detalle en 3 columnas
 **Hecho (solo `css/estilos.css`, desde 1024 px; el celular no cambia):**
 - El chat y el detalle se ensanchan de 960 a 1180 px (`--ancho-amplio`).

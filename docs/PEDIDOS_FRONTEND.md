@@ -603,3 +603,23 @@ function botonVolver() {
 ```
 - Después: `npm test` y `npm run evaluar` (el examen podría tener preguntas
   que esperan la palabra "asistente").
+
+## ⏳ 11. Título "Autodenominación / Nombre" en la página de una lengua
+- **Qué:** en la lista de lenguas (`#/lenguas`) el título ya se ve como
+  "Magüta / Tikuna" (solo CSS: reordena `lengua.autodenominacion` y
+  `lengua.nombreComun`, que vienen de la base de datos). En la página de
+  una lengua (`#/lenguas/L-TIK`) el `<h1>` solo dice "Tikuna".
+- **Cambio en `frontend/www/js/vistas/lenguas.js` (`dibujarLengua`):**
+```diff
+-      el('h1', {}, lengua.nombreComun),
++      el(
++        'h1',
++        {},
++        lengua.autodenominacion
++          ? [el('span', { class: 'ficha-texto pequeno' }, lengua.autodenominacion), ' / ']
++          : null,
++        lengua.nombreComun,
++      ),
+```
+- La autodenominación sale de la base de datos (regla 1 de CLAUDE.md: no
+  escribirla a mano). La clase `ficha-texto` le pone la fuente Noto Sans.
