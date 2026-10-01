@@ -12,6 +12,110 @@ Registro de avance. Cada entrada nueva va arriba (la más reciente primero).
 
 ---
 
+### 2026-09-30 — Agente: información práctica verificada y examen de calidad
+**Contexto:** Mateus veía respuestas "tontas" porque su `.env` tenía
+`LLM_PROVIDER=mock` (reglas fijas, no IA). Con Gemini las respuestas eran
+buenas, pero sobre salud, transporte o frontera respondía de memoria (no con
+las preguntas frecuentes verificadas del Excel, que el agente no podía leer)
+y en preguntas generales no mostraba experiencias.
+
+**Hecho:**
+- Herramienta `consultar_informacion_practica(consulta, categoria?)`:
+  busca en las preguntas frecuentes (por raíz de palabra, en los 3 idiomas;
+  `faq/busqueda.ts`) y devuelve también cómo llegar y normas de visita de las
+  comunidades nombradas. El prompt obliga a usarla y citar la fuente.
+- `buscar_experiencias` sin intereses → muestra variada (una por
+  emprendimiento) para "¿qué se puede hacer?".
+- La respuesta de `/api/agente/mensaje` incluye `herramientas` (las que usó).
+- Detector de idioma: más palabras de inglés y portugués ("need", "visit",
+  "preciso", "vacina"…); fallaba con "Do I need a passport…" y "Preciso de
+  vacina…".
+- Mock: preguntas prácticas (responde con la respuesta verificada y su
+  fuente), preguntas generales, pide fecha y personas si faltan, y usa la
+  fecha al buscar disponibilidad.
+- Examen del agente: `npm run evaluar` (en `backend/`, con el backend
+  corriendo): 25 preguntas típicas en es/en/pt con lo esperado en cada una y
+  detector de texto indígena escrito por el LLM.
+- Resultado: **Gemini 25/25** (sin usar el respaldo) y **Mock 25/25**.
+  113 pruebas unitarias.
+- CLAUDE.md (herramientas) y `docs/DEMO.md` (ejecutar el examen) actualizados.
+
+**Decisiones:**
+- Las preguntas frecuentes sí pasan por el LLM: son información práctica,
+  no contenido cultural de las comunidades (regla 2).
+- Búsqueda por palabras clave simple (sin embeddings ni servicios externos):
+  12 preguntas frecuentes no justifican más.
+- El examen espera 7 s entre preguntas (límite del chat y cuota gratuita).
+
+**Pendiente:**
+- Mateus debe poner `LLM_PROVIDER=gemini` en su `.env` para usar la IA.
+- Ampliar el examen con preguntas reales que hagan los jurados o turistas.
+- Los datos de comunidades (cómo llegar, normas) solo están en español.
+
+### 2026-09-30 — Corrección del agente: lenguas por cualquier nombre y conversación
+**Problema (reportado probando la demo con `LLM_PROVIDER=mock`):**
+"Cómo se dice delfín en lengua magüta" mostraba saludos en Bora y "Ahora
+maloca" mostraba experiencias de cultura. Causas: solo se reconocían los
+nombres "tikuna/ticuna" (no Magüta ni autodenominaciones); si no se entendía
+la lengua se buscaba en todas; el Mock solo conocía 4 temas y no seguía la
+conversación. Con Gemini, "Ahora maloca" mostraba maloca en las 4 lenguas.
+
+**Hecho:**
+- `cultural/nombres-lengua.ts`: reconoce una lengua por nombre común,
+  autodenominación del Excel (Duüxügu, Mɨnɨka…) y alias conocidos (Magüta,
+  witoto, uitoto…), sin tildes ni mayúsculas y con ɨ → i.
+- `obtener_contenido_cultural`: la lengua es texto libre y la resuelve el
+  backend (el LLM no recibe las autodenominaciones). Lengua desconocida → no
+  se muestran fichas de otras lenguas. Palabra que no existe en esa lengua →
+  el LLM recibe los temas disponibles y en qué otras lenguas sí está.
+- Si el LLM no pasa la lengua, el backend usa la última que nombró el
+  turista en la conversación (salvo que pida "todas").
+- Prompt: no decir que se muestran tarjetas si no se usó la herramienta.
+- Mock: reconoce todos los temas de las fichas (y traducciones en/pt), la
+  lengua tras "lengua/idioma" o al final de una pregunta cultural, y sigue la
+  conversación varios mensajes.
+- Probado con la conversación real (delfín en magüta → maloca → perro →
+  quechua) con Mock y con Gemini: respuestas correctas y 0 filtraciones de
+  texto indígena. 99 pruebas unitarias.
+
+**Pendiente:**
+- Para la demo usar `LLM_PROVIDER=gemini` (el Mock es solo para desarrollo).
+
+### 2026-09-30 — Bloque 9: Despliegue y demo (túnel desde el portátil)
+**Hecho:**
+- `npm run demo` (en `backend/`, script `backend/scripts/demo.mjs`): levanta
+  PostgreSQL, abre un túnel de Cloudflare (`cloudflared`, sin cuenta ni
+  dominio), compila y arranca el backend (o reutiliza uno que ya corra),
+  comprueba la dirección pública y genera el QR en la terminal y en
+  `demo/qr-ecoruta.png` (+ `demo/url.txt`). Ctrl + C apaga todo.
+- `trust proxy` en `loopback` (`main.ts`): con el túnel todas las visitas
+  llegan desde 127.0.0.1; así el límite de mensajes del chat es por visitante.
+- `docs/DEMO.md`: lista de verificación, recorrido de 5 minutos, qué decir
+  con honestidad y plan B.
+- `.gitignore`: `demo/`. Dependencia de desarrollo nueva: `qrcode` (MIT).
+- Probado con un túnel real: por HTTPS cargan la página, el JS, los audios y
+  la API; a través del túnel el chat bloqueó el mensaje 11 (429) mientras una
+  petición desde el propio portátil seguía en 200 (el backend distingue al
+  visitante). Al apagar, la dirección responde 530 (túnel cerrado).
+
+**Decisiones:**
+- Túnel desde el portátil en vez de un servicio en la nube (Render): sin
+  cuenta ni dominio, sin tiempos de "despertar", y el Excel y los audios (que
+  no están en GitHub) no salen del portátil.
+- La dirección `*.trycloudflare.com` cambia en cada ejecución: el QR se
+  regenera solo. Cloudflare indica que no tiene garantía de disponibilidad y
+  admite hasta 200 peticiones simultáneas (suficiente para la demo).
+- `trust proxy` solo para `loopback`: desde internet nadie puede falsificar
+  su IP con `X-Forwarded-For`.
+
+**Pendiente:**
+- Ensayo completo del recorrido de `docs/DEMO.md` (lo hace el equipo).
+- Para Wompi real habría que configurar en su panel la URL de eventos con la
+  dirección del túnel, que cambia en cada ejecución (con pagos simulados no
+  hace falta).
+- Si se quiere una dirección fija: Cloudflare Tunnel con cuenta y dominio, o
+  un servicio en la nube.
+
 ### 2026-09-30 — Pagos simulados para la demo (sin cuenta de Wompi)
 **Hecho:**
 - El equipo no puede crear la cuenta de Wompi (pide muchos datos). Se agregó

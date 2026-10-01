@@ -29,6 +29,9 @@ frontend/android/app/src/main/assets/public/
 CLAUDE.local.md
 .claude/settings.local.json
 
+# Código QR y dirección de la demo (cambian en cada ejecución de npm run demo)
+demo/
+
 # Registros y temporales
 *.log
 npm-debug.log*

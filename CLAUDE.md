@@ -97,7 +97,12 @@ Ecoruta/
    de móvil se detecta en tiempo de ejecución (`Capacitor.isNativePlatform()`).
 
 ## Herramientas del agente
-- `buscar_experiencias(intereses, fecha?)`
+- `buscar_experiencias(intereses?, fecha?)` → sin intereses, muestra variada
+  (para "¿qué se puede hacer?").
+- `consultar_informacion_practica(consulta, categoria?)` → preguntas frecuentes
+  verificadas y datos de las comunidades (cómo llegar, normas de visita). El
+  agente la usa para salud, dinero, frontera, transporte, etc. en vez de
+  responder de memoria.
 - `consultar_disponibilidad(experienciaId, fecha)`
 - `armar_itinerario(intereses, dias)`
 - `crear_reserva(experienciaId, fecha, personas)` → no crea la reserva: revisa

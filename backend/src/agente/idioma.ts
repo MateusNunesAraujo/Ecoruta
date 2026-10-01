@@ -17,7 +17,8 @@ const PISTAS: Record<Idioma, string[]> = {
     'hello', 'hi', 'the', 'want', 'where', 'how', 'much', 'what', 'can',
     'please', 'thanks', 'thank', 'you', 'is', 'are', 'and', 'for', 'with',
     'book', 'people', 'tomorrow', 'would', 'like', 'we', 'looking', 'there',
-    'any', 'my', 'of', 'to', 'in', 'which', 'your', 'this',
+    'any', 'my', 'of', 'to', 'in', 'which', 'your', 'this', 'need', 'visit',
+    'get', 'should', 'will', 'does', 'did', 'many',
   ],
   // Sin "no" ni "o": también son palabras comunes en español.
   pt: [
@@ -25,6 +26,8 @@ const PISTAS: Record<Idioma, string[]> = {
     'voce', 'nao', 'sim', 'com', 'tem', 'posso', 'amanha', 'pessoas',
     'tambem', 'muito', 'gostaria', 'estou', 'bom', 'dia', 'isso', 'eu',
     'nos', 'meu', 'minha', 'fazer', 'qual', 'e', 'na', 'do', 'ao', 'pra',
+    'preciso', 'precisa', 'tenho', 'vou', 'quais', 'sao', 'aqui', 'agora',
+    'viagem', 'passeio', 'vacina', 'febre',
   ],
 };
 

@@ -10,6 +10,8 @@ describe('detectarIdioma', () => {
     ['Olá, quero ver botos amanhã', 'pt'],
     ['Quanto custa a experiência? Somos três pessoas', 'pt'],
     ['Você tem passeios de observação de aves?', 'pt'],
+    ['Preciso de vacina contra febre amarela?', 'pt'],
+    ['Do I need a passport to visit Tabatinga?', 'en'],
   ] as const)('"%s" -> %s', (texto, idioma) => {
     expect(detectarIdioma(texto, 'es')).toBe(idioma);
   });

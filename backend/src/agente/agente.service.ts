@@ -42,6 +42,9 @@ export interface RespuestaAgente {
   texto: string;
   tarjetas: Tarjeta[];
   proveedor: string;
+  // Herramientas que usó el agente (para revisar su calidad; el frontend no
+  // lo necesita).
+  herramientas: string[];
 }
 
 @Injectable()
@@ -58,6 +61,14 @@ export class AgenteService {
     const idioma = detectarIdioma(dto.mensaje, dto.idioma ?? 'es');
 
     // Regla 3: emails y teléfonos se ocultan antes de llegar al LLM.
+    // Lo que escribió el turista (para herramientas que necesitan contexto,
+    // ej. la lengua de la conversación). Se queda en el backend.
+    const mensajesTurista = [
+      ...(dto.historial ?? [])
+        .filter((t) => t.rol === 'usuario')
+        .map((t) => t.texto),
+      dto.mensaje,
+    ];
     const turnos: TurnoLlm[] = [
       ...(dto.historial ?? [])
         .slice(-MAX_HISTORIAL)
@@ -76,6 +87,7 @@ export class AgenteService {
     };
 
     const tarjetas: Tarjeta[] = [];
+    const herramientasUsadas: string[] = [];
     let proveedor: LlmProvider | null = null;
 
     for (let vuelta = 0; vuelta < MAX_VUELTAS; vuelta++) {
@@ -89,6 +101,7 @@ export class AgenteService {
           texto: respuesta.texto ?? SIN_RESPUESTA[idioma],
           tarjetas,
           proveedor: proveedor.nombre,
+          herramientas: herramientasUsadas,
         };
       }
 
@@ -108,8 +121,10 @@ export class AgenteService {
           llamada.nombre,
           llamada.argumentos,
           idioma,
+          mensajesTurista,
         );
         tarjetas.push(...resultado.tarjetas);
+        herramientasUsadas.push(llamada.nombre);
         turnos.push({
           tipo: 'resultado',
           llamadaId: llamada.id,
@@ -125,6 +140,7 @@ export class AgenteService {
       texto: SIN_RESPUESTA[idioma],
       tarjetas,
       proveedor: proveedor?.nombre ?? 'ninguno',
+      herramientas: herramientasUsadas,
     };
   }
 

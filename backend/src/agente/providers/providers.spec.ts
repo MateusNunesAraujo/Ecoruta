@@ -200,6 +200,114 @@ describe('GroqProvider', () => {
   });
 });
 
+describe('MockProvider: preguntas por palabras en lenguas', () => {
+  const mock = new MockProvider();
+  // Como la envía el agente: con los temas que existen en las fichas.
+  const conTemas: PeticionLlm = {
+    ...peticion,
+    herramientas: [
+      {
+        nombre: 'obtener_contenido_cultural',
+        descripcion: 'Fichas',
+        parametros: {
+          type: 'object',
+          properties: {
+            tema: {
+              type: 'string',
+              enum: [
+                'saludo',
+                'hola',
+                'gracias',
+                'delfin',
+                'maloca',
+                'como_te_llamas',
+              ],
+            },
+            lengua: { type: 'string' },
+          },
+        },
+      },
+    ],
+  };
+  // Conversación: mensajes anteriores del turista + el último.
+  const conversar = async (...textos: string[]) =>
+    (
+      await mock.generar({
+        ...conTemas,
+        turnos: textos.map((texto) => ({ tipo: 'usuario' as const, texto })),
+      })
+    ).llamadas[0];
+
+  it('"Cómo se dice delfín en lengua magüta" -> delfín en esa lengua', async () => {
+    expect(
+      await conversar('Cómo se dice delfín en lengua magüta'),
+    ).toMatchObject({
+      nombre: 'obtener_contenido_cultural',
+      argumentos: { tema: 'delfin', lengua: 'maguta' },
+    });
+  });
+
+  it('"Ahora maloca" continúa en la misma lengua', async () => {
+    expect(
+      await conversar('Cómo se dice delfín en lengua magüta', 'Ahora maloca'),
+    ).toMatchObject({
+      nombre: 'obtener_contenido_cultural',
+      argumentos: { tema: 'maloca', lengua: 'maguta' },
+    });
+  });
+
+  it.each([
+    [
+      'How do you say thank you in Tikuna?',
+      { tema: 'gracias', lengua: 'tikuna' },
+    ],
+    ['¿Cómo se saluda en yagua?', { tema: 'saludo', lengua: 'yagua' }],
+    [
+      'Como se diz "como te llamas" em bora?',
+      { tema: 'como_te_llamas', lengua: 'bora' },
+    ],
+  ])('"%s"', async (texto, argumentos) => {
+    expect(await conversar(texto)).toMatchObject({ argumentos });
+  });
+
+  it('sigue la conversación varios mensajes ("¿Y hola?" tras "Ahora maloca")', async () => {
+    expect(
+      await conversar(
+        'Cómo se dice delfín en lengua magüta',
+        'Ahora maloca',
+        '¿Y hola?',
+      ),
+    ).toMatchObject({ argumentos: { tema: 'hola', lengua: 'maguta' } });
+  });
+
+  it('una lengua nueva al final de la frase reemplaza a la anterior', async () => {
+    expect(
+      await conversar(
+        'Cómo se dice gracias en tikuna',
+        '¿Cómo se dice hola en quechua?',
+      ),
+    ).toMatchObject({ argumentos: { tema: 'hola', lengua: 'quechua' } });
+  });
+
+  it('"quiero ir en canoa" no confunde "canoa" con una lengua', async () => {
+    expect((await conversar('Quiero ir en canoa'))?.nombre).not.toBe(
+      'obtener_contenido_cultural',
+    );
+  });
+
+  it('"Quiero ver delfines" después de una pregunta cultural busca experiencias', async () => {
+    expect(
+      await conversar('Cómo se dice gracias en tikuna', 'Quiero ver delfines'),
+    ).toMatchObject({ nombre: 'buscar_experiencias' });
+  });
+
+  it('"maloca" sin contexto cultural sigue siendo un interés', async () => {
+    expect(await conversar('Me interesa conocer una maloca')).toMatchObject({
+      nombre: 'buscar_experiencias',
+    });
+  });
+});
+
 describe('MockProvider', () => {
   const mock = new MockProvider();
   const preguntar = (texto: string) =>
@@ -215,6 +323,17 @@ describe('MockProvider', () => {
     ['Quiero pagar mi reserva', 'generar_enlace_pago'],
     ['How can I pay?', 'generar_enlace_pago'],
   ])('"%s" -> %s', async (texto, herramienta) => {
+    expect((await preguntar(texto)).llamadas[0]?.nombre).toBe(herramienta);
+  });
+
+  it.each([
+    ['¿Hay que vacunarse para ir?', 'consultar_informacion_practica'],
+    ['¿Cómo llego a Puerto Nariño?', 'consultar_informacion_practica'],
+    ['Do I need a passport for Tabatinga?', 'consultar_informacion_practica'],
+    ['¿Qué se puede hacer en el Amazonas?', 'buscar_experiencias'],
+    ['What can I do in Leticia?', 'buscar_experiencias'],
+    ['O que posso fazer na Amazônia?', 'buscar_experiencias'],
+  ])('práctica o general: "%s" -> %s', async (texto, herramienta) => {
     expect((await preguntar(texto)).llamadas[0]?.nombre).toBe(herramienta);
   });
 
