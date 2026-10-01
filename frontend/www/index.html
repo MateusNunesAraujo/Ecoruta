@@ -7,6 +7,14 @@
     <meta name="theme-color" content="#1f5f3f" media="(prefers-color-scheme: light)" />
     <meta name="theme-color" content="#173d2a" media="(prefers-color-scheme: dark)" />
     <title>Ecoruta Conectada</title>
+    <script>
+      // Aplica el tema guardado en Ajustes antes de dibujar la página, para
+      // que no se vea un destello del otro modo al abrirla.
+      try {
+        var tema = localStorage.getItem('ecoruta.tema');
+        if (tema === 'claro' || tema === 'oscuro') document.documentElement.dataset.tema = tema;
+      } catch (e) {}
+    </script>
     <link rel="stylesheet" href="css/estilos.css" />
     <!-- Módulos ES nativos: sin framework ni bundler. -->
     <script type="module" src="js/app.js"></script>

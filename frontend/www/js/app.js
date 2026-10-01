@@ -4,6 +4,8 @@
 
 import { el, vaciar } from './dom.js';
 import { cambiarIdioma, idioma, IDIOMAS, iniciarIdioma, t } from './i18n.js';
+import { aplicarTema } from './tema.js';
+import { vistaAjustes } from './vistas/ajustes.js';
 import { vistaChat } from './vistas/chat.js';
 import { vistaExperiencia } from './vistas/experiencia.js';
 import { vistaExperiencias } from './vistas/experiencias.js';
@@ -21,6 +23,7 @@ const RUTAS = [
   [/^\/reserva\/([0-9a-f-]{36})$/, vistaReserva, 'inicio'],
   [/^\/reservas$/, vistaMisReservas, 'inicio'],
   [/^\/pago-simulado\/([A-Z0-9-]+)$/, vistaPagoSimulado, 'inicio'],
+  [/^\/ajustes$/, vistaAjustes, 'ajustes'],
 ];
 
 const principal = document.getElementById('principal');
@@ -81,9 +84,11 @@ function dibujarMarco() {
     enlace('#/chat', 'chat', '💬', t('nav.chat')),
     enlace('#/experiencias', 'experiencias', '🛶', t('nav.experiencias')),
     enlace('#/lenguas', 'lenguas', '🗣️', t('nav.lenguas')),
+    enlace('#/ajustes', 'ajustes', '⚙️', t('nav.ajustes')),
   );
 }
 
+aplicarTema();
 iniciarIdioma();
 dibujarMarco();
 // "Ir al contenido": mueve el foco sin cambiar la ruta (el "#" es del enrutador).
