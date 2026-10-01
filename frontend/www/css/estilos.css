@@ -346,7 +346,8 @@ a { color: var(--verde); }
   .portada::before { grid-area: marca; font-size: 5.5rem; }
   .portada h1 { grid-area: titulo; }
   .portada-texto { grid-area: texto; }
-  .portada::after { grid-area: figura; align-self: end; justify-self: center; width: 250px; margin-bottom: 1rem; }
+  /* Arriba, a la altura de "Ecoruta". */
+  .portada::after { grid-area: figura; align-self: start; justify-self: center; width: 250px; margin-bottom: 1rem; }
   .accesos { grid-area: accesos; }
 }
 

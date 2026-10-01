@@ -28,6 +28,8 @@ Los cambios que necesitan tocar JavaScript o archivos de Eliel se piden en
   `--figura-oscuro`, que ya no se usan.
 - PC: filas `auto auto auto 1fr auto`; el avatar ocupa la fila elástica y
   así no separa el título, la bienvenida y el lema.
+- PC: el avatar se alinea arriba (`align-self: start`), a la altura de
+  "Ecoruta" (pedido de Félix).
 - Probado con capturas en PC (claro) y celular (oscuro).
 
 **Decisiones:**
