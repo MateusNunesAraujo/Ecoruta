@@ -140,3 +140,51 @@ describe('HerramientasAgente: obtener_contenido_cultural', () => {
     expect(r.tarjetas).toEqual([]);
   });
 });
+
+// Pedido 6: la foto va a la tarjeta del itinerario, nunca al LLM.
+describe('HerramientasAgente: armar_itinerario con foto', () => {
+  const experiencia = {
+    id: 'EXP-01',
+    emprendimientoId: 'EMP-01',
+    nombreEs: 'Tallado en palo sangre',
+    nombreEn: null,
+    nombrePt: null,
+    descripcionEs: null,
+    intereses: ['cultura'],
+    duracionMinutos: 180,
+    horaSalida: '09:00',
+    diasOperacion: ['lunes'],
+    capacidad: 10,
+    precioCop: 60000,
+    emprendimiento: {
+      nombre: 'Artesanías Macedonia',
+      fotos: ['emp01 taller.jpg'],
+      comunidad: { nombre: 'Macedonia' },
+    },
+  };
+  const herramientas = new HerramientasAgente(
+    {
+      buscarPorIntereses: () => Promise.resolve([experiencia]),
+    } as unknown as ExperienciasService,
+    {} as CulturalService,
+    {} as ReservasService,
+    {} as PagosService,
+    {} as FaqService,
+    {} as EmprendimientosService,
+  );
+
+  it('la tarjeta trae la ruta de la foto y el LLM no la recibe', async () => {
+    const r = await herramientas.ejecutar(
+      'armar_itinerario',
+      { intereses: ['cultura'], dias: 1 },
+      'es',
+    );
+    const tarjeta = r.tarjetas[0] as {
+      dias: { experiencias: { foto: string | null }[] }[];
+    };
+    expect(tarjeta.dias[0].experiencias[0].foto).toBe(
+      'fotos/emp01%20taller.jpg',
+    );
+    expect(JSON.stringify(r.paraModelo)).not.toContain('emp01');
+  });
+});

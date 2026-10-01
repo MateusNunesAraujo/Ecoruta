@@ -43,7 +43,16 @@ export function normalizarExperiencia(e) {
     puntoEncuentro: e.puntoEncuentro,
     latitud: e.latitud,
     longitud: e.longitud,
+    foto: rutaFoto(e.emprendimiento?.fotos?.[0]),
   };
+}
+
+// La columna "fotos" del Excel puede traer enlaces (https://…) o nombres de
+// archivo; los archivos se sirven desde frontend/www/fotos/. Igual que
+// rutaFoto en backend/src/agente/tarjetas.ts.
+export function rutaFoto(valor) {
+  if (!valor) return null;
+  return /^https?:\/\//i.test(valor) ? valor : `fotos/${encodeURIComponent(valor)}`;
 }
 
 export function bloquePrecio(cop, extra) {
@@ -172,6 +181,8 @@ export function tarjetaDisponibilidad(d) {
   );
 }
 
+// Itinerario como línea de tiempo: cada día con sus bloques de mañana y
+// tarde; cada bloque con foto, duración, precio y botón Reservar.
 export function tarjetaItinerario(dias) {
   return el(
     'article',
@@ -179,26 +190,64 @@ export function tarjetaItinerario(dias) {
     el('h3', {}, t('iti.titulo')),
     el(
       'ol',
-      {},
+      { class: 'iti-dias' },
       dias.map((d) =>
         el(
           'li',
-          {},
-          el('strong', {}, t('iti.dia', { n: d.dia })),
-          el(
-            'ul',
-            {},
-            d.experiencias.map((experiencia) => {
-              const e = normalizarExperiencia(experiencia);
-              return el(
-                'li',
-                {},
-                e.horaSalida ? `${e.horaSalida} · ` : null,
-                el('a', { href: `#/experiencia/${e.id}` }, e.nombre),
-              );
-            }),
-          ),
+          { class: 'iti-dia' },
+          el('h4', { class: 'iti-dia-titulo' }, t('iti.dia', { n: d.dia })),
+          el('ol', { class: 'iti-bloques' }, d.experiencias.map(bloqueItinerario)),
         ),
+      ),
+    ),
+  );
+}
+
+function bloqueItinerario(experiencia) {
+  const e = normalizarExperiencia(experiencia);
+  // Igual que el backend (armar_itinerario): sale antes de las 12:00 = mañana.
+  const manana = (e.horaSalida ?? '00:00') < '12:00';
+  const valor = precio(e.precioCop);
+  const tiempo = duracion(e.duracionMinutos);
+  return el(
+    'li',
+    { class: `iti-bloque ${manana ? 'iti-manana' : 'iti-tarde'}` },
+    el(
+      'p',
+      { class: 'iti-momento' },
+      t(manana ? 'iti.manana' : 'iti.tarde'),
+      e.horaSalida ? ` · ${e.horaSalida}` : null,
+    ),
+    el(
+      'div',
+      { class: 'iti-experiencia' },
+      e.foto
+        ? el('img', { class: 'iti-foto', src: e.foto, alt: '', loading: 'lazy' })
+        : el('span', { class: 'iti-foto sin-foto', 'aria-hidden': 'true' }),
+      el(
+        'div',
+        { class: 'iti-info' },
+        el('a', { class: 'iti-nombre', href: `#/experiencia/${e.id}` }, e.nombre),
+        el('p', { class: 'tarjeta-sub' }, e.emprendimiento, e.comunidad ? ` · ${e.comunidad}` : null),
+        tiempo || valor
+          ? el(
+              'p',
+              { class: 'iti-meta' },
+              tiempo ? `⏱ ${tiempo}` : null,
+              tiempo && valor ? ' · ' : null,
+              valor ? el('strong', {}, valor.cop) : null,
+              valor ? ` ${t('exp.porPersona')}` : null,
+            )
+          : null,
+      ),
+      el(
+        'a',
+        {
+          class: 'boton iti-reservar',
+          href: `#/experiencia/${e.id}`,
+          'aria-label': `${t('iti.reservar')}: ${e.nombre}`,
+        },
+        t('iti.reservar'),
       ),
     ),
   );

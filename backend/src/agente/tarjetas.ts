@@ -21,6 +21,18 @@ export interface ResumenExperiencia {
   puntoEncuentro: string | null;
   latitud: number | null;
   longitud: number | null;
+  // Solo para la tarjeta del frontend: paraLlm no la envía al LLM.
+  foto: string | null;
+}
+
+// La columna "fotos" del Excel puede traer enlaces (https://…) o nombres de
+// archivo; los archivos se sirven desde frontend/www/fotos/. Igual que
+// rutaFoto en frontend/www/js/tarjetas.js.
+export function rutaFoto(valor: string | null | undefined): string | null {
+  if (!valor) return null;
+  return /^https?:\/\//i.test(valor)
+    ? valor
+    : `fotos/${encodeURIComponent(valor)}`;
 }
 
 export type Tarjeta =
@@ -75,5 +87,6 @@ export function resumirExperiencia(
     puntoEncuentro: experiencia.puntoEncuentro,
     latitud: experiencia.latitud,
     longitud: experiencia.longitud,
+    foto: rutaFoto(experiencia.emprendimiento?.fotos?.[0]),
   };
 }
