@@ -628,32 +628,51 @@ a { color: var(--verde); }
   to { background-position: 200% 0; }
 }
 
-/* Botón de dictado por voz (🎤), entre la caja de texto y "Enviar".
-   Mientras escucha (aria-pressed="true") se pone rojo y pulsa. */
+/* Botón de dictado por voz, DENTRO de la caja de texto (a la derecha),
+   como en las apps de mensajería. En el HTML va entre la caja y "Enviar":
+   el margen izquierdo negativo lo mete en la caja.
+   Cuentas: 44px de botón + 8px de gap + 4px de aire = -56px; el margen
+   derecho de 4px devuelve el gap normal antes de "Enviar". */
+.chat-formulario .chat-entrada { min-height: 52px; border-radius: 16px; }
+/* Espacio para que el texto no quede debajo del micrófono (solo si existe). */
+.chat-formulario:has(.boton-dictar) .chat-entrada { padding-right: 3.5rem; }
 .boton-dictar {
+  position: relative;
   flex-shrink: 0;
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  width: 52px;
-  height: 52px;
+  width: 44px;
+  height: 44px;
+  margin: 0 4px 0 -56px;
   padding: 0;
-  border: 1px solid var(--borde-control);
+  border: 0;
   border-radius: 50%;
-  background: var(--superficie);
-  color: var(--texto);
-  font-size: 1.35rem;
+  background: transparent;
+  color: var(--texto-suave);
   cursor: pointer;
 }
-.boton-dictar:hover { background: var(--verde-claro); }
+/* Ícono de micrófono monocromo (máscara SVG con el color del texto). El
+   emoji que pone el JS se oculta; el nombre accesible es el aria-label. */
+.boton-dictar > span { display: none; }
+.boton-dictar::before {
+  content: '';
+  width: 22px;
+  height: 22px;
+  background: currentColor;
+  -webkit-mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='M12 14a3 3 0 0 0 3-3V5a3 3 0 0 0-6 0v6a3 3 0 0 0 3 3zm5-3a5 5 0 0 1-10 0H5a7 7 0 0 0 6 6.92V21h2v-3.08A7 7 0 0 0 19 11h-2z'/%3E%3C/svg%3E") center / contain no-repeat;
+  mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='M12 14a3 3 0 0 0 3-3V5a3 3 0 0 0-6 0v6a3 3 0 0 0 3 3zm5-3a5 5 0 0 1-10 0H5a7 7 0 0 0 6 6.92V21h2v-3.08A7 7 0 0 0 19 11h-2z'/%3E%3C/svg%3E") center / contain no-repeat;
+}
+.boton-dictar:hover { background: var(--verde-claro); color: var(--verde-oscuro); }
+/* Escuchando: círculo rojo que pulsa, ícono del color del fondo. */
 .boton-dictar[aria-pressed='true'] {
   background: var(--rojo);
-  border-color: var(--rojo);
+  color: var(--superficie);
   animation: dictado-pulso 1.2s ease-out infinite;
 }
 @keyframes dictado-pulso {
   from { box-shadow: 0 0 0 0 rgb(164 38 44 / 0.55); }
-  to { box-shadow: 0 0 0 14px rgb(164 38 44 / 0); }
+  to { box-shadow: 0 0 0 10px rgb(164 38 44 / 0); }
 }
 /* "Escuchando…" o el aviso de error, justo debajo del formulario. */
 .dictado-estado { margin: 0.25rem 0 0; font-weight: 600; font-size: 0.9rem; color: var(--texto); }

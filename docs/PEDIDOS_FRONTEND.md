@@ -313,7 +313,9 @@ Hoy `ResumenExperiencia` no trae foto; las fotos están en
 - La foto no pasa por el LLM (`paraLlm` no la incluye), solo va a la tarjeta.
 
 ## ⏳ 7. Dictado por voz en el chat (Web Speech API)
-- **Qué:** botón 🎤 entre la caja de texto y "Enviar". El turista toca,
+- **Qué:** botón de micrófono dentro de la caja de texto, a la derecha (en el
+  HTML va entre la caja y "Enviar"; el CSS lo mete en la caja y dibuja un
+  ícono monocromo, así que el emoji 🎤 del `<span>` queda oculto). El turista toca,
   habla, y el texto aparece en la caja (se suma a lo que ya había escrito).
   Lo revisa y toca "Enviar". Idioma de la voz según la interfaz: es-CO,
   en-US o pt-BR. Solo frontend: no toca el backend ni gasta cuota del LLM.

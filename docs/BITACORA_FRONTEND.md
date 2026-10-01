@@ -15,6 +15,18 @@ Los cambios que necesitan tocar JavaScript o archivos de Eliel se piden en
 
 ---
 
+### 2026-09-30 — Micrófono dentro de la caja de texto
+**Hecho (a pedido de Félix, solo `css/estilos.css`):**
+- El botón de dictado va dentro de la caja, a la derecha (margen izquierdo
+  de -56 px; el HTML no cambia). Área táctil de 44×44 px a 4 px del borde.
+- La caja del chat sube a 52 px (mismo alto que "Enviar") y redondea a
+  16 px. Reserva 56 px a la derecha solo si hay micrófono (`:has()`).
+- Ícono monocromo (máscara SVG con `currentColor`) en vez del emoji, que se
+  oculta; el nombre accesible sigue siendo el `aria-label`.
+- Escuchando: círculo rojo que pulsa con el ícono del color del fondo.
+- Probado: las 7 pruebas del dictado siguen pasando; a 360 px la caja pasa
+  de unos 160 a 221 px de ancho; sin micrófono no reserva espacio.
+
 ### 2026-09-30 — Dictado por voz en el chat (CSS y textos listos, JS pedido)
 **Hecho:**
 - `css/estilos.css`: `.boton-dictar` (círculo de 52 px entre la caja y
