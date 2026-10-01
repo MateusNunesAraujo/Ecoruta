@@ -9,6 +9,9 @@ Estado: ⏳ pendiente · ✅ hecho · ❌ cancelado
 ---
 
 ## ⏳ 1. Cachear la fuente en el Service Worker (Bloque 7)
+- **Sigue pendiente (2026-09-30, Eliel):** todavía no existe `sw.js`. Al
+  crearlo en el Bloque 7, cachear también `js/tema.js`, `js/vistas/ajustes.js`
+  y `js/dictado.js`.
 - **Qué:** agregar `fuentes/NotoSans-ecoruta.woff2` e `img/mono-asistente.webp`
   a la lista de archivos que `sw.js` guarda en caché.
 - **Por qué:** el texto en lenguas indígenas usa esa fuente. Sin la caché, en
@@ -17,6 +20,8 @@ Estado: ⏳ pendiente · ✅ hecho · ❌ cancelado
   archivo va dentro de la app.
 
 ## ⏳ 2. Comprobar el modo oscuro en el APK (Bloque 8)
+- **Sigue pendiente (2026-09-30, Eliel):** todavía no hay proyecto Android
+  ni APK.
 - **Qué:** al generar el APK, probarlo con el teléfono en modo oscuro. Si la
   app se ve clara, el tema de Android del proyecto de Capacitor debe ser
   "DayNight" (en `android/app/src/main/res/values/styles.xml`), para que el
@@ -24,7 +29,10 @@ Estado: ⏳ pendiente · ✅ hecho · ❌ cancelado
 - **Por qué:** el modo oscuro es solo CSS (`prefers-color-scheme`); en la web
   ya funciona, pero en el APK depende del tema de la app nativa.
 
-## ⏳ 3. Pantalla de Ajustes con selector de tema (claro / oscuro / automático)
+## ✅ 3. Pantalla de Ajustes con selector de tema (claro / oscuro / automático)
+- **Hecho el 2026-09-30 (Eliel):** aplicado tal cual. Probado en Chrome a
+  390 px: 5.ª opción del menú, Claro/Oscuro/Automático cambian el fondo, el
+  texto y la barra del navegador, y se recuerdan al recargar.
 - **Qué:** una pantalla `#/ajustes`, 5.ª opción del menú, donde el turista
   elige Automático, Claro u Oscuro. La elección se guarda en el navegador.
 - **Por qué:** el modo oscuro hoy solo sigue al dispositivo. Hay personas que
@@ -176,6 +184,8 @@ Evita que al abrir la app se vea un instante el otro modo antes de que cargue
   archivo. Mientras tanto, la versión en CSS funciona bien.
 
 ## ⏳ 5. Palabra indígena destacada en la portada (desde la base de datos)
+- **No se hizo (2026-09-30):** espera a que el equipo elija la ficha
+  verificada (regla 1 de CLAUDE.md).
 - **Qué:** el diseño de la portada lleva arriba del título grande una palabra
   en lengua indígena, en naranja. Por la regla 1 de CLAUDE.md no se puede
   escribir a mano en el CSS ni en el HTML: debe venir de una ficha
@@ -190,7 +200,14 @@ Evita que al abrir la app se vea un instante el otro modo antes de que cargue
 - **Antes:** el equipo debe confirmar qué palabra es la de la imagen del
   diseño, con su fuente y comunidad, y cargarla como ficha verificada.
 
-## ⏳ 6. Itinerario como línea de tiempo con foto, duración, precio y Reservar
+## ✅ 6. Itinerario como línea de tiempo con foto, duración, precio y Reservar
+- **Hecho el 2026-09-30 (Eliel):** `tarjetaItinerario` tal cual. **Ajuste:**
+  `fotos` del Excel puede traer enlaces o nombres de archivo; se agregó
+  `rutaFoto()` (en `js/tarjetas.js` y `backend/src/agente/tarjetas.ts`): un
+  enlace `https://…` se usa tal cual y un nombre de archivo pasa a
+  `fotos/<archivo>` (carpeta `frontend/www/fotos/`, aún no existe). Hoy los 8
+  emprendimientos no tienen fotos: se ve el relleno de la canoa. La foto no va
+  al LLM (prueba en `herramientas.spec.ts`).
 - **Qué:** que la tarjeta de itinerario del chat muestre, por cada día, los
   bloques "☀️ Mañana · 06:30" y "🌇 Tarde · 14:00", y en cada bloque: foto,
   nombre, emprendimiento, duración, precio por persona y un botón
@@ -312,7 +329,10 @@ Hoy `ResumenExperiencia` no trae foto; las fotos están en
   relleno de colores con una canoa.
 - La foto no pasa por el LLM (`paraLlm` no la incluye), solo va a la tarjeta.
 
-## ⏳ 7. Dictado por voz en el chat (Web Speech API)
+## ✅ 7. Dictado por voz en el chat (Web Speech API)
+- **Hecho el 2026-09-30 (Eliel):** aplicado tal cual. Probado en Chrome
+  (micrófono dentro de la caja) y en un navegador sin API de voz (no aparece
+  y el chat funciona). Falta probarlo con voz real en Android.
 - **Qué:** botón de micrófono dentro de la caja de texto, a la derecha (en el
   HTML va entre la caja y "Enviar"; el CSS lo mete en la caja y dibuja un
   ícono monocromo, así que el emoji 🎤 del `<span>` queda oculto). El turista toca,

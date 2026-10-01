@@ -12,6 +12,41 @@ Registro de avance. Cada entrada nueva va arriba (la más reciente primero).
 
 ---
 
+### 2026-09-30 — Integración del diseño de Félix y sus pedidos de JavaScript
+**Hecho:**
+- Unido `feat/frontend-diseno` en `feat/agente-info` (avance directo, sin
+  conflictos; el PR #2 no tenía botón de merge para Mateus). Trae el CSS
+  nuevo, la portada con el mono y título grande, la fuente Noto Sans
+  (`frontend/www/fuentes/`), la imagen `img/mono-asistente.webp`, textos en
+  `i18n.js` y `docs/PEDIDOS_FRONTEND.md` / `docs/BITACORA_FRONTEND.md`.
+- Pedidos aplicados (un commit cada uno, código de Félix):
+  - 7: dictado por voz (`js/dictado.js` + 6 líneas en `vistas/chat.js`).
+  - 3: Ajustes con tema claro/oscuro/automático (`js/tema.js`,
+    `js/vistas/ajustes.js`, ruta y 5.ª opción en `app.js`, script en `<head>`).
+  - 6: itinerario como línea de tiempo (Mañana/Tarde) con foto, duración,
+    precio y Reservar; `foto` en `ResumenExperiencia`.
+- Probado en Chrome emulando un celular: micrófono dentro de la caja y oculto
+  sin API de voz (como Firefox); Enviar y Nueva conversación funcionan; menú
+  con 5 opciones; el tema cambia fondo, texto y barra y se recuerda; el
+  itinerario muestra 2 días con bloques, relleno de canoa, duración y precio,
+  y Reservar abre la experiencia; reserva + pago simulado → CONFIRMADA. Sin
+  errores de JavaScript. Build, lint y 114 pruebas unitarias pasan.
+
+**Decisiones:**
+- Pedido 6 ajustado: `fotos` del Excel puede traer enlaces o nombres de
+  archivo; `rutaFoto()` usa el enlace tal cual o arma `fotos/<archivo>`. La
+  foto va solo a la tarjeta, no al LLM (con prueba).
+- Pedido 5 (palabra indígena en la portada) no se hizo: falta que el equipo
+  elija la ficha verificada (regla 1).
+
+**Pendiente:**
+- Pedido 1 (Service Worker) en el Bloque 7: cachear también `js/tema.js`,
+  `js/vistas/ajustes.js`, `js/dictado.js`, la fuente y la imagen del mono.
+- Pedido 2 (tema DayNight del APK) en el Bloque 8.
+- Fotos: crear `frontend/www/fotos/` y llenar la columna `fotos` del Excel
+  (decidir si van a Git, como los audios, por privacidad).
+- Probar el dictado con voz real en un Android con Chrome (por el túnel).
+
 ### 2026-09-30 — Agente: información práctica verificada y examen de calidad
 **Contexto:** Mateus veía respuestas "tontas" porque su `.env` tenía
 `LLM_PROVIDER=mock` (reglas fijas, no IA). Con Gemini las respuestas eran
