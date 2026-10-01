@@ -15,7 +15,7 @@ export function vistaInicio(contenedor) {
       el(
         'nav',
         { class: 'accesos', 'aria-label': t('nav.inicio') },
-        el('a', { class: 'boton boton-grande', href: '#/chat' }, '💬 ', t('inicio.chat')),
+        el('a', { class: 'boton boton-grande', href: '#/chat' }, el('span', { class: 'icono-avatar', 'aria-hidden': 'true' }), t('inicio.chat')),
         el('a', { class: 'boton boton-grande boton-secundario', href: '#/experiencias' }, '🛶 ', t('inicio.experiencias')),
         el('a', { class: 'boton boton-grande boton-secundario', href: '#/lenguas' }, '🗣️ ', t('inicio.lenguas')),
         hayReservas
