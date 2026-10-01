@@ -708,6 +708,8 @@ a { color: var(--verde); }
 .aviso-pago.ok { background: var(--verde-claro); color: var(--verde-oscuro); }
 .aviso-pago.no { background: var(--ambar); color: var(--texto-ambar); }
 .pago { margin: 1rem 0; }
+.aviso-simulacion { background: #fff0d6; border: 2px dashed var(--tierra); color: #5a3510; padding: 0.75rem 1rem; border-radius: var(--radio); font-weight: 700; }
+.botones-simulacion { display: grid; gap: 0.75rem; margin-top: 1rem; }
 .pago-pendiente { border-top: 1px dashed var(--borde); padding-top: 0.75rem; margin-top: 0.75rem; }
 .cuenta-regresiva { font-size: 1.1rem; font-weight: 700; color: var(--tierra); }
 .lista-reservas { padding-left: 1.2rem; }

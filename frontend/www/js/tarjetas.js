@@ -275,8 +275,10 @@ function campo(nombre, etiqueta, atributos) {
 
 // Botón "Pagar con Wompi" (con aviso de datos de prueba en sandbox).
 export function botonPagar(reservaId, config) {
+  // En modo simulado el botón no dice "Wompi", para no confundir.
+  const texto = t(config.simulado ? 'pago.botonSimulado' : 'pago.boton');
   const estado = el('p', { class: 'form-estado', role: 'status' });
-  const boton = el('button', { type: 'button', class: 'boton boton-grande' }, t('pago.boton'));
+  const boton = el('button', { type: 'button', class: 'boton boton-grande' }, texto);
   boton.addEventListener('click', async () => {
     boton.disabled = true;
     boton.textContent = t('pago.redirigiendo');
@@ -286,7 +288,7 @@ export function botonPagar(reservaId, config) {
     } catch (error) {
       estado.textContent = error.message;
       boton.disabled = false;
-      boton.textContent = t('pago.boton');
+      boton.textContent = texto;
     }
   });
   return el(
@@ -294,6 +296,7 @@ export function botonPagar(reservaId, config) {
     { class: 'pago' },
     boton,
     config.sandbox ? el('p', { class: 'nota' }, t('pago.sandbox')) : null,
+    config.simulado ? el('p', { class: 'nota' }, t('pago.simulado')) : null,
     estado,
   );
 }

@@ -11,6 +11,7 @@ import {
   Redirect,
 } from '@nestjs/common';
 import { PagosService } from './pagos.service.js';
+import { SimularPagoDto } from './simular-pago.dto.js';
 import type { EventoWompi } from './wompi.js';
 
 @Controller('pagos')
@@ -27,6 +28,25 @@ export class PagosController {
   @Post('reservas/:id/enlace')
   crearEnlace(@Param('id', ParseUUIDPipe) id: string) {
     return this.pagosService.crearEnlace(id);
+  }
+
+  // --- Modo simulado: estas rutas responden 404 si PAGOS_SIMULADOS no está
+  // activo (o si hay llaves reales de Wompi). ---
+
+  // GET /api/pagos/simulado/<referencia> -> datos para la página simulada
+  @Get('simulado/:referencia')
+  detalleSimulado(@Param('referencia') referencia: string) {
+    return this.pagosService.detalleSimulado(referencia);
+  }
+
+  // POST /api/pagos/simulado/<referencia>  { estado: 'APPROVED' | 'DECLINED' }
+  @Post('simulado/:referencia')
+  @HttpCode(200)
+  simular(
+    @Param('referencia') referencia: string,
+    @Body() dto: SimularPagoDto,
+  ) {
+    return this.pagosService.simularPago(referencia, dto.estado);
   }
 
   // POST /api/pagos/webhook: URL que se configura en el panel de Wompi

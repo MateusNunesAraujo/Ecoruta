@@ -12,6 +12,36 @@ Registro de avance. Cada entrada nueva va arriba (la más reciente primero).
 
 ---
 
+### 2026-09-30 — Pagos simulados para la demo (sin cuenta de Wompi)
+**Hecho:**
+- El equipo no puede crear la cuenta de Wompi (pide muchos datos). Se agregó
+  `PAGOS_SIMULADOS=true`: el botón "Pagar (simulado)" abre una página propia
+  (`#/pago-simulado/<referencia>`) con "Aprobar" y "Rechazar", marcada como
+  simulación (no es Wompi, no se cobra dinero).
+- Endpoints (solo existen en modo simulado; si no, 404):
+  `GET /api/pagos/simulado/:referencia` y
+  `POST /api/pagos/simulado/:referencia` (`{ estado: APPROVED | DECLINED }`).
+- `GET /api/pagos/config` devuelve también `simulado`.
+- Activado `PAGOS_SIMULADOS=true` en el `.env` local de Mateus.
+- Probado: 13 casos con la API en tres configuraciones (simulado, apagado y
+  con llaves de Wompi) y el flujo en pantalla a tamaño de celular (reserva →
+  pagar → aprobar → confirmada) sin errores de JS. 69 pruebas unitarias. Se
+  borraron los datos de prueba.
+
+**Decisiones:**
+- El pago simulado usa el MISMO camino que Wompi real (`aplicarTransaccion`:
+  intento de pago, validación de monto, pago tardío, confirmación con
+  bloqueo). Solo cambia la pasarela.
+- Si hay llaves de Wompi, siempre gana Wompi y el modo simulado se apaga.
+- Al arrancar con el modo simulado, el backend muestra una advertencia: con
+  él cualquiera confirma reservas sin pagar. Nunca activarlo en producción.
+- El enlace simulado también vence con el cupo (409 `ENLACE_VENCIDO`), como
+  el `expiration-time` de Wompi.
+
+**Pendiente:**
+- En el despliegue de la demo (Bloque 9) decidir si se usa el modo simulado
+  (y decirlo en el pitch) o se consigue una cuenta de Wompi.
+
 ### 2026-09-30 — Bloque 6: Pagos con Wompi (sandbox)
 **Hecho:**
 - Módulo `pagos/`: entity `IntentoPago` (tabla `intentos_pago`), service,

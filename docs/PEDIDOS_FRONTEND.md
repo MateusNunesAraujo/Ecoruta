@@ -133,7 +133,7 @@ export function vistaAjustes(contenedor) {
  import { vistaChat } from './vistas/chat.js';
 ```
 ```diff
-   [/^\/reservas$/, vistaMisReservas, 'inicio'],
+   [/^\/pago-simulado\/([A-Z0-9-]+)$/, vistaPagoSimulado, 'inicio'],
 +  [/^\/ajustes$/, vistaAjustes, 'ajustes'],
  ];
 ```
