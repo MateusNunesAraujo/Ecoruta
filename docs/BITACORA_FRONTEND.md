@@ -15,6 +15,21 @@ Los cambios que necesitan tocar JavaScript o archivos de Eliel se piden en
 
 ---
 
+### 2026-09-30 — Unión con las ramas de Eliel
+**Hecho:**
+- Unida `feat/pagos` (pagos simulados) y después `feat/agente-info`, la
+  rama más reciente de Eliel (contiene `feat/despliegue` y
+  `fix/agente-lenguas`). Ambas sin conflictos.
+- Pedido 3 actualizado: en `app.js` la ruta de Ajustes va después de la de
+  pago simulado.
+- Revisado: el nuevo `.gitignore` (carpeta `demo/`) no excluye la fuente ni
+  el avatar; `CLAUDE.md` no trae reglas nuevas para el frontend.
+
+**Pendiente:**
+- Subir `feat/frontend-diseno`: GitHub rechazó el push (403), la cuenta
+  `salgadocanga-cyber` no tiene permiso de escritura en el repositorio.
+- Abrir el pull request hacia la rama que indique Eliel.
+
 ### 2026-09-30 — Botón "Nueva conversación" con diseño
 **Hecho (solo `css/estilos.css`):**
 - `.chat .titulo-fila .enlace`: píldora secundaria (borde suave, fondo de
