@@ -15,6 +15,15 @@ Los cambios que necesitan tocar JavaScript o archivos de Eliel se piden en
 
 ---
 
+### 2026-09-30 — Botón "Nueva conversación" con diseño
+**Hecho (solo `css/estilos.css`):**
+- `.chat .titulo-fila .enlace`: píldora secundaria (borde suave, fondo de
+  superficie, texto verde, 44 px de alto) con ícono de nuevo mensaje
+  (máscara SVG con `currentColor`). Al pasar el mouse se rellena de verde
+  claro. Los demás `.enlace` ("← Volver"…) no cambian.
+- Probado: cabe junto a "Asistente" a 360 px; claro y oscuro; al tocarlo
+  sigue borrando la conversación.
+
 ### 2026-09-30 — Avatar del asistente en la portada
 **Hecho:**
 - Nueva imagen `frontend/www/img/mono-asistente.webp` (58 KB, 553×560 px,
