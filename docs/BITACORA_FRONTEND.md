@@ -34,6 +34,9 @@ de que Eliel unió el PR #2 y aplicó los pedidos 3, 6 y 7.
     `font-size: 0` un tamaño en em sería 0).
 - Pedido 8: una línea en `inicio.js` para cambiar el 💬 del botón "Hablar
   con el asistente" por la carita.
+- La "colita" de las burbujas (esquina en punta) pasa de abajo a arriba:
+  arriba a la izquierda en el asistente (junto a la carita) y arriba a la
+  derecha en el turista (pedido de Félix).
 - Probado en una copia con una conversación de ejemplo (itinerario, error,
   "escribiendo…") a 360 y 900 px, claro y oscuro; el chat sigue enviando.
 

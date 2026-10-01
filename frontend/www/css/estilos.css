@@ -569,9 +569,10 @@ a { color: var(--verde); }
 .mensaje { max-width: 92%; }
 .mensaje > p { margin: 0; padding: 0.6rem 0.9rem; border-radius: var(--radio); white-space: pre-wrap; }
 .mensaje.usuario { align-self: flex-end; }
-.mensaje.usuario > p { background: var(--verde); color: var(--sobre-verde); border-bottom-right-radius: 4px; }
+/* La "colita" (esquina en punta) va arriba: del lado de quien habla. */
+.mensaje.usuario > p { background: var(--verde); color: var(--sobre-verde); border-top-right-radius: 4px; }
 .mensaje.asistente { align-self: flex-start; width: 100%; }
-.mensaje.asistente > p { background: var(--superficie); border: 1px solid var(--borde); border-bottom-left-radius: 4px; max-width: 92%; }
+.mensaje.asistente > p { background: var(--superficie); border: 1px solid var(--borde); border-top-left-radius: 4px; max-width: 92%; }
 /* Respuestas del asistente con su carita a la izquierda, para que se note
    que hablas con el avatar. Columna 1: avatar; columna 2: burbuja, tarjetas
    o "escribiendo…". */
