@@ -43,8 +43,6 @@
   --sombra: 0 1px 3px rgb(0 0 0 / 0.08);
   --portada-verde: #178a52;  /* inicio del degradado del título (4:1 con el fondo) */
   --portada-final: #143f2a;
-  --figura-verde: #20b26b;   /* figura decorativa de la portada */
-  --figura-oscuro: #1c2421;
   --alto-nav: 64px;
   --fuente-lenguas: 'Noto Sans Ecoruta', 'Noto Sans', system-ui, sans-serif;
   font-family: system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
@@ -88,8 +86,6 @@
     --sombra: 0 1px 3px rgb(0 0 0 / 0.5);
     --portada-verde: #3ddc84;
     --portada-final: #e4ebe7;
-    --figura-verde: #3ddc84;
-    --figura-oscuro: #e4ebe7;
   }
 }
 :root[data-tema='oscuro'] {
@@ -118,8 +114,6 @@
   --sombra: 0 1px 3px rgb(0 0 0 / 0.5);
   --portada-verde: #3ddc84;
   --portada-final: #e4ebe7;
-  --figura-verde: #3ddc84;
-  --figura-oscuro: #e4ebe7;
 }
 :root[data-tema='claro'] { color-scheme: light; }
 :root[data-tema='oscuro'] { color-scheme: dark; }
@@ -317,35 +311,33 @@ a { color: var(--verde); }
 }
 :root:lang(en) .portada-texto::before { content: 'AI converses. The community owns its word'; }
 :root:lang(pt) .portada-texto::before { content: 'A IA conversa. A comunidade é dona da sua palavra'; }
-/* Figura: dos semicírculos partidos en verde y oscuro, alternados. Cada
-   capa es un cuarto de círculo; es solo decoración. --r = radio. */
+/* Avatar del asistente (mono con computador) encima de "Hablar con el
+   asistente". Es decorativo: va como fondo del ::after, sin texto. La imagen
+   es WebP con fondo transparente (img/mono-asistente.webp, 58 KB). */
 .portada::after {
-  --r: 64px;
   content: '';
   order: 1; /* entre el texto y los botones */
   align-self: center;
-  width: calc(var(--r) * 2);
-  height: calc(var(--r) * 2);
-  margin: 0 0 1.5rem;
-  background-image:
-    radial-gradient(circle at 100% 100%, var(--figura-verde) calc(var(--r) - 1px), transparent var(--r)),
-    radial-gradient(circle at 0 100%, var(--figura-oscuro) calc(var(--r) - 1px), transparent var(--r)),
-    radial-gradient(circle at 100% 100%, var(--figura-oscuro) calc(var(--r) - 1px), transparent var(--r)),
-    radial-gradient(circle at 0 100%, var(--figura-verde) calc(var(--r) - 1px), transparent var(--r));
-  background-size: var(--r) var(--r);
-  background-position: 0 0, var(--r) 0, 0 var(--r), var(--r) var(--r);
-  background-repeat: no-repeat;
+  width: 180px;
+  aspect-ratio: 553 / 560;
+  margin: 0 0 1rem;
+  background: url('../img/mono-asistente.webp') center / contain no-repeat;
 }
 .accesos { order: 2; display: grid; gap: 0.75rem; }
 @media (min-width: 768px) {
-  /* PC: texto a la izquierda; figura y botones a la derecha. */
+  /* PC: texto a la izquierda; avatar y botones a la derecha. El avatar
+     ocupa también una fila elástica (1fr): su altura extra va ahí y no
+     separa los textos de la izquierda. */
   .portada {
     display: grid;
     grid-template-columns: 1.3fr 1fr;
+    grid-template-rows: auto auto auto 1fr auto;
     grid-template-areas:
       'marca  figura'
       'titulo figura'
-      'texto  accesos';
+      'texto  figura'
+      '.      figura'
+      '.      accesos';
     column-gap: 3rem;
     align-items: start;
     max-width: 60rem;
@@ -354,7 +346,7 @@ a { color: var(--verde); }
   .portada::before { grid-area: marca; font-size: 5.5rem; }
   .portada h1 { grid-area: titulo; }
   .portada-texto { grid-area: texto; }
-  .portada::after { --r: 100px; grid-area: figura; align-self: end; justify-self: center; }
+  .portada::after { grid-area: figura; align-self: end; justify-self: center; width: 250px; margin-bottom: 1rem; }
   .accesos { grid-area: accesos; }
 }
 

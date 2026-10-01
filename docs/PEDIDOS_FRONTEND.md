@@ -9,8 +9,8 @@ Estado: ⏳ pendiente · ✅ hecho · ❌ cancelado
 ---
 
 ## ⏳ 1. Cachear la fuente en el Service Worker (Bloque 7)
-- **Qué:** agregar `fuentes/NotoSans-ecoruta.woff2` a la lista de archivos
-  que `sw.js` guarda en caché.
+- **Qué:** agregar `fuentes/NotoSans-ecoruta.woff2` e `img/mono-asistente.webp`
+  a la lista de archivos que `sw.js` guarda en caché.
 - **Por qué:** el texto en lenguas indígenas usa esa fuente. Sin la caché, en
   la versión web sin señal se vería con la fuente del sistema, y los acentos
   combinables (ṵ̈́, ü̃) pueden verse mal. En el APK no hace falta, porque el

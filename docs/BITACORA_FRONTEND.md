@@ -15,6 +15,29 @@ Los cambios que necesitan tocar JavaScript o archivos de Eliel se piden en
 
 ---
 
+### 2026-09-30 — Avatar del asistente en la portada
+**Hecho:**
+- Nueva imagen `frontend/www/img/mono-asistente.webp` (58 KB, 553×560 px,
+  fondo transparente): el mono con computador que entregó Félix. El JPG
+  original tenía fondo negro: se quitó con un relleno desde los bordes solo
+  sobre píxeles casi negros (umbral 24, para no comerse los contornos), con
+  borde suavizado y recorte del aire sobrante.
+- `css/estilos.css`: `.portada::after` muestra el avatar en vez de la figura
+  de semicírculos (180 px en el celular, 250 px en PC), encima de "Hablar
+  con el asistente". Se quitaron las variables `--figura-verde` y
+  `--figura-oscuro`, que ya no se usan.
+- PC: filas `auto auto auto 1fr auto`; el avatar ocupa la fila elástica y
+  así no separa el título, la bienvenida y el lema.
+- Probado con capturas en PC (claro) y celular (oscuro).
+
+**Decisiones:**
+- Va como fondo de un pseudo-elemento: es decorativo y no necesita JS.
+- WebP reducido a 560 px (el doble de lo que se muestra) para pantallas
+  de alta densidad, cuidando el peso por la conectividad de la región.
+
+**Pendiente:**
+- Si se agrega un Service Worker (Bloque 7), cachear `img/mono-asistente.webp`.
+
 ### 2026-09-30 — Micrófono dentro de la caja de texto
 **Hecho (a pedido de Félix, solo `css/estilos.css`):**
 - El botón de dictado va dentro de la caja, a la derecha (margen izquierdo
