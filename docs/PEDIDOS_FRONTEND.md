@@ -8,7 +8,8 @@ Estado: ⏳ pendiente · ✅ hecho · ❌ cancelado
 
 ---
 
-## ⏳ 1. Cachear la fuente en el Service Worker (Bloque 7)
+## ✅ 1. Cachear la fuente en el Service Worker (Bloque 7)
+- **Hecho el 2026-09-30 por Eliel** (rama `feat/offline`): `sw.js` guarda la fuente, `img/mono-asistente.webp`, `img/avatar-cara.webp` y todos los JS (incluidos `tema.js`, `ajustes.js`, `dictado.js` e `historial.js`).
 - **Sigue pendiente (2026-09-30, Eliel):** todavía no existe `sw.js`. Al
   crearlo en el Bloque 7, cachear también `js/tema.js`, `js/vistas/ajustes.js`
   y `js/dictado.js`.

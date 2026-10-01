@@ -66,7 +66,7 @@ de bloque se mantienen porque la bitácora y el código los usan.
 - Código QR hacia la versión web.
 - Ensayo completo del guion de la demo.
 
-## Bloque 7 — Modo offline (mínimo) · prioridad 4
+## ✅ Bloque 7 — Modo offline (mínimo) · prioridad 4
 - Service Worker (web), IndexedDB para catálogo y fichas culturales.
 - Cola de pre-reservas que se envía al recuperar la conexión.
 - Aviso y preguntas frecuentes cuando el chat no tiene señal.
