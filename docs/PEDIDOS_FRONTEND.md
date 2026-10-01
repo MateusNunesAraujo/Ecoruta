@@ -482,3 +482,81 @@ dictado el formulario queda igual que hoy.)
 - **Probado** en una copia con ese mismo HTML: la carita se ve a la izquierda
   del texto, en claro y oscuro. El selector `.accesos a[href='#/chat']` del
   borde de colores no cambia.
+
+## ⏳ 9. Detalle de experiencia: "Volver" a la pantalla anterior y foto grande
+- **Qué:**
+  1. Hoy "← Volver" del detalle (`#/experiencia/ID`) siempre lleva a
+     `#/experiencias`. Si el turista entró desde el chat (por ejemplo, con
+     "Ver detalle" o "Reservar" del itinerario), debe volver al chat y decir
+     "← Volver al asistente". Si entró directo (enlace o QR), sigue yendo a
+     la lista.
+  2. Mostrar la foto de la experiencia arriba (`e.foto`, que ya da
+     `normalizarExperiencia`) o un relleno de colores si no hay.
+- **Ya está hecho en `feat/frontend-diseno-2`:** el diseño completo del
+  detalle (Volver en píldora, `.detalle-foto`, título, precio, datos en
+  tarjeta, mapa y WhatsApp con ícono, reserva destacada) y el texto
+  `volver.chat` en es/en/pt.
+- **Probado** en una copia con una experiencia de ejemplo: desde el chat →
+  "← Volver al asistente" y regresa al chat con la conversación; directo o
+  desde la lista → "← Volver" a `#/experiencias`; al cambiar de idioma en el
+  detalle se mantiene el destino.
+
+### 9.1 Archivo nuevo `frontend/www/js/historial.js`
+```js
+// Recuerda la pantalla anterior dentro de la app, para que "Volver" regrese
+// a donde estaba el turista (por ejemplo, al chat) y no siempre a la lista.
+
+let actual = null;
+let anterior = null;
+
+// app.js la llama en cada cambio de ruta. Si la ruta no cambió (por ejemplo,
+// al cambiar de idioma se vuelve a dibujar la misma), no se toca.
+export function registrarRuta(hash) {
+  if (hash === actual) return;
+  anterior = actual;
+  actual = hash;
+}
+
+export function rutaAnterior() {
+  return anterior;
+}
+```
+
+### 9.2 `frontend/www/js/app.js` (2 líneas nuevas)
+```diff
++import { registrarRuta } from './historial.js';
+ import { cambiarIdioma, idioma, IDIOMAS, iniciarIdioma, t } from './i18n.js';
+```
+```diff
+ function navegar() {
+   ...
++  registrarRuta(location.hash || '#/');
+   limpiar?.();
+```
+
+### 9.3 `frontend/www/js/vistas/experiencia.js`
+```diff
+ import { el, vaciar } from '../dom.js';
++import { rutaAnterior } from '../historial.js';
+```
+```diff
+-      el('a', { class: 'enlace', href: '#/experiencias' }, '← ', t('volver')),
++      botonVolver(),
++      e.foto
++        ? el('img', { class: 'detalle-foto', src: e.foto, alt: '' })
++        : el('div', { class: 'detalle-foto sin-foto', 'aria-hidden': 'true' }),
+       el('h1', {}, e.nombre),
+```
+Y antes de `// Paso 1: fecha y personas -> disponibilidad.`:
+```js
+// "Volver" regresa a la pantalla anterior de la app (chat, itinerario,
+// lista…). Si se llegó directo (enlace o QR) o desde otra experiencia, va a
+// la lista de experiencias.
+function botonVolver() {
+  const anterior = rutaAnterior();
+  const destino = anterior && !anterior.startsWith('#/experiencia/') ? anterior : '#/experiencias';
+  const texto = destino.startsWith('#/chat') ? t('volver.chat') : t('volver');
+  return el('a', { class: 'enlace', href: destino }, '← ', texto);
+}
+```
+- Si hay Service Worker, cachear `js/historial.js`.

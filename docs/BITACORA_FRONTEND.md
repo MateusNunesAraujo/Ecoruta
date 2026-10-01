@@ -15,6 +15,28 @@ Los cambios que necesitan tocar JavaScript o archivos de Eliel se piden en
 
 ---
 
+### 2026-09-30 — Diseño del detalle de experiencia y "Volver" al chat
+**Hecho:**
+- `css/estilos.css` (todo dentro de `article.detalle`, para no afectar
+  otras pantallas; `.datos` también se usa en la reserva):
+  - "← Volver" como píldora (como "Nueva conversación");
+  - `.detalle-foto`: foto grande arriba o relleno con canoa;
+  - título grande, emprendimiento · comunidad con ícono de ubicación,
+    precio en cápsula verde;
+  - datos en tarjeta: en el celular, etiqueta pequeña arriba y valor abajo;
+    desde 600 px, etiqueta | valor con línea entre filas;
+  - "Ver en el mapa" y WhatsApp como botones con ícono (máscaras SVG);
+  - reserva con título y línea, y el formulario con franja verde.
+- `js/i18n.js`: `volver.chat` ("Volver al asistente") en es/en/pt.
+- Pedido 9: `historial.js` (recuerda la pantalla anterior), 2 líneas en
+  `app.js` y `botonVolver()` + foto en `experiencia.js`.
+- Probado en una copia con una experiencia de ejemplo (API simulada): los 4
+  casos de "Volver" y capturas a 360 y 1000 px en claro y oscuro.
+
+**Decisiones:**
+- "Volver" usa un enlace a la ruta anterior (no `history.back()`): si el
+  turista llegó por un QR, `history.back()` lo sacaría de la app.
+
 ### 2026-09-30 — Carita del asistente en el menú y en el chat
 Rama nueva `feat/frontend-diseno-2`, creada desde `feat/agente-info` después
 de que Eliel unió el PR #2 y aplicó los pedidos 3, 6 y 7.

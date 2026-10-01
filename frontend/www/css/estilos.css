@@ -515,6 +515,135 @@ a { color: var(--verde); }
 .seccion { margin-top: 1.5rem; }
 .codigo { font-family: ui-monospace, monospace; letter-spacing: 0.05em; }
 
+/* --- Detalle de una experiencia (#/experiencia/ID) ---
+   Todo va dentro de article.detalle, así que no afecta otras pantallas. */
+.detalle { max-width: 46rem; margin: 0 auto; }
+/* Volver: píldora con flecha (el "←" lo pone el JS). */
+.detalle > .enlace:first-child {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.2rem;
+  min-height: 44px;
+  padding: 0.4rem 1rem 0.4rem 0.8rem;
+  margin-bottom: 0.75rem;
+  border: 1px solid var(--borde-control);
+  border-radius: 999px;
+  background: var(--superficie);
+  color: var(--verde);
+  font-weight: 600;
+  font-size: 0.92rem;
+  text-decoration: none;
+}
+.detalle > .enlace:first-child:hover { background: var(--verde-claro); border-color: var(--verde); color: var(--verde-oscuro); }
+/* Foto grande (pedido 9); sin foto, relleno de colores con canoa. */
+.detalle-foto {
+  display: block;
+  width: 100%;
+  height: clamp(160px, 42vw, 300px);
+  margin-bottom: 1rem;
+  border-radius: var(--radio);
+  object-fit: cover;
+}
+.detalle-foto.sin-foto {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(135deg, var(--verde-claro), var(--ambar));
+  font-size: 3.5rem;
+}
+.detalle-foto.sin-foto::after { content: '🛶'; }
+.detalle > h1 { margin: 0 0 0.35rem; font-size: clamp(1.6rem, 6vw, 2.2rem); line-height: 1.15; }
+/* Emprendimiento · comunidad con ícono de ubicación. */
+.detalle > .tarjeta-sub { display: flex; align-items: center; gap: 0.35rem; font-size: 0.95rem; margin-bottom: 0.75rem; }
+.detalle > .tarjeta-sub::before {
+  content: '';
+  flex-shrink: 0;
+  width: 18px;
+  height: 18px;
+  background: currentColor;
+  -webkit-mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='M12 2a7 7 0 0 0-7 7c0 5.25 7 13 7 13s7-7.75 7-13a7 7 0 0 0-7-7zm0 9.5A2.5 2.5 0 1 1 12 6.5a2.5 2.5 0 0 1 0 5z'/%3E%3C/svg%3E") center / contain no-repeat;
+  mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='M12 2a7 7 0 0 0-7 7c0 5.25 7 13 7 13s7-7.75 7-13a7 7 0 0 0-7-7zm0 9.5A2.5 2.5 0 1 1 12 6.5a2.5 2.5 0 0 1 0 5z'/%3E%3C/svg%3E") center / contain no-repeat;
+}
+/* Precio destacado en una cápsula. */
+.detalle > .precio {
+  display: inline-flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 0 0.4rem;
+  margin: 0 0 0.9rem;
+  padding: 0.45rem 0.9rem;
+  border-radius: 12px;
+  background: var(--verde-claro);
+  color: var(--verde-oscuro);
+}
+.detalle > .precio strong { font-size: 1.35rem; }
+.detalle > .precio .precio-brl, .detalle > .precio .precio-extra { color: var(--verde-oscuro); }
+.detalle > .etiquetas { margin-bottom: 1rem; }
+.detalle > p:not([class]) { font-size: 1.05rem; line-height: 1.65; }
+/* Datos en una tarjeta. Celular: etiqueta pequeña arriba y valor abajo.
+   PC: etiqueta | valor, con una línea entre filas. */
+.detalle .datos {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 0;
+  margin: 1.25rem 0;
+  padding: 0.25rem 1rem;
+  border: 1px solid var(--borde);
+  border-radius: var(--radio);
+  background: var(--superficie);
+  box-shadow: var(--sombra);
+}
+.detalle .datos dt {
+  padding-top: 0.7rem;
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--texto-suave);
+}
+.detalle .datos dd { margin: 0.1rem 0 0; padding-bottom: 0.7rem; border-bottom: 1px solid var(--borde); }
+.detalle .datos dd:last-of-type { border-bottom: 0; }
+@media (min-width: 600px) {
+  .detalle .datos { grid-template-columns: minmax(9rem, max-content) 1fr; column-gap: 1.25rem; }
+  .detalle .datos dt, .detalle .datos dd { padding: 0.7rem 0; border-bottom: 1px solid var(--borde); margin: 0; }
+  .detalle .datos dt { align-self: stretch; }
+  .detalle .datos dt:last-of-type, .detalle .datos dd:last-of-type { border-bottom: 0; }
+}
+/* "Ver en el mapa" y WhatsApp como botones secundarios con ícono. */
+.detalle > p > a[href*='openstreetmap'],
+.detalle > a[href^='https://wa.me'] {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+  min-height: 44px;
+  padding: 0.5rem 1.1rem;
+  margin: 0 0.5rem 0.5rem 0;
+  border: 2px solid var(--verde);
+  border-radius: 999px;
+  background: var(--superficie);
+  color: var(--verde);
+  font-size: 1rem; /* el <p> de la descripción usa 1.05rem */
+  font-weight: 600;
+  text-decoration: none;
+}
+.detalle > p > a[href*='openstreetmap']:hover,
+.detalle > a[href^='https://wa.me']:hover { background: var(--verde-claro); color: var(--verde-oscuro); }
+.detalle > p > a[href*='openstreetmap']::before,
+.detalle > a[href^='https://wa.me']::before {
+  content: '';
+  width: 20px;
+  height: 20px;
+  background: currentColor;
+}
+.detalle > p > a[href*='openstreetmap']::before { -webkit-mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='M20.5 3l-.16.03L15 5.1 9 3 3.36 4.9a.5.5 0 0 0-.36.48V20.5a.5.5 0 0 0 .5.5l.16-.03L9 18.9l6 2.1 5.64-1.9a.5.5 0 0 0 .36-.48V3.5a.5.5 0 0 0-.5-.5zM15 19l-6-2.11V5l6 2.11V19z'/%3E%3C/svg%3E") center / contain no-repeat; mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='M20.5 3l-.16.03L15 5.1 9 3 3.36 4.9a.5.5 0 0 0-.36.48V20.5a.5.5 0 0 0 .5.5l.16-.03L9 18.9l6 2.1 5.64-1.9a.5.5 0 0 0 .36-.48V3.5a.5.5 0 0 0-.5-.5zM15 19l-6-2.11V5l6 2.11V19z'/%3E%3C/svg%3E") center / contain no-repeat; }
+.detalle > a[href^='https://wa.me']::before { -webkit-mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='M12 2a10 10 0 0 0-8.6 15.1L2 22l5-1.3A10 10 0 1 0 12 2zm0 18a8 8 0 0 1-4.1-1.1l-.3-.2-3 .8.8-2.9-.2-.3A8 8 0 1 1 12 20z'/%3E%3C/svg%3E") center / contain no-repeat; mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='M12 2a10 10 0 0 0-8.6 15.1L2 22l5-1.3A10 10 0 1 0 12 2zm0 18a8 8 0 0 1-4.1-1.1l-.3-.2-3 .8.8-2.9-.2-.3A8 8 0 1 1 12 20z'/%3E%3C/svg%3E") center / contain no-repeat; }
+/* Reserva destacada: título con línea y formulario con franja verde. */
+.detalle .seccion > h2 { display: flex; align-items: center; gap: 0.5rem; margin-top: 1.75rem; }
+.detalle .seccion > h2::after { content: ''; flex: 1; height: 1px; background: var(--borde); }
+.detalle .formulario-disponibilidad { border-top: 4px solid var(--verde); }
+.detalle .formulario-disponibilidad .boton[type='submit'] { width: 100%; }
+@media (min-width: 600px) { .detalle .formulario-disponibilidad .boton[type='submit'] { width: auto; } }
+
 /* --- Formularios --- */
 .campo { display: flex; flex-direction: column; gap: 0.25rem; margin-bottom: 0.75rem; flex: 1; }
 .campo label { font-weight: 600; font-size: 0.92rem; }
