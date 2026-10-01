@@ -15,6 +15,23 @@ Los cambios que necesitan tocar JavaScript o archivos de Eliel se piden en
 
 ---
 
+### 2026-09-30 — El asistente se llama MoniA
+**Hecho (solo `js/i18n.js`, a pedido de Félix):**
+- Los 18 textos visibles con "asistente / assistant / assistente" (6 por
+  idioma) dicen ahora MoniA: menú y título del chat ("MoniA"), "Hablar con
+  MoniA", "MoniA está escribiendo…", "Volver con MoniA" y la nota de
+  privacidad de la reserva ("…no se envían a la IA (MoniA)").
+- El saludo inicial del chat se presenta: "Hola 👋 Soy MoniA…" (es/en/pt).
+- Solo cambian valores: ninguna clave movida ni borrada; los tres idiomas
+  tienen las mismas claves y no queda ningún texto visible con "asistente".
+- Pedido 10: que la IA (prompt), el modo Mock y el aviso de "no disponible"
+  del backend también usen el nombre.
+
+**Decisiones:**
+- No se tocan los nombres internos (`rol: 'asistente'`, clase `mensaje
+  asistente`, `role: 'assistant'`): son código, no texto visible.
+- Frases sin "el/la asistente", para no darle género a MoniA.
+
 ### 2026-09-30 — Diseño del detalle de experiencia y "Volver" al chat
 **Hecho:**
 - `css/estilos.css` (todo dentro de `article.detalle`, para no afectar

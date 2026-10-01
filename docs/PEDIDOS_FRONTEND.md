@@ -560,3 +560,46 @@ function botonVolver() {
 }
 ```
 - Si hay Service Worker, cachear `js/historial.js`.
+
+## ⏳ 10. El asistente se llama MoniA (backend)
+- **Qué:** el equipo decidió que el asistente se llama **MoniA**. En el
+  frontend ya está (menú, título del chat, saludo "Soy MoniA", "Hablar con
+  MoniA", "MoniA está escribiendo…", "Volver con MoniA"). Falta que la IA
+  y los mensajes del backend usen el nombre, para que no diga "soy el
+  asistente de Ecoruta".
+- **Ojo:** NO cambiar los valores internos `'asistente'` / `'assistant'`
+  (rol de los mensajes en el DTO, `tipo: 'asistente'`, `role: 'assistant'`
+  de Groq, la clase CSS `mensaje asistente`): son nombres de código, no
+  texto visible, y si cambian se rompe el chat.
+- Se evita "el/la asistente" para no darle género a MoniA.
+
+### 10.1 `backend/src/agente/prompt.ts` (primera frase de `crearPromptSistema`)
+```diff
+-  return `Eres el asistente de Ecoruta Conectada: conectas a turistas con
++  return `Te llamas MoniA y eres la voz de Ecoruta Conectada: conectas a turistas con
+ emprendimientos de etnoturismo y ecoturismo de comunidades indígenas de
+ Leticia (Amazonas, Colombia), sin intermediarios.
+```
+(Si el turista pregunta cómo te llamas, responde "MoniA".)
+
+### 10.2 `backend/src/agente/providers/mock.provider.ts` (texto `ayuda`)
+```diff
+-    es: 'Hola, soy el asistente de Ecoruta. Cuéntame qué te interesa …
++    es: 'Hola, soy MoniA, de Ecoruta. Cuéntame qué te interesa …
+-    en: "Hi, I'm the Ecoruta assistant. Tell me what you're interested in …
++    en: "Hi, I'm MoniA from Ecoruta. Tell me what you're interested in …
+-    pt: 'Olá, sou o assistente da Ecoruta. Conte o que te interessa …
++    pt: 'Olá, sou MoniA, da Ecoruta. Conte o que te interessa …
+```
+
+### 10.3 `backend/src/agente/agente.service.ts` (`NO_DISPONIBLE`)
+```diff
+-  es: 'El asistente no está disponible en este momento. …
++  es: 'MoniA no está disponible en este momento. …
+-  en: 'The assistant is not available right now. …
++  en: 'MoniA is not available right now. …
+-  pt: 'O assistente não está disponível agora. …
++  pt: 'MoniA não está disponível agora. …
+```
+- Después: `npm test` y `npm run evaluar` (el examen podría tener preguntas
+  que esperan la palabra "asistente").
