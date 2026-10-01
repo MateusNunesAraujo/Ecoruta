@@ -3,6 +3,7 @@
 // la web y en la app Android, sin configurar nada en el servidor.
 
 import { el, vaciar } from './dom.js';
+import { registrarRuta } from './historial.js';
 import { cambiarIdioma, idioma, IDIOMAS, iniciarIdioma, t } from './i18n.js';
 import { aplicarTema } from './tema.js';
 import { vistaAjustes } from './vistas/ajustes.js';
@@ -39,6 +40,7 @@ function navegar() {
     .slice(1)
     .filter((p) => p !== undefined);
 
+  registrarRuta(location.hash || '#/');
   limpiar?.();
   limpiar = vista(principal, parametros, consulta) ?? null;
   marcarNavegacion(seccion);

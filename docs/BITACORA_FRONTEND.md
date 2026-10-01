@@ -15,6 +15,22 @@ Los cambios que necesitan tocar JavaScript o archivos de Eliel se piden en
 
 ---
 
+### 2026-09-30 — "Volver" del detalle regresa al chat (pedido 9 aplicado aquí)
+**Hecho (JavaScript, con autorización de Félix):**
+- Nuevo `js/historial.js`: recuerda la pantalla anterior de la app.
+- `js/app.js`: 2 líneas (import y `registrarRuta()` en `navegar()`).
+- `js/vistas/experiencia.js`: `botonVolver()` (va a la pantalla anterior;
+  desde el chat dice "← Volver con MoniA"; directo o desde otra experiencia,
+  "← Volver" a la lista) y la foto grande (`.detalle-foto`).
+- Pedido 9 marcado ✅ para que Eliel no lo repita.
+- Probado con los archivos reales del proyecto y la API simulada: desde el
+  chat, directo (QR), desde la lista y cambiando de idioma.
+
+**Decisiones:**
+- Se rompe a propósito la regla "el JS es de Eliel" porque Félix lo pidió
+  para no esperar. Cambios pequeños y aislados; el resto de pedidos (8, 10,
+  11) siguen para Eliel.
+
 ### 2026-09-30 — Lenguas: título "Autodenominación / Nombre común"
 **Hecho (solo `css/estilos.css`, a pedido de Félix):**
 - En la lista de lenguas, la autodenominación (que ya se mostraba debajo

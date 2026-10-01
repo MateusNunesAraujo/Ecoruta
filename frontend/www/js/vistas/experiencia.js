@@ -1,5 +1,6 @@
 import { pedir } from '../api.js';
 import { el, vaciar } from '../dom.js';
+import { rutaAnterior } from '../historial.js';
 import { duracion, fechaLarga, t } from '../i18n.js';
 import {
   aviso,
@@ -67,7 +68,10 @@ function dibujar(contenedor, experiencia, fechaInicial) {
     el(
       'article',
       { class: 'detalle' },
-      el('a', { class: 'enlace', href: '#/experiencias' }, '← ', t('volver')),
+      botonVolver(),
+      e.foto
+        ? el('img', { class: 'detalle-foto', src: e.foto, alt: '' })
+        : el('div', { class: 'detalle-foto sin-foto', 'aria-hidden': 'true' }),
       el('h1', {}, e.nombre),
       el(
         'p',
@@ -109,6 +113,16 @@ function dibujar(contenedor, experiencia, fechaInicial) {
         : null,
     ),
   );
+}
+
+// "Volver" regresa a la pantalla anterior de la app (chat, itinerario,
+// lista…). Si se llegó directo (enlace o QR) o desde otra experiencia, va a
+// la lista de experiencias.
+function botonVolver() {
+  const anterior = rutaAnterior();
+  const destino = anterior && !anterior.startsWith('#/experiencia/') ? anterior : '#/experiencias';
+  const texto = destino.startsWith('#/chat') ? t('volver.chat') : t('volver');
+  return el('a', { class: 'enlace', href: destino }, '← ', texto);
 }
 
 // Paso 1: fecha y personas -> disponibilidad. Paso 2: formulario de datos.

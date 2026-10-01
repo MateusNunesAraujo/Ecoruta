@@ -483,7 +483,10 @@ dictado el formulario queda igual que hoy.)
   del texto, en claro y oscuro. El selector `.accesos a[href='#/chat']` del
   borde de colores no cambia.
 
-## ⏳ 9. Detalle de experiencia: "Volver" a la pantalla anterior y foto grande
+## ✅ 9. Detalle de experiencia: "Volver" a la pantalla anterior y foto grande
+- **Hecho el 2026-09-30 por Félix en `feat/frontend-diseno-2`** (con su
+  autorización, para no esperar). Eliel: no hay que aplicarlo; solo unir la
+  rama. Si hay Service Worker, cachear `js/historial.js`.
 - **Qué:**
   1. Hoy "← Volver" del detalle (`#/experiencia/ID`) siempre lleva a
      `#/experiencias`. Si el turista entró desde el chat (por ejemplo, con
